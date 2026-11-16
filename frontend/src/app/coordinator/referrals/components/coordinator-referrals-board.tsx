@@ -45,7 +45,7 @@ import {
   BookedMeetingInfoContent,
   type BookedMeetingInfo,
 } from "@/components/session-booking/BookedMeetingInfoPanel";
-import { buildInterpretation, isBookableRow } from "./coordinator-referrals-interpretation";
+import { isBookableRow } from "./coordinator-referrals-interpretation";
 import styles from "./coordinator-referrals-board.module.css";
 
 type StatusTabKey = "all" | "booked" | "need_review" | "endorsed";
@@ -269,14 +269,6 @@ export function CoordinatorReferralsBoard({
       ariaLabel="ADM referrals"
       actions={filters}
       headerCenter={statusTabs}
-      footer={
-        !isPageLoading && filteredRows.length > 0 ? (
-          <InsightCallout className={styles.interpretation}>
-            <span className={styles.interpretationLabel}>What it means · </span>
-            {buildInterpretation(filteredRows)}
-          </InsightCallout>
-        ) : null
-      }
     >
       {isPageLoading ? (
         <CoordinatorReferralsCardsSkeleton rows={9} />
@@ -434,6 +426,23 @@ export function CoordinatorReferralsBoard({
                           <CalendarPlus className="size-3.5" aria-hidden="true" />
                         )}
                         {bookingThis ? "Booking…" : "Book schedule"}
+                      </Button>
+                    ) : null}
+                    {meeting !== null && !meeting.attended && bookable ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-6 px-2 text-xs"
+                        disabled={bookingThis}
+                        title="Move the booked parent meeting to a new date, time, or venue"
+                        onClick={() => onBook(r)}
+                      >
+                        {bookingThis ? (
+                          <Loader2 className={styles.spin} aria-hidden="true" />
+                        ) : (
+                          <CalendarClock className="size-3.5" aria-hidden="true" />
+                        )}
+                        {bookingThis ? "Rescheduling…" : "Reschedule"}
                       </Button>
                     ) : null}
                     {meetingInfo !== null ? (

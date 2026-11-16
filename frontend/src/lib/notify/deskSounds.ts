@@ -59,6 +59,11 @@ const SOURCES = {
   adviserAdmBooked: "/sounds/guidance%20adm%20booked%20session.mp3",
   adviserAdmRejected: "/sounds/guidance%20adm%20reject.mp3",
   adviserAdmRescheduled: "/sounds/guidance%20adm%20reschedule.mp3",
+  // Coordinator (ADM) desk actions — the adviser hears the parent-meeting
+  // booking/move confirmations from their own dedicated clips, so a coordinator
+  // booking never sounds like a guidance consultation one.
+  adviserAdmMeetingBooked: "/sounds/adm%20book%20session.mp3",
+  adviserAdmMeetingRescheduled: "/sounds/adm%20reschedule%20session.mp3",
   // Clinic (nurse) desk actions on the same ADM track — the nurse desk reviews
   // the case before guidance, so the adviser hears the clinic variants of the
   // four ADM confirmations. Still adviser-only; the acting desk stays silent.
@@ -95,6 +100,8 @@ const MIN_REPLAY_MS: Record<DeskSound, number> = {
   adviserAdmRejected: 8_000,
   adviserAdmBooked: 8_000,
   adviserAdmRescheduled: 8_000,
+  adviserAdmMeetingBooked: 8_000,
+  adviserAdmMeetingRescheduled: 8_000,
   adviserAdmRejectedClinic: 8_000,
   adviserAdmBookedClinic: 8_000,
   adviserAdmRescheduledClinic: 8_000,
@@ -466,6 +473,52 @@ export function isAdviserAdmRescheduled(row: {
 }
 
 /**
+ * True when a notification row means "the ADM coordinator booked the parent
+ * meeting for one of this adviser's advisees" (`adm_parent_meetings` fanout).
+ * The coordinator desk owns the parent-meeting track, so it rings the dedicated
+ * `/sounds/adm book session.mp3` instead of the guidance consultation clip.
+ */
+export function isAdviserAdmMeetingBooked(row: {
+  sourceTable?: string | null;
+  type?: string | null;
+  message?: string | null;
+}): boolean {
+  if (row.sourceTable !== "adm_parent_meetings") return false;
+  const message = row.message ?? "";
+  if (/^(you|your)\b/i.test(message)) return false;
+  // Meeting-outcome / cancellation rows share the table — only a booking counts.
+  if (row.type && row.type !== "meeting_booked") return false;
+  return (
+    /\bbooked a parent meeting for\b/i.test(message) ||
+    /\bParent meeting booked for\b/i.test(message) ||
+    // The adviser can also be added as an invitee (not the filer) on a case
+    // another desk owns.
+    /\binvited you to a parent meeting for\b/i.test(message)
+  );
+}
+
+/**
+ * True when a notification row means "the ADM coordinator moved the parent
+ * meeting for one of this adviser's advisees" — rings the dedicated
+ * `/sounds/adm reschedule session.mp3` instead of the booking clip.
+ */
+export function isAdviserAdmMeetingRescheduled(row: {
+  sourceTable?: string | null;
+  type?: string | null;
+  message?: string | null;
+}): boolean {
+  if (row.sourceTable !== "adm_parent_meetings") return false;
+  const message = row.message ?? "";
+  if (/^(you|your)\b/i.test(message)) return false;
+  if (row.type && row.type !== "meeting_rescheduled") return false;
+  return (
+    /\bmoved the parent meeting for\b/i.test(message) ||
+    // A reschedule that adds the adviser as an invitee rides the same type.
+    /\binvited you to a parent meeting for\b/i.test(message)
+  );
+}
+
+/**
  * Clinic-desk variants of the four ADM confirmations. The nurse desk reviews the
  * ADM case before guidance, and its fanout messages are prefixed with
  * "(Clinic)" / "Clinic" (or say "by the clinic") so the filing adviser hears the
@@ -671,6 +724,26 @@ export function isAdviserReferralSessionCancelled(row: {
   const message = row.message ?? "";
   if (/^you\b/i.test(message)) return false;
   return /\bcancelled (?:a|an) (?:clinic |guidance )?session for\b/i.test(message);
+}
+
+/**
+ * True when a notification row means "the guidance counselor or nurse endorsed
+ * an ADM consultation to the coordinator" — the case moves onto the
+ * coordinator's desk, so it rings the same arrival clip as a new referral.
+ * The actor's own "You endorsed …" row is filtered out; only the receiving desk
+ * rings.
+ */
+export function isAdmConsultEndorsed(row: {
+  sourceTable?: string | null;
+  message?: string | null;
+}): boolean {
+  if (row.sourceTable !== "referrals") return false;
+  const message = row.message ?? "";
+  if (/^(you|your)\b/i.test(message)) return false;
+  return (
+    /\bADM consultation endorsed\b/i.test(message) ||
+    /\bendorsed the ADM consultation\b/i.test(message)
+  );
 }
 
 /**

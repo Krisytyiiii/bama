@@ -10,7 +10,6 @@ import { useCoordinatorOverview } from "./components/use-coordinator-overview";
 import { useCoordinatorBooking } from "../referrals/components/use-coordinator-booking";
 import { CoordinatorReferralsBookDialog } from "../referrals/components/coordinator-referrals-book-dialog";
 import { CoordinatorOverviewKpis } from "./components/coordinator-overview-kpis";
-import { CoordinatorOverviewAttentionDialog } from "./components/coordinator-overview-attention-dialog";
 import { CoordinatorOverviewForwards } from "./components/coordinator-overview-forwards";
 import { CoordinatorOverviewBoards } from "./components/coordinator-overview-boards";
 import {
@@ -23,7 +22,6 @@ import styles from "./components/coordinator-overview.module.css";
 export default function CoordinatorOverviewPage() {
   const [historyTarget, setHistoryTarget] =
     React.useState<HistoryTarget | null>(null);
-  const [attentionOpen, setAttentionOpen] = React.useState(false);
   const overview = useCoordinatorOverview();
   const queryClient = useQueryClient();
   const invalidateReferrals = React.useCallback(() => {
@@ -71,15 +69,12 @@ export default function CoordinatorOverviewPage() {
     <section className={styles.page}>
       <div className={styles.mainCol}>
         <CoordinatorOverviewKpis
-          attentionTotal={overview.attentionTotal}
-          attentionReady={overview.attentionReady}
-          attentionError={overview.attentionError}
-          allClear={overview.allClear}
+          needsReviewTotal={overview.needsReview}
+          needsReviewReady={overview.needsReviewReady}
           referredToMe={overview.referredToMe}
           certificationsIssued={overview.certificationsIssued}
           awaitingPrincipal={overview.awaitingPrincipal}
           activeEnrolled={overview.activeEnrolled}
-          onReview={() => setAttentionOpen(true)}
         />
 
         <CoordinatorOverviewBoards
@@ -105,15 +100,6 @@ export default function CoordinatorOverviewPage() {
           onBook={booking.bookForRow}
         />
       </div>
-
-      <CoordinatorOverviewAttentionDialog
-        open={attentionOpen}
-        onClose={() => setAttentionOpen(false)}
-        attention={overview.attention}
-        attentionError={overview.attentionError}
-        isRetrying={overview.devices.isRefetching}
-        onRetry={overview.devices.refetch}
-      />
 
       <CaseHistoryDialog
         target={historyTarget}

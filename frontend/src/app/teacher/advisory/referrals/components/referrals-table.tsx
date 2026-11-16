@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Pagination } from "@/components/shared/pagination";
+import { Pagination, PAGE_SIZE } from "@/components/shared/pagination";
 import assign from "@/app/principal/academics/assign/components/section-assignments.module.css";
 import listStyles from "../../list/components/advisory-list.module.css";
 import refStyles from "./referrals.module.css";
@@ -201,7 +201,13 @@ export function ReferralsTable({
   // Paging and searching hit the API, so the table holds the previous slice
   // under `placeholderData` while the new page lands. Swap the body rows for
   // skeletons during that fetch (a live poll of the same page never does).
+  // The skeleton count mirrors the outgoing slice (max one page of 15) so the
+  // table and its pager keep their height instead of collapsing mid-fetch.
   const isPageLoading = referralsQuery.isPlaceholderData;
+  const loadingRowCount = Math.min(
+    Math.max(referrals.length, 1),
+    PAGE_SIZE,
+  );
 
   const columns = React.useMemo<ColumnDef<ReferralRow>[]>(
     () => [
@@ -489,7 +495,7 @@ export function ReferralsTable({
           </TableHeader>
           <TableBody>
             {isPageLoading ? (
-              Array.from({ length: 6 }).map((_, i) => (
+              Array.from({ length: loadingRowCount }).map((_, i) => (
                 <ReferralRowSkeleton key={`page-skeleton-${i}`} />
               ))
             ) : table.getRowModel().rows.length ? (
@@ -543,6 +549,7 @@ export function ReferralsTable({
       <Pagination
         currentPage={page}
         totalItems={totalItems}
+        pageSize={PAGE_SIZE}
         onPageChange={onPageChange}
       />
 

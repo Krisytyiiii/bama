@@ -11,6 +11,8 @@ import {
   isAdviserAdmBooked,
   isAdviserAdmBookedClinic,
   isAdviserAdmEndorsedClinic,
+  isAdviserAdmMeetingBooked,
+  isAdviserAdmMeetingRescheduled,
   isAdviserAdmRejected,
   isAdviserAdmRejectedClinic,
   isAdviserAdmRescheduled,
@@ -158,6 +160,20 @@ export const ADVISER_ADM_BOOKED_EVENT = "zentra:adviser-adm-booked";
 export const ADVISER_ADM_RESCHEDULED_EVENT = "zentra:adviser-adm-rescheduled";
 
 /**
+ * Fired when the **ADM coordinator** books the parent meeting on a case this
+ * teacher filed (`adm_parent_meetings` fanout). The monitor plays
+ * `/sounds/adm book session.mp3` — adviser-only; the coordinator desk stays
+ * silent on its own action.
+ */
+export const ADVISER_ADM_MEETING_BOOKED_EVENT = "zentra:adviser-adm-meeting-booked";
+
+/**
+ * Fired when the ADM coordinator moves that parent meeting. Plays
+ * `/sounds/adm reschedule session.mp3`.
+ */
+export const ADVISER_ADM_MEETING_RESCHEDULED_EVENT = "zentra:adviser-adm-meeting-rescheduled";
+
+/**
  * Fired when guidance booked, moved or rejected a **counseling** referral the
  * teacher filed. Each action has its own adviser-only clip
  * (`/sounds/guidance counseling session.mp3`,
@@ -250,6 +266,22 @@ function ringAdviserAdmRescheduled(clinic = false) {
   }
 }
 
+
+function ringAdviserAdmMeetingBooked() {
+  try {
+    window.dispatchEvent(new CustomEvent(ADVISER_ADM_MEETING_BOOKED_EVENT));
+  } catch {
+    /* CustomEvent unavailable — the monitor's catch-up still lands. */
+  }
+}
+
+function ringAdviserAdmMeetingRescheduled() {
+  try {
+    window.dispatchEvent(new CustomEvent(ADVISER_ADM_MEETING_RESCHEDULED_EVENT));
+  } catch {
+    /* CustomEvent unavailable — the monitor's catch-up still lands. */
+  }
+}
 
 function ringAdviserCounselingBooked() {
   try {
@@ -442,6 +474,11 @@ export function useTeacherRealtime(enabled = true) {
         else if (isAdviserAdmRejectedClinic(row)) ringAdviserAdmRejected(true);
         else if (isAdviserAdmRejected(row)) ringAdviserAdmRejected();
         else if (isAdviserReferralClosed(row)) ringAdviserReferralClosed();
+        // Coordinator desk parent-meeting track (separate table fanout).
+        if (isAdviserAdmMeetingBooked(row)) ringAdviserAdmMeetingBooked();
+        else if (isAdviserAdmMeetingRescheduled(row)) {
+          ringAdviserAdmMeetingRescheduled();
+        }
       }
       invalidate([...scopesForNotification(row), "notifications"]);
     }
@@ -585,6 +622,8 @@ export function useTeacherRealtime(enabled = true) {
           let admBookedClinic = false;
           let admReschedClinic = false;
           let admEndorsedClinic = false;
+          let admMeetingBooked = false;
+          let admMeetingResched = false;
           let counselingBooked = false;
           let counselingResched = false;
           let counselingRejected = false;
@@ -644,6 +683,8 @@ export function useTeacherRealtime(enabled = true) {
               else if (isAdviserAdmRejectedClinic(n)) admRejectedClinic = true;
               else if (isAdviserAdmRejected(n)) admRejected = true;
               else if (isAdviserReferralClosed(n)) referralClosed = true;
+              if (isAdviserAdmMeetingBooked(n)) admMeetingBooked = true;
+              else if (isAdviserAdmMeetingRescheduled(n)) admMeetingResched = true;
             }
           }
           toast.info({
@@ -661,6 +702,8 @@ export function useTeacherRealtime(enabled = true) {
           if (admBookedClinic) ringAdviserAdmBooked(true);
           if (admResched) ringAdviserAdmRescheduled();
           if (admReschedClinic) ringAdviserAdmRescheduled(true);
+          if (admMeetingBooked) ringAdviserAdmMeetingBooked();
+          if (admMeetingResched) ringAdviserAdmMeetingRescheduled();
           if (sessionBooked) ringAdviserSession();
           if (sessionResched) ringAdviserSessionResched();
           if (sessionCancelled) ringAdviserSessionCancelled();

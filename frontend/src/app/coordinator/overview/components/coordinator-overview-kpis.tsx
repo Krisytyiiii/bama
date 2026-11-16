@@ -15,15 +15,12 @@ import { StudentMascot } from "@/components/student-mascot/StudentMascot";
 import styles from "./coordinator-overview-kpis.module.css";
 
 interface CoordinatorOverviewKpisProps {
-  attentionTotal: number | null;
-  attentionReady: boolean;
-  attentionError: boolean;
-  allClear: boolean;
+  needsReviewTotal: number | null;
+  needsReviewReady: boolean;
   referredToMe: number;
   certificationsIssued: number;
   awaitingPrincipal: number;
   activeEnrolled: number;
-  onReview: () => void;
 }
 
 interface KpiCard {
@@ -43,41 +40,31 @@ interface KpiCard {
  * column keeps its footer action so the desk still one-clicks into the queue.
  */
 export function CoordinatorOverviewKpis({
-  attentionTotal,
-  attentionReady,
-  attentionError,
-  allClear,
+  needsReviewTotal,
+  needsReviewReady,
   referredToMe,
   certificationsIssued,
   awaitingPrincipal,
   activeEnrolled,
-  onReview,
 }: CoordinatorOverviewKpisProps) {
-  const attentionHint = !attentionReady
+  const attentionHint = !needsReviewReady
     ? "Checking your desk"
-    : attentionError
-      ? "Devices unavailable — total may be low"
-      : allClear
-        ? "Nothing needs you"
-        : "Referrals, revisions, devices";
+    : needsReviewTotal === 0
+      ? "Nothing needs you"
+      : "Forwarded by Nurse / Guidance, awaiting review";
 
   const cards: KpiCard[] = [
     {
       label: "Needs attention",
-      value: !attentionReady ? "…" : String(attentionTotal ?? 0),
+      value: !needsReviewReady ? "…" : String(needsReviewTotal ?? 0),
       hint: attentionHint,
       icon: AlertTriangle,
       accent: "text-amber-500",
       mascot: "owl",
       action: (
-        <button
-          type="button"
-          className={styles.kpiBtnSolid}
-          disabled={!attentionReady || (allClear && !attentionError)}
-          onClick={onReview}
-        >
+        <Link className={styles.kpiBtnSolid} href="/coordinator/referrals">
           Review
-        </button>
+        </Link>
       ),
     },
     {

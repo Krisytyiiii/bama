@@ -4,6 +4,8 @@ import * as React from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ADVISER_ADM_BOOKED_EVENT,
+  ADVISER_ADM_MEETING_BOOKED_EVENT,
+  ADVISER_ADM_MEETING_RESCHEDULED_EVENT,
   ADVISER_ADM_REJECTED_EVENT,
   ADVISER_ADM_RESCHEDULED_EVENT,
   ADVISER_COUNSELING_BOOKED_EVENT,
@@ -25,6 +27,8 @@ import {
   isAdviserAdmBooked,
   isAdviserAdmBookedClinic,
   isAdviserAdmEndorsedClinic,
+  isAdviserAdmMeetingBooked,
+  isAdviserAdmMeetingRescheduled,
   isAdviserAdmRejected,
   isAdviserAdmRejectedClinic,
   isAdviserAdmRescheduled,
@@ -140,6 +144,8 @@ export function AdviserRiskAlertMonitor() {
       "adviserAdmRejected",
       "adviserAdmBooked",
       "adviserAdmRescheduled",
+      "adviserAdmMeetingBooked",
+      "adviserAdmMeetingRescheduled",
       "adviserAdmRejectedClinic",
       "adviserAdmBookedClinic",
       "adviserAdmRescheduledClinic",
@@ -176,6 +182,9 @@ export function AdviserRiskAlertMonitor() {
       playDeskSound(
         isClinic(event) ? "adviserAdmRescheduledClinic" : "adviserAdmRescheduled",
       );
+    const onAdmMeetingBooked = () => playDeskSound("adviserAdmMeetingBooked");
+    const onAdmMeetingRescheduled = () =>
+      playDeskSound("adviserAdmMeetingRescheduled");
     const onCounselingBooked = () => playDeskSound("adviserCounselingBooked");
     const onCounselingRejected = () => playDeskSound("adviserCounselingRejected");
     const onCounselingRescheduled = () =>
@@ -191,6 +200,14 @@ export function AdviserRiskAlertMonitor() {
     window.addEventListener(ADVISER_ADM_REJECTED_EVENT, onAdmRejected);
     window.addEventListener(ADVISER_ADM_BOOKED_EVENT, onAdmBooked);
     window.addEventListener(ADVISER_ADM_RESCHEDULED_EVENT, onAdmRescheduled);
+    window.addEventListener(
+      ADVISER_ADM_MEETING_BOOKED_EVENT,
+      onAdmMeetingBooked,
+    );
+    window.addEventListener(
+      ADVISER_ADM_MEETING_RESCHEDULED_EVENT,
+      onAdmMeetingRescheduled,
+    );
     window.addEventListener(ADVISER_COUNSELING_BOOKED_EVENT, onCounselingBooked);
     window.addEventListener(
       ADVISER_COUNSELING_REJECTED_EVENT,
@@ -215,6 +232,14 @@ export function AdviserRiskAlertMonitor() {
       window.removeEventListener(ADVISER_ADM_REJECTED_EVENT, onAdmRejected);
       window.removeEventListener(ADVISER_ADM_BOOKED_EVENT, onAdmBooked);
       window.removeEventListener(ADVISER_ADM_RESCHEDULED_EVENT, onAdmRescheduled);
+      window.removeEventListener(
+        ADVISER_ADM_MEETING_BOOKED_EVENT,
+        onAdmMeetingBooked,
+      );
+      window.removeEventListener(
+        ADVISER_ADM_MEETING_RESCHEDULED_EVENT,
+        onAdmMeetingRescheduled,
+      );
       window.removeEventListener(
         ADVISER_COUNSELING_BOOKED_EVENT,
         onCounselingBooked,
@@ -246,6 +271,9 @@ export function AdviserRiskAlertMonitor() {
     enabled: isAdviser,
     title: "Updates for your advisees",
     clipFor: (row) => {
+      // Coordinator desk parent-meeting track (its own table fanout).
+      if (isAdviserAdmMeetingBooked(row)) return "adviserAdmMeetingBooked";
+      if (isAdviserAdmMeetingRescheduled(row)) return "adviserAdmMeetingRescheduled";
       if (isAdviserClinicBooked(row)) return "adviserClinicBooked";
       if (isAdviserClinicRejected(row)) return "adviserClinicRejected";
       if (isAdviserClinicRescheduled(row)) return "adviserClinicRescheduled";
