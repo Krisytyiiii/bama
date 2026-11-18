@@ -271,6 +271,15 @@ Notes:
   `guidance@`, `adm@`, `nurse2@`, `subject.teacher1..N@`) and reuses the existing `SY 2026-2027`
   rather than creating a second one. To come back from demo data to the canonical 11 accounts, just
   re-run `npm run prisma:seed:roles` (truncates all 51 tables and rebuilds them).
+- **Demo data that exercises every desk:** `npm run prisma:seed:sample5`
+  (`backend/prisma/seed-sample-five.ts`). Also wipes first, then keeps the same 11 canonical logins
+  and adds 5 learners + 5 parents (accounts), 5 roster-only learners, 5 sections (G7 Amethyst /
+  Emerald / Ruby, G8 Narra / Molave), 16 subjects, a full gradebook, attendance, anecdote →
+  referral → session chains, interventions, health + home-visitation records, the whole ADM track,
+  advisory modules + submissions, SF10 records + versions, risk/report snapshots, flags, audit and
+  notifications — **≥5 rows in every public table**. It writes everything into **T1** of the active
+  SY (see §5.2 for the two verification traps). It also prints a per-table count table and warns on
+  any table that lands under 5. Do not stack it with `seed:school` (same `TCH001` collision).
 - Use the **Session pooler** string (port `5432`). Direct `db.<ref>.supabase.co` is IPv6-only on
   this tier and will fail on many PH ISPs.
 - Verify with `psql` / `curl /health` only. Do **not** start the app against these variables.
@@ -418,7 +427,9 @@ Result: 51 tables, 15 policies, 11 role accounts, SY 2026-2027 with 3 terms.
 
 ## 5. Phase 3 — Verification checklist
 
-**Run 2026-11-18 against `fqqhezpdniohylybujhp` (seed-only DB: 11 accounts, 1 SY + 3 terms, no sections/grades).**
+**Run 2026-11-18 against `fqqhezpdniohylybujhp`.** Two passes: the first on the seed-only DB
+(11 accounts, 1 SY + 3 terms, no sections/grades), the second after `prisma:seed:sample5`
+(`backend/prisma/seed-sample-five.ts`, ≥5 rows in every one of the 51 public tables — see §5.2).
 
 - [x] `GET /health` → `{ status: "ok" }` (proves pooler connectivity).
 - [x] **All 11 logins 200** (admin, principal, registrar, record_keeper, nurse,
@@ -429,17 +440,38 @@ Result: 51 tables, 15 policies, 11 role accounts, SY 2026-2027 with 3 terms.
       `postgres_changes:Notification`, a row for that user arrived, a row for another user did
       not. Token carries `role: authenticated` + `app_role: guidance_counselor`.
 - [x] **Storage round-trip**: upload → public URL read back byte-identical → delete, on
-      `zentra-docs` with the service-role key. (Not the *UI* path — there are no SF10 rows or
-      referral attachments to open on this DB; re-check after seeding school data.)
+      `zentra-docs` with the service-role key. The seeded SF10 / session-attachment rows carry
+      fabricated public URLs (no object behind them), so the *UI path* is only proven to render a
+      link, not to fetch a real file. Upload a real file through the desk to close that fully.
 - [ ] Realtime sound catch-up: needs a real unread desk notification + a browser; not verifiable
       from the API.
-- [ ] Grade workspace: **cannot be checked on a seed-only DB** (0 sections / subjects /
-      assessments / grades). Re-run after `prisma:seed:school` or real data.
+- [x] **Grade workspace works on real data** (after `prisma:seed:sample5`): subject teacher
+      `/teacher/overview?scope=gradebook` `200`, `classes=5 assessments=20 standings=5`
+      (8.5 KB, 1.2 s fresh); `/teacher/grading/classes/:assignmentId` `200`
+      (`assignment,students,components`, 2.2 KB); `/teacher/lock-grades`
+      `200 classes=5 gates {linked:true, termGrant:true}`. Adviser
+      `/teacher/advisory/interventions` `200 total=3`, `/teacher/advisory/modules` `200 total=3`,
+      `/teacher/advisory/sf10-access-requests` `200`; record keeper `/sf10/records` `200`;
+      principal `/reports?reportType=trends` `200` (1.1 KB).
 - [x] **Sweeps run green on the new DB**: `runEscalation` 0, `sweepAutoAbsent`
       `{meetups:0,rows:0,exemptLearners:0}`, `refreshRiskSnapshots`
       `{profiles:0,rosters:0,pruned:0}` — no permission/config errors.
 - [x] Cache: `x-cache: HIT` on `/api/guidance/nav-counts`, `BYPASS` with `x-zentra-fresh: 1`.
 - [ ] Supabase usage page on the new org: egress flat for 24 h while desks are open (client-side).
+
+### 5.2 Two traps when verifying against the demo seed
+
+1. **A teacher needs a `TeacherTermGrant` before the gradebook resolves.** `seed-sample5` grants one
+   only to `adviser@` (the seeder's timetable names `TCH-ARNEL` but grants no code to the subject
+   teacher), so `subject_teacher@` sees `/teacher/overview?scope=gradebook` → `{"classes":[]}` and
+   `lock-grades` with `gates.termGrant: false`. Create the grant (one `TeacherTermGrant` row with
+   any `TeacherName` of that term) or sign in as `adviser@`.
+2. **Only teacher roles can steer the term.** The seed writes every row into T1 (`2026-06-08 →
+   09-15`), but today's date resolves the active term to T2, and guidance / nurse / registry desks
+   resolve their term *server-side*. So their boards legitimately come back empty
+   (`/guidance/alerts total=0`, `/guidance/nav-counts` all-empty) while T1 is full. Verify those
+   desks with `?termId`/`x-term-id` on a teacher shell, or by moving the date window — not by
+   concluding the wiring is broken.
 
 ### 5.1 Found during verification: a Postgres query on *every* `/api` request
 
