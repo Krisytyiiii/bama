@@ -264,6 +264,13 @@ subject_teacher, adviser).
 Notes:
 - `seed-roles-only.ts` refuses to run when `NODE_ENV=production` unless `ALLOW_PROD_SEED=yes`.
   Your `.env` is `development`, so it runs — but confirm before running, it **deletes every row**.
+- **Do not stack `prisma:seed:school` on top of `prisma:seed:roles`.** The roles seed gives
+  `subject_teacher@zentra.test` the employee id `TCH001`, and the school seed assigns `TCH001` to
+  `subject.teacher1@zentra.test` → `P2002` on `StaffProfile_employeeId_key`, half-seeded (core done,
+  academic aborted). Pick one: `seed:school` creates its own full staff set (and its own emails:
+  `guidance@`, `adm@`, `nurse2@`, `subject.teacher1..N@`) and reuses the existing `SY 2026-2027`
+  rather than creating a second one. To come back from demo data to the canonical 11 accounts, just
+  re-run `npm run prisma:seed:roles` (truncates all 51 tables and rebuilds them).
 - Use the **Session pooler** string (port `5432`). Direct `db.<ref>.supabase.co` is IPv6-only on
   this tier and will fail on many PH ISPs.
 - Verify with `psql` / `curl /health` only. Do **not** start the app against these variables.
