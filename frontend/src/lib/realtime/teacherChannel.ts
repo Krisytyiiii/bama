@@ -31,6 +31,10 @@ import {
   isAdviserSessionBooked,
   isAdviserSessionCancelled,
   isAdviserSessionRescheduled,
+  isAdviserSf10Granted,
+  isAdviserSf10GrantedRegistrar,
+  isAdviserSf10Missing,
+  isAdviserSf10MissingRegistrar,
 } from "@/lib/notify/deskSounds";
 import {
   isSelfNotification,
@@ -194,6 +198,35 @@ export const ADVISER_CLINIC_BOOKED_EVENT = "zentra:adviser-clinic-booked";
 export const ADVISER_CLINIC_RESCHEDULED_EVENT = "zentra:adviser-clinic-rescheduled";
 export const ADVISER_CLINIC_REJECTED_EVENT = "zentra:adviser-clinic-rejected";
 
+/**
+ * Fired when a registry desk (record keeper G7–10, registrar G11–12) **granted**
+ * the SF10 access an adviser requested. The monitor plays
+ * `/sounds/record keeper granted request.mp3`.
+ *
+ * The access-request table is not published to the adviser over realtime, so the
+ * `adviser_sf10_access_requests` notification fanout is the delivery path
+ * (live + the login catch-up). Denials share that table and stay silent.
+ */
+export const ADVISER_SF10_GRANTED_EVENT = "zentra:adviser-sf10-granted";
+
+/**
+ * Fired when a registry desk **reported a learner's SF10 as missing** on an
+ * access request this adviser filed. The monitor plays
+ * `/sounds/record keeper missing sf10.mp3` — its own clip, so a missing answer
+ * never sounds like a grant.
+ */
+export const ADVISER_SF10_MISSING_EVENT = "zentra:adviser-sf10-missing";
+
+/**
+ * Registrar-desk (G11–12) variants of the two SF10 answers. The adviser rings
+ * `/sounds/registrar granted access.mp3` / `/sounds/registrar missing sf10.mp3`
+ * for these instead of the record keeper clips — the acting desk is named in
+ * the fanout wording. Same delivery path (notification fanout, live + login
+ * catch-up).
+ */
+export const ADVISER_SF10_GRANTED_REGISTRAR_EVENT = "zentra:adviser-sf10-granted-registrar";
+export const ADVISER_SF10_MISSING_REGISTRAR_EVENT = "zentra:adviser-sf10-missing-registrar";
+
 function ringAdviserSession() {
   try {
     window.dispatchEvent(new CustomEvent(ADVISER_SESSION_ALERT_EVENT));
@@ -339,6 +372,38 @@ function ringAdviserRisk() {
   }
 }
 
+function ringAdviserSf10Granted() {
+  try {
+    window.dispatchEvent(new CustomEvent(ADVISER_SF10_GRANTED_EVENT));
+  } catch {
+    /* CustomEvent unavailable — the monitor's catch-up still lands. */
+  }
+}
+
+function ringAdviserSf10Missing() {
+  try {
+    window.dispatchEvent(new CustomEvent(ADVISER_SF10_MISSING_EVENT));
+  } catch {
+    /* CustomEvent unavailable — the monitor's catch-up still lands. */
+  }
+}
+
+function ringAdviserSf10GrantedRegistrar() {
+  try {
+    window.dispatchEvent(new CustomEvent(ADVISER_SF10_GRANTED_REGISTRAR_EVENT));
+  } catch {
+    /* CustomEvent unavailable — the monitor's catch-up still lands. */
+  }
+}
+
+function ringAdviserSf10MissingRegistrar() {
+  try {
+    window.dispatchEvent(new CustomEvent(ADVISER_SF10_MISSING_REGISTRAR_EVENT));
+  } catch {
+    /* CustomEvent unavailable — the monitor's catch-up still lands. */
+  }
+}
+
 function currentUserId(): string | null {
   try {
     const token = window.localStorage.getItem("zentra.access");
@@ -479,6 +544,13 @@ export function useTeacherRealtime(enabled = true) {
         else if (isAdviserAdmMeetingRescheduled(row)) {
           ringAdviserAdmMeetingRescheduled();
         }
+        // A registry desk granted the SF10 access this adviser requested. The
+        // access-request table is not published over realtime, so the fanout
+        // notification is the only live path (hence no PUSH_ENABLED gate).
+        if (isAdviserSf10GrantedRegistrar(row)) ringAdviserSf10GrantedRegistrar();
+        else if (isAdviserSf10Granted(row)) ringAdviserSf10Granted();
+        else if (isAdviserSf10MissingRegistrar(row)) ringAdviserSf10MissingRegistrar();
+        else if (isAdviserSf10Missing(row)) ringAdviserSf10Missing();
       }
       invalidate([...scopesForNotification(row), "notifications"]);
     }
@@ -630,6 +702,10 @@ export function useTeacherRealtime(enabled = true) {
           let clinicBooked = false;
           let clinicResched = false;
           let clinicRejected = false;
+          let sf10Granted = false;
+          let sf10Missing = false;
+          let sf10GrantedRegistrar = false;
+          let sf10MissingRegistrar = false;
           for (const n of fresh) {
             seenIds.current.add(n.id);
             for (const s of scopesForNotification(n)) scopes.add(s);
@@ -685,6 +761,10 @@ export function useTeacherRealtime(enabled = true) {
               else if (isAdviserReferralClosed(n)) referralClosed = true;
               if (isAdviserAdmMeetingBooked(n)) admMeetingBooked = true;
               else if (isAdviserAdmMeetingRescheduled(n)) admMeetingResched = true;
+              if (isAdviserSf10GrantedRegistrar(n)) sf10GrantedRegistrar = true;
+              else if (isAdviserSf10Granted(n)) sf10Granted = true;
+              else if (isAdviserSf10MissingRegistrar(n)) sf10MissingRegistrar = true;
+              else if (isAdviserSf10Missing(n)) sf10Missing = true;
             }
           }
           toast.info({
@@ -712,6 +792,10 @@ export function useTeacherRealtime(enabled = true) {
           if (admRejected) ringAdviserAdmRejected();
           if (admRejectedClinic) ringAdviserAdmRejected(true);
           if (referralClosed) ringAdviserReferralClosed();
+          if (sf10Granted) ringAdviserSf10Granted();
+          if (sf10Missing) ringAdviserSf10Missing();
+          if (sf10GrantedRegistrar) ringAdviserSf10GrantedRegistrar();
+          if (sf10MissingRegistrar) ringAdviserSf10MissingRegistrar();
           invalidate([...scopes]);
           return;
         }

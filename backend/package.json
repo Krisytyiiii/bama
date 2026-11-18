@@ -38,6 +38,7 @@
     "prisma:seed:guidance-session-docs": "tsx prisma/seed-guidance-session-docs.ts",
     "prisma:seed:adm-enrolled": "tsx prisma/seed-adm-enrolled-learner.ts",
     "prisma:seed:wipe": "tsx prisma/seed/wipe.ts",
+    "prisma:wipe:keep-accounts": "tsx prisma/wipe-keep-accounts.ts",
     "prisma:seed:roles": "tsx prisma/seed-roles-only.ts",
     "prisma:seed:sample5": "tsx prisma/seed-sample-five.ts",
     "cleanup:sf10-provisioned": "tsx scripts/cleanup-sf10-provisioned-students.ts",

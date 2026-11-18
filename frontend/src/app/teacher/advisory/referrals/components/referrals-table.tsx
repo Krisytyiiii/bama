@@ -319,7 +319,7 @@ export function ReferralsTable({
                 type="button"
                 size="xs"
                 variant="default"
-                className="h-6 px-2 text-[11px]"
+                className="h-6 px-2 text-[12px]"
                 onClick={() => onTrack(r)}
               >
                 Track case
@@ -329,7 +329,7 @@ export function ReferralsTable({
                   type="button"
                   size="xs"
                   variant="outline"
-                  className="h-6 gap-1 px-2 text-[11px]"
+                  className="h-6 gap-1 px-2 text-[12px]"
                   title="A cancelled referral stays closed — file a new anecdotal record to start a fresh referral"
                   aria-label={`File a new anecdotal record to refer ${r.studentName} again`}
                   onClick={() =>
@@ -348,7 +348,7 @@ export function ReferralsTable({
                   type="button"
                   size="xs"
                   variant="outline"
-                  className="h-6 gap-1 px-2 text-[11px] text-red-600 hover:text-red-600 dark:text-red-400"
+                  className="h-6 gap-1 px-2 text-[12px] text-red-600 hover:text-red-600 dark:text-red-400"
                   disabled={!cancellable}
                   onClick={() => onRequestCancel(r)}
                 >
@@ -570,7 +570,7 @@ export function ReferralsTable({
         width="md"
         footer={
           reasonFor ? (
-            <p className="m-0 px-1 pb-1 text-[11px] text-muted-foreground">
+            <p className="m-0 px-1 pb-1 text-[12px] text-muted-foreground">
               Filed {formatReferredDate(reasonFor.referredAt)}
             </p>
           ) : undefined
@@ -613,7 +613,7 @@ export function ReferralsTable({
                 </p>
                 {closedMeta.note ? (
                   <div className="flex min-w-0 flex-col gap-1 rounded-lg border border-border/70 bg-muted/40 p-2.5">
-                    <span className="text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
+                    <span className="text-[12px] font-semibold tracking-wide text-muted-foreground uppercase">
                       {isWithdrawnDismissal(reasonFor.dismissedByRole)
                         ? "Note from the filing teacher"
                         : "Note from the desk"}

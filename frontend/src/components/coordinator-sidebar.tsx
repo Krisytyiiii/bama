@@ -53,7 +53,7 @@ const NAV: NavGroup[] = [
   {
     label: "Records",
     items: [
-      { title: "Certifications", href: "/coordinator/certifications", icon: NAV_ICONS.certifications },
+      { title: "Files", href: "/coordinator/files", icon: NAV_ICONS.certifications },
       { title: "Devices", href: "/coordinator/devices", icon: NAV_ICONS.devices },
     ],
   },
@@ -75,7 +75,7 @@ const QUEUE_FOR_HREF: Record<string, keyof CoordinatorNavDots> = {
   "/coordinator/overview": "overview",
   "/coordinator/referrals": "referrals",
   "/coordinator/enrolled": "enrolled",
-  "/coordinator/certifications": "certifications",
+  "/coordinator/files": "certifications",
   "/coordinator/devices": "devices",
 };
 

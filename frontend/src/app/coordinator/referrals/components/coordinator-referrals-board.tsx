@@ -11,6 +11,7 @@ import {
   Share2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FilterTabs } from "@/components/ui/filter-tabs";
 import { Pill, type PillTone } from "@/components/ui/pill";
 import { KanbanBoard } from "@/components/ui/kanban-board";
 import { InsightCallout } from "@/components/ui/insight-callout";
@@ -186,27 +187,16 @@ export function CoordinatorReferralsBoard({
   );
 
   const statusTabs = (
-    <div className={styles.filterRow} role="tablist" aria-label="Filter cases by status">
-      {STATUS_TABS.map((t) => {
-        const active = statusTab === t.key;
-        return (
-          <button
-            key={t.key}
-            type="button"
-            role="tab"
-            aria-selected={active}
-            aria-pressed={active}
-            className={styles.filterButton}
-            onClick={() => setStatusTab(t.key)}
-          >
-            <Pill tone={active ? "blue" : "neutral"}>
-              {t.label}
-              <span className={styles.statusTabCount}>{counts[t.key]}</span>
-            </Pill>
-          </button>
-        );
-      })}
-    </div>
+    <FilterTabs
+      label="Filter cases by status"
+      options={STATUS_TABS.map((t) => ({
+        value: t.key,
+        label: t.label,
+        count: counts[t.key],
+      }))}
+      value={statusTab}
+      onChange={setStatusTab}
+    />
   );
 
   if (isInitialLoading) {
@@ -406,6 +396,32 @@ export function CoordinatorReferralsBoard({
                     onClick={(e) => e.stopPropagation()}
                     onKeyDown={(e) => e.stopPropagation()}
                   >
+                    {meetingInfo !== null ? (
+                      <Popover>
+                        <TooltipProvider delayDuration={100}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className={styles.cardMenuBtn}
+                                  aria-label={`Booked meeting info for ${r.student}`}
+                                >
+                                  <CalendarClock aria-hidden />
+                                </Button>
+                              </PopoverTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" sideOffset={6}>
+                              Booked info
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <PopoverContent align="end" sideOffset={8} className="w-80 p-3">
+                          <BookedMeetingInfoContent info={meetingInfo} />
+                        </PopoverContent>
+                      </Popover>
+                    ) : null}
                     {meeting === null ? (
                       <Button
                         size="sm"
@@ -445,50 +461,16 @@ export function CoordinatorReferralsBoard({
                         {bookingThis ? "Rescheduling…" : "Reschedule"}
                       </Button>
                     ) : null}
-                    {meetingInfo !== null ? (
-                      <Popover>
-                        <TooltipProvider delayDuration={100}>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <PopoverTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className={styles.cardMenuBtn}
-                                  aria-label={`Booked meeting info for ${r.student}`}
-                                >
-                                  <CalendarClock aria-hidden />
-                                </Button>
-                              </PopoverTrigger>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" sideOffset={6}>
-                              Booked info
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                        <PopoverContent align="end" sideOffset={8} className="w-80 p-3">
-                          <BookedMeetingInfoContent info={meetingInfo} />
-                        </PopoverContent>
-                      </Popover>
-                    ) : null}
-                    <TooltipProvider delayDuration={100}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className={styles.cardMenuBtn}
-                            aria-label={`Track case for ${r.student}`}
-                            onClick={() => onHistory(historyTargetFor(r))}
-                          >
-                            <History aria-hidden />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="top" sideOffset={6}>
-                          Track case
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <Button
+                      size="sm"
+                      className="h-6 px-2 text-xs"
+                      aria-label={`Track case for ${r.student}`}
+                      title="Track case"
+                      onClick={() => onHistory(historyTargetFor(r))}
+                    >
+                      <History className="size-3.5" aria-hidden="true" />
+                      Track case
+                    </Button>
                   </div>
                 </div>
               </li>

@@ -167,6 +167,17 @@ async function main() {
   const seededStudent = users.student!;
   const seededParent = users.parent!;
 
+  // -------------------------------------------------- master teacher seat (G7–10)
+  // The timetable workspace (school-day config, teacher-name catalog, a subject
+  // per period) is Master-Teacher-only, so a fresh seed with no seat can't build
+  // one. The junior-high teacher (TCH001, handles G7/G8) takes the G7–10 seat;
+  // the G7/G8 subjects and the teacher-name catalog below all sit inside that
+  // band, so the schedule desk opens with subjects and teacher names to place.
+  await prisma.staffProfile.update({
+    where: { userId: subjectTeacher.id },
+    data: { isMasterTeacher: true },
+  });
+
   // ------------------------------------------------------- school years/terms
   const years: { id: string; name: string; terms: { id: string; termNumber: number }[] }[] = [];
   for (const [i, sy] of PH_SCHOOL_YEARS.entries()) {
@@ -347,6 +358,11 @@ async function main() {
   for (const [i, t] of allTerms.slice(0, 5).entries()) {
     await prisma.teacherTermGrant.create({
       data: { userId: adviser.id, termId: t.id, via: "code", teacherNameId: teacherNameIds[1]!, createdAt: d("2026-06-10") },
+    });
+    // The Master Teacher's own classes stay reachable too (grading/attendance
+    // gates read the term grant, not the seat).
+    await prisma.teacherTermGrant.create({
+      data: { userId: subjectTeacher.id, termId: t.id, via: "code", teacherNameId: teacherNameIds[0]!, createdAt: d("2026-06-10") },
     });
     await prisma.termRosterConfirmation.create({
       data: {

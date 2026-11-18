@@ -67,27 +67,17 @@ export default function CoordinatorOverviewPage() {
 
   return (
     <section className={styles.page}>
-      <div className={styles.mainCol}>
-        <CoordinatorOverviewKpis
-          needsReviewTotal={overview.needsReview}
-          needsReviewReady={overview.needsReviewReady}
-          referredToMe={overview.referredToMe}
-          certificationsIssued={overview.certificationsIssued}
-          awaitingPrincipal={overview.awaitingPrincipal}
-          activeEnrolled={overview.activeEnrolled}
-        />
+      <CoordinatorOverviewKpis
+        needsReviewTotal={overview.needsReview}
+        needsReviewReady={overview.needsReviewReady}
+        referredToMe={overview.referredToMe}
+        certificationsIssued={overview.certificationsIssued}
+        awaitingPrincipal={overview.awaitingPrincipal}
+        activeEnrolled={overview.activeEnrolled}
+        stageDonut={overview.stageDonut}
+      />
 
-        <CoordinatorOverviewBoards
-          stageDonut={overview.stageDonut}
-          devicesIssued={overview.devices.data?.issued ?? null}
-          devicesReturned={overview.devices.data?.returned ?? null}
-          devicesPending={overview.devices.isPending}
-          oldestOut={overview.devices.oldestOut}
-          bookedMeetings={overview.booked.rows}
-          bookedPending={overview.booked.isPending}
-          now={overview.now}
-        />
-
+      <div className={styles.workGrid}>
         <CoordinatorOverviewForwards
           rows={overview.forwards.rows}
           isPending={overview.forwards.isPending}
@@ -95,10 +85,23 @@ export default function CoordinatorOverviewPage() {
           isRefetching={overview.forwards.isRefetching}
           now={overview.now}
           bookPendingId={booking.bookPendingId}
+          pendingTotal={overview.needsReview}
           onRetry={overview.forwards.refetch}
           onHistory={setHistoryTarget}
           onBook={booking.bookForRow}
         />
+
+        <aside className={styles.rail} aria-label="Live watchlist">
+          <CoordinatorOverviewBoards
+            devicesIssued={overview.devices.data?.issued ?? null}
+            devicesReturned={overview.devices.data?.returned ?? null}
+            devicesPending={overview.devices.isPending}
+            oldestOut={overview.devices.oldestOut}
+            bookedMeetings={overview.booked.rows}
+            bookedPending={overview.booked.isPending}
+            now={overview.now}
+          />
+        </aside>
       </div>
 
       <CaseHistoryDialog
