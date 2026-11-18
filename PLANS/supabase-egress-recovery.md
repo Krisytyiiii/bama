@@ -443,10 +443,21 @@ one pooler round trip). So each desk request pays one extra round trip and one e
 cache `HIT` still costs that + auth before reaching Redis (HIT ≈ BYPASS ≈ 1.38 s at the current
 460 ms RTT, versus 226 ms when RTT was 255 ms).
 
-Not fixed yet — it is the obvious next egress/latency win and is safe to memo in-process (the
-active-year/term row changes at most a few times a year): a short TTL memo keyed by
-role+requested term/year, invalidated by the academics/term write paths, mirroring
-`liveCohortCache`.
+**FIXED 2026-11-18** — `lib/termScope.ts` now memoizes the resolved scope for 30 s
+(`active`, `term:<id>`, `year:<id>`, keyed per scope, single-flight so a burst of parallel queries
+shares one lookup) and exports `invalidateTermScopeCache()`, called by the paths that create terms
+or school years (`academics-catalog.routes.ts`, `registry.repository.ts`,
+`academics.sections.service.ts`). Re-measured on the same client/RTT:
+
+| Request | Before | After |
+|---|---|---|
+| `/api/<unmatched>` (404) | 925 ms | **3 ms** |
+| `/guidance/nav-counts` cache HIT | 1375 ms | **470 ms** |
+| `/guidance/nav-counts` BYPASS | 1385 ms | 464–926 ms (handler query only) |
+| `/notifications/unread-count` | 1399 ms | **458 ms** |
+
+What remains per request is `requireAuth`'s own user lookup (one round trip) — the next candidate if
+latency ever matters more than it does today.
 
 ---
 
