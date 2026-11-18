@@ -33,7 +33,7 @@ const ROUTE_KEYS: Record<string, keyof CoordinatorNavQueues> = {
   "/coordinator/overview": "overview",
   "/coordinator/referrals": "referrals",
   "/coordinator/enrolled": "enrolled",
-  "/coordinator/certifications": "certifications",
+  "/coordinator/files": "certifications",
   "/coordinator/devices": "devices",
 };
 
@@ -125,9 +125,11 @@ export function useCoordinatorNavDots(): CoordinatorNavDots {
   const { data } = useQuery({
     queryKey: [...COORDINATOR_NAV_COUNTS_KEY],
     queryFn: ({ signal }) => fetchCoordinatorNavQueues(signal),
-    staleTime: 2_000,
-    refetchInterval: 5_000,
-    refetchIntervalInBackground: true,
+    // 60s visible-tab poll: realtime is the fast path, and a hidden tab shows no
+    // dots. Each poll is a Postgres round trip billed as Supabase egress.
+    staleTime: 15_000,
+    refetchInterval: 60_000,
+    refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
   });
 
