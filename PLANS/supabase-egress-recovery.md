@@ -411,17 +411,42 @@ Result: 51 tables, 15 policies, 11 role accounts, SY 2026-2027 with 3 terms.
 
 ## 5. Phase 3 — Verification checklist
 
-- [ ] `GET /health` → `{ status: "ok" }` (proves pooler connectivity).
-- [ ] Login once per role: student, parent, subject_teacher, adviser, nurse,
-      adm_coordinator, guidance_counselor, record_keeper, registrar, principal, admin.
-- [ ] Realtime: trigger a notification → it appears live on the receiving desk
-      (proves `zentra_role()` + grants + channel CDC are healthy).
-- [ ] Storage: open one SF10 record and one referral attachment (proves URL rewrite + copy).
-- [ ] Realtime sound catch-up: sign in on a desk with unread notifications → one clip.
-- [ ] Grade workspace: open a section, confirm scores/transmutation read correctly.
-- [ ] Sweeps: confirm the hourly timers log on the new DB (`backend/src/index.ts:38,47,60`).
-- [ ] Cache: `x-cache` MISS → HIT on a polled endpoint.
-- [ ] Supabase usage page on the new org: egress stays flat for 24 h while desks are open.
+**Run 2026-11-18 against `fqqhezpdniohylybujhp` (seed-only DB: 11 accounts, 1 SY + 3 terms, no sections/grades).**
+
+- [x] `GET /health` → `{ status: "ok" }` (proves pooler connectivity).
+- [x] **All 11 logins 200** (admin, principal, registrar, record_keeper, nurse,
+      guidance_counselor, adm_coordinator, subject_teacher, adviser, student, parent) and each
+      role's desk probe returned 200 (`/admin/overview`, `/principal/settings/profile`,
+      `/<desk>/nav-counts`, `/student/modules`, `/notifications/unread-count`).
+- [x] **Realtime delivery + RLS proven live**: guidance desk subscribed to
+      `postgres_changes:Notification`, a row for that user arrived, a row for another user did
+      not. Token carries `role: authenticated` + `app_role: guidance_counselor`.
+- [x] **Storage round-trip**: upload → public URL read back byte-identical → delete, on
+      `zentra-docs` with the service-role key. (Not the *UI* path — there are no SF10 rows or
+      referral attachments to open on this DB; re-check after seeding school data.)
+- [ ] Realtime sound catch-up: needs a real unread desk notification + a browser; not verifiable
+      from the API.
+- [ ] Grade workspace: **cannot be checked on a seed-only DB** (0 sections / subjects /
+      assessments / grades). Re-run after `prisma:seed:school` or real data.
+- [x] **Sweeps run green on the new DB**: `runEscalation` 0, `sweepAutoAbsent`
+      `{meetups:0,rows:0,exemptLearners:0}`, `refreshRiskSnapshots`
+      `{profiles:0,rosters:0,pruned:0}` — no permission/config errors.
+- [x] Cache: `x-cache: HIT` on `/api/guidance/nav-counts`, `BYPASS` with `x-zentra-fresh: 1`.
+- [ ] Supabase usage page on the new org: egress flat for 24 h while desks are open (client-side).
+
+### 5.1 Found during verification: a Postgres query on *every* `/api` request
+
+`attachTermScope` (`app.ts` → `middleware/termScope.ts` → `lib/termScope.ts:112`) resolves the
+active school year + terms **per request**, before routing. It runs even for unauthenticated calls
+and 404s (measured: `/health` 465 ms, `/api/<unmatched>` 925 ms from the same client, i.e. ~460 ms =
+one pooler round trip). So each desk request pays one extra round trip and one extra query, and a
+cache `HIT` still costs that + auth before reaching Redis (HIT ≈ BYPASS ≈ 1.38 s at the current
+460 ms RTT, versus 226 ms when RTT was 255 ms).
+
+Not fixed yet — it is the obvious next egress/latency win and is safe to memo in-process (the
+active-year/term row changes at most a few times a year): a short TTL memo keyed by
+role+requested term/year, invalidated by the academics/term write paths, mirroring
+`liveCohortCache`.
 
 ---
 
