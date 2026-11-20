@@ -1,6 +1,6 @@
 import { prisma } from "../../lib/prisma.js";
 import { sectionHeadcounts } from "../enrollment.js";
-import { ATTENDANCE_RISK_CUTOFF, termHasStarted } from "../attendance.js";
+import { ATTENDANCE_RISK_CUTOFF, subjectAverageAttendance, termHasStarted } from "../attendance.js";
 import { computeRiskFactors, levelFromFlags, sectionAttendanceTotals } from "../risk.js";
 import { COMPONENT_TYPE_LABEL, GRADE_LABELS } from "../../modules/teacher/teacher.repository.js";
 import {
@@ -385,7 +385,7 @@ export async function getTeacherReports(ctx: TeacherContext): Promise<TeacherRep
     ...(profileIds.length > 0 ? [{ studentId: { in: profileIds } }] : []),
     ...(rosterIds.length > 0 ? [{ rosterId: { in: rosterIds } }] : []),
   ];
-  const [finals, rawScores, attendance, sectionTotals] = await Promise.all([
+  const [finals, rawScores, attendance, sectionTotals, subjectAvgs] = await Promise.all([
     learnerOr.length > 0
       ? prisma.finalGrade.findMany({
           where: { termId, subjectId: { in: subjectIds }, OR: learnerOr },
@@ -430,6 +430,7 @@ export async function getTeacherReports(ctx: TeacherContext): Promise<TeacherRep
       select: { studentId: true, rosterId: true, sectionId: true, subjectId: true, status: true },
     }),
     sectionAttendanceTotals(sectionIds, termId),
+    subjectAverageAttendance(sectionIds, termId),
   ]);
 
   // --- per-class accumulators ---
@@ -637,10 +638,12 @@ export async function getTeacherReports(ctx: TeacherContext): Promise<TeacherRep
     const rawAverages = [...(rawByLearner.get(learner.key)?.values() ?? [])].map(
       (cell) => cell.sum / cell.count,
     );
+    const subjAvg = subjectAvgs.get(learner.key);
     const flags = computeRiskFactors({
       finalGrades: finalsByLearner.get(learner.key) ?? [],
       rawAverages,
       attendance: attendanceRows,
+      attendanceRate: subjAvg && subjAvg.hasSubjectData ? subjAvg.average : null,
       attendanceTotal: sectionTotals.get(learner.sectionId),
       anecdotalCount: anecdotalByLearner.get(learner.key) ?? 0,
       enrolled: headcounts.get(learner.sectionId) ?? 0,

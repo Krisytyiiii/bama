@@ -1,12 +1,5 @@
 export type StudentApprovalStatus = "pending" | "active" | "suspended";
 
-export type AccountBreakdown = {
-  id: string;
-  label: string;
-  withAccount: number;
-  pending: number;
-};
-
 export type LrnMatchResult = {
   claimedLrn: string;
   found: boolean;
@@ -24,6 +17,8 @@ export type LrnMatchResult = {
 
 export type PendingStudent = {
   id: string;
+  role: "student" | "parent";
+  /** Parents have no LRN — the LRN verification flow is student-only. */
   lrn: string;
   name: string;
   gradeLevel: "G7" | "G8" | "G9" | "G10" | "G11" | "G12" | "—";
@@ -43,26 +38,6 @@ export type PendingStudentsResponse = {
   unfilteredTotal?: number;
   page?: number;
   pageSize?: number;
-};
-
-export type AccountsAuditEntry = {
-  id: string;
-  timestamp: string;
-  actor: string;
-  actorRole: string;
-  studentName: string;
-  lrn: string | null;
-  gradeLevel: string | null;
-  section: string | null;
-  action: "approve" | "reject";
-  reason: string;
-};
-
-export type AuditResponse = {
-  entries: AccountsAuditEntry[];
-  total: number;
-  page: number;
-  pageSize: number;
 };
 
 export function formatRelativeTime(iso: string): string {

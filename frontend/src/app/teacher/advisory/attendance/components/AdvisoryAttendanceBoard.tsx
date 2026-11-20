@@ -127,16 +127,13 @@ export function AdvisoryAttendanceBoard({
             >
               {!hasMarks ? "No data" : atRisk ? "At risk" : "On track"}
             </Pill>
-            <Pill
-              tone={student.learnerType === "transferee" ? "amber" : "neutral"}
-              label="Meetup window"
-            >
-              {student.learnerType === "transferee"
-                ? "Transferee · counted since enlistment"
-                : "Regular · counted from term start"}
-            </Pill>
           </span>
         </div>
+        <span className={boardStyles.meetupWindow}>
+          {student.learnerType === "transferee"
+            ? "Transferee · counted since enlistment"
+            : "Regular · counted from term start"}
+        </span>
       </header>
 
       <section className={boardStyles.plainSection} aria-label="Present rate per subject">

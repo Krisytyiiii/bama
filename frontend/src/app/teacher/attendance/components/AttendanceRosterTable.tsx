@@ -31,6 +31,7 @@ import type { SheetContext, SheetStatus } from "@/services/teacher/attendance.ty
 import { MeetupBlocksCell, StatusBoxes } from "./status-boxes";
 import { useRosterMarks } from "./use-roster-marks";
 import { SaveAttendanceKanban } from "./save-attendance-dialog";
+import boardStyles from "./attendance-sheet.module.css";
 interface RosterRow {
   id: string;
   name: string;
@@ -88,6 +89,7 @@ export function AttendanceRosterSkeleton({ rows = 8 }: { rows?: number }) {
   return (
     <KanbanBoard
       title="Class attendance"
+      className={boardStyles.board}
       icon={
         <span className="text-amber-500" aria-hidden>
           <Users size={14} />
@@ -399,6 +401,7 @@ export function AttendanceRosterTable({ date, subjectId, assignmentId, slot, ros
     <section aria-label="Class attendance" className="flex min-w-0 flex-col gap-3">
       <KanbanBoard
         title="Class attendance"
+        className={boardStyles.board}
         icon={boardIcon}
         actions={data.length === 0 ? undefined : headerActions}
         description={sheetDesc}

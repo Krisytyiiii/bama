@@ -12,13 +12,14 @@ import {
   type ColumnFiltersState,
   type SortingState,
 } from "@tanstack/react-table";
-import { ArchiveRestore, KanbanSquare, Loader2, Pencil, RotateCcw, SearchIcon, Trash2, UserPlus } from "lucide-react";
+import { ArchiveRestore, KanbanSquare, Loader2, Pencil, RotateCcw, SearchIcon, Trash2, UserPlus, X } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api/client";
 import { useTeacherInvalidate } from "../../components/use-teacher-invalidate";
 import { markSelfNotified } from "@/lib/realtime/teacherChannel";
 import { Button } from "@/components/ui/button";
 import { KanbanOverlay } from "@/components/ui/kanban-overlay";
+import { FormOverlay } from "./components/form-overlay";
 import { useDock } from "@/components/dock/dock-store";
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupInput, InputGroupAddon } from "@/components/ui/input-group";
@@ -772,8 +773,14 @@ export default function TeacherAdvisoryListPage() {
       className={`${listStyles.pageLock} flex min-w-0 flex-col gap-3`}
     >
       {students.length === 0 ? (
-        <div className="relative flex h-full min-h-[calc(100dvh-9rem)] w-full items-center justify-center">
-          <div className="absolute right-0 top-0 flex items-center gap-2">
+        <div className="flex h-full min-h-[calc(100dvh-9rem)] w-full flex-col items-center justify-center gap-3">
+          <InsightCallout role="status" className="w-full max-w-xl self-center text-left">
+            <strong>No advisory students yet.</strong>{" "}
+            {sectionLabel
+              ? `${sectionLabel} has no enlisted learners this term.`
+              : "Students enlisted in your advisory section will appear here."}
+          </InsightCallout>
+          <div className="flex items-center justify-center gap-2">
             {archivedStudents.length > 0 ? (
               <Button
                 size="sm"
@@ -790,12 +797,6 @@ export default function TeacherAdvisoryListPage() {
               Add student
             </Button>
           </div>
-          <InsightCallout role="status" className="w-full max-w-xl self-center text-left">
-            <strong>No advisory students yet.</strong>{" "}
-            {sectionLabel
-              ? `${sectionLabel} has no enlisted learners this term.`
-              : "Students enlisted in your advisory section will appear here."}
-          </InsightCallout>
         </div>
       ) : (
         <div className={listStyles.boardLayout}>
@@ -1163,150 +1164,179 @@ export default function TeacherAdvisoryListPage() {
         </ol>
       </KanbanOverlay>
 
-      <KanbanOverlay
+      <FormOverlay
         open={addOpen}
         onClose={() => {
           if (!addSaving) setAddOpen(false);
         }}
-        dismissable={!addSaving}
-        busy={addSaving}
-        width="sm"
-        title="Add student"
-        icon={
-          <span className="text-primary" aria-hidden>
-            <UserPlus size={14} />
-          </span>
-        }
-        description={
-          <>
-            Enlist a student into your advisory section
-            {advisorySections.length === 1 && advisorySections[0]
-              ? ` (${advisorySections[0].name})`
-              : ""}
-            .
-          </>
-        }
-        footer={
-          <div className="flex items-center justify-end gap-1.5 px-1 pb-1">
-            <Button
-              type="button"
-              size="sm"
-              className="h-6 px-3 text-xs"
-              onClick={() => void handleAddStudent()}
-              disabled={addSaving}
-              aria-busy={addSaving || undefined}
-              autoFocus
-            >
-              {addSaving ? (
-                <>
-                  <Loader2 size={14} className="animate-spin" aria-hidden />
-                  <span aria-live="polite">Enlisting…</span>
-                </>
-              ) : (
-                "Enlist student"
-              )}
-            </Button>
-          </div>
-        }
+        label="Add student"
+        widthClassName="max-w-md"
       >
-        <div className="flex min-w-0 flex-col gap-3 px-1">
-          <div className="flex min-w-0 flex-col gap-1.5">
-            <Label htmlFor="advisory-add-name">Full name</Label>
-            <Input
-              id="advisory-add-name"
-              value={addName}
-              onChange={(e) => {
-                setAddName(e.target.value);
-                setAddError(null);
-              }}
-              placeholder="e.g. Juan Garcia"
-              maxLength={120}
-            />
-          </div>
-          <div className="flex min-w-0 flex-col gap-1.5">
-            <Label htmlFor="advisory-add-lrn">LRN</Label>
-            <Input
-              id="advisory-add-lrn"
-              value={addLrn}
-              onChange={(e) => {
-                // Digits only — a DepEd LRN is exactly 12 numbers.
-                setAddLrn(e.target.value.replace(/\D/g, "").slice(0, 12));
-                setAddError(null);
-              }}
-              placeholder="12-digit LRN"
-              inputMode="numeric"
-              pattern="[0-9]{12}"
-              autoComplete="off"
-              maxLength={12}
-            />
-          </div>
-          <div className="flex min-w-0 flex-col gap-2">
-            <Label>Learner type</Label>
-            <div
-              role="radiogroup"
-              aria-label="Learner type"
-              className="grid gap-2 sm:grid-cols-2"
+        <div className="overflow-hidden rounded-xl border border-border bg-card shadow-2xl">
+          <header className="flex items-start gap-2.5 border-b border-border px-4 py-3">
+            <span
+              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-amber-500/10 text-amber-500"
+              aria-hidden
             >
-              {(
-                [
-                  {
-                    value: "regular" as const,
-                    label: "Regular student",
-                    hint: "Attendance is rated from the start of the term.",
-                  },
-                  {
-                    value: "transferee" as const,
-                    label: "Transferee",
-                    hint: "Attendance starts on the day this student is enlisted, not the term start.",
-                  },
-                ]
-              ).map((option) => {
-                const active = addLearnerType === option.value;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    role="radio"
-                    aria-checked={active}
-                    disabled={addSaving}
-                    onClick={() => setAddLearnerType(option.value)}
-                    className={`flex flex-col items-start gap-1 rounded-md border px-2.5 py-2 text-left transition-colors ${
-                      active
-                        ? "border-primary/40 bg-primary/10 text-primary"
-                        : "border-border bg-card text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                    }`}
-                  >
-                    <span className="text-xs font-semibold">{option.label}</span>
-                    <span className="text-[12px] leading-tight">{option.hint}</span>
-                  </button>
-                );
-              })}
+              <UserPlus size={15} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-sm font-semibold leading-tight text-foreground">
+                Add student
+              </h2>
+              <p className="mt-0.5 text-[12px] leading-snug text-muted-foreground">
+                Enlist a student into your advisory section
+                {advisorySections.length === 1 && advisorySections[0]
+                  ? ` (${advisorySections[0].name})`
+                  : ""}
+                .
+              </p>
             </div>
-          </div>
-          {advisorySections.length > 1 ? (
-            <div className="flex min-w-0 flex-col gap-1.5">
-              <Label htmlFor="advisory-add-section">Section</Label>
-              <Select value={addSectionId} onValueChange={setAddSectionId}>
-                <SelectTrigger id="advisory-add-section" className="w-full">
-                  <SelectValue placeholder="Pick a section" />
-                </SelectTrigger>
-                <SelectContent>
-                  {advisorySections.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>
-                      {s.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <button
+              type="button"
+              onClick={() => {
+                if (!addSaving) setAddOpen(false);
+              }}
+              disabled={addSaving}
+              aria-label="Close add student"
+              className="-mr-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors duration-150 hover:bg-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
+            >
+              <X size={15} aria-hidden />
+            </button>
+          </header>
+
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              void handleAddStudent();
+            }}
+          >
+            <div className="flex max-h-[60dvh] min-w-0 flex-col gap-3 overflow-y-auto px-4 py-4">
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <Label htmlFor="advisory-add-name">Full name</Label>
+                <Input
+                  id="advisory-add-name"
+                  className="h-8 text-[13px]"
+                  value={addName}
+                  onChange={(e) => {
+                    setAddName(e.target.value);
+                    setAddError(null);
+                  }}
+                  placeholder="e.g. Juan Garcia"
+                  maxLength={120}
+                  autoFocus
+                  autoComplete="off"
+                />
+              </div>
+
+              <div className="flex min-w-0 flex-col gap-1.5">
+                <Label htmlFor="advisory-add-lrn">LRN</Label>
+                <Input
+                  id="advisory-add-lrn"
+                  className="h-8 text-[13px]"
+                  value={addLrn}
+                  onChange={(e) => {
+                    // Digits only — a DepEd LRN is exactly 12 numbers.
+                    setAddLrn(e.target.value.replace(/\D/g, "").slice(0, 12));
+                    setAddError(null);
+                  }}
+                  placeholder="12-digit LRN"
+                  inputMode="numeric"
+                  pattern="[0-9]{12}"
+                  autoComplete="off"
+                  maxLength={12}
+                />
+              </div>
+
+              <div className="flex min-w-0 flex-col gap-2">
+                <Label>Learner type</Label>
+                <div
+                  role="radiogroup"
+                  aria-label="Learner type"
+                  className="grid gap-2 sm:grid-cols-2"
+                >
+                  {(
+                    [
+                      {
+                        value: "regular" as const,
+                        label: "Regular student",
+                        hint: "Attendance is rated from the start of the term.",
+                      },
+                      {
+                        value: "transferee" as const,
+                        label: "Transferee",
+                        hint: "Attendance starts on the day this student is enlisted, not the term start.",
+                      },
+                    ]
+                  ).map((option) => {
+                    const active = addLearnerType === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        role="radio"
+                        aria-checked={active}
+                        disabled={addSaving}
+                        onClick={() => setAddLearnerType(option.value)}
+                        className={`flex flex-col items-start gap-1 rounded-md border px-2.5 py-2 text-left transition-colors ${
+                          active
+                            ? "border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                            : "border-border bg-card text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                        }`}
+                      >
+                        <span className="text-xs font-semibold">{option.label}</span>
+                        <span className="text-[12px] leading-tight">{option.hint}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {advisorySections.length > 1 ? (
+                <div className="flex min-w-0 flex-col gap-1.5">
+                  <Label htmlFor="advisory-add-section">Section</Label>
+                  <Select value={addSectionId} onValueChange={setAddSectionId}>
+                    <SelectTrigger id="advisory-add-section" className="w-full">
+                      <SelectValue placeholder="Pick a section" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {advisorySections.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {s.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ) : null}
+
+              {addError ? (
+                <p role="alert" className="text-[12px] leading-snug text-destructive">
+                  {addError}
+                </p>
+              ) : null}
             </div>
-          ) : null}
-          {addError ? (
-            <p role="alert" className="text-sm text-destructive">
-              {addError}
-            </p>
-          ) : null}
+
+            <div className="flex items-center justify-end gap-2 border-t border-border px-4 py-3">
+              <Button
+                type="submit"
+                disabled={addSaving}
+                aria-busy={addSaving || undefined}
+                className="h-6 gap-1.5 px-2.5 text-[12px]"
+              >
+                {addSaving ? (
+                  <>
+                    <Loader2 size={12} className="animate-spin" aria-hidden />
+                    <span aria-live="polite">Enlisting…</span>
+                  </>
+                ) : (
+                  "Enlist student"
+                )}
+              </Button>
+            </div>
+          </form>
         </div>
-      </KanbanOverlay>
+      </FormOverlay>
 
       <KanbanOverlay
         open={editOpen && editTarget !== null}

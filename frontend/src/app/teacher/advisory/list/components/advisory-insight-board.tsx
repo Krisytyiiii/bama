@@ -90,10 +90,14 @@ export function AdvisoryInsightBoard({
     refetchInterval: 30_000,
   });
 
+  // Roster-only learners are addressed as `roster:<id>` and the API serves their
+  // records off `rosterId` too — the risk factor can be anecdotal for them, so
+  // their categories must load (the API only returns the private write-up to the
+  // observing teacher, never across the roster split).
   const anecdotalQuery = useLiveQuery<AnecdotalResponse>({
     queryKey: ["advisee-anecdotal", studentId],
     queryFn: () => fetchAdviseeAnecdotal(studentId as string),
-    enabled: !!studentId && !isRoster,
+    enabled: !!studentId,
     retry: false,
     staleTime: 15_000,
     refetchInterval: 30_000,
@@ -158,7 +162,7 @@ export function AdvisoryInsightBoard({
   }
 
   const loading =
-    attendanceQuery.isPending || academicQuery.isPending || (!isRoster && anecdotalQuery.isPending);
+    attendanceQuery.isPending || academicQuery.isPending || anecdotalQuery.isPending;
   const hiddenGrades = academicQuery.data?.hiddenCount ?? 0;
   const attendanceRestricted = attendanceQuery.data?.restricted ?? false;
   const subjectSummary = attendanceQuery.data?.subjectSummary ?? null;
@@ -183,17 +187,6 @@ export function AdvisoryInsightBoard({
         </span>
         <div className="min-w-0 flex-1">
           <h2 className={styles.boardTitle}>Student insight</h2>
-          <span className="mt-1 flex max-w-full flex-wrap items-center gap-1">
-            <Pill tone="amber" label="Insight section">
-              Attendance
-            </Pill>
-            <Pill tone="amber" label="Insight section">
-              Grades
-            </Pill>
-            <Pill tone="amber" label="Insight section">
-              Anecdotal
-            </Pill>
-          </span>
         </div>
         {/* Risk level lives at the panel's top-right (moved out of the list
             table so the left lane stays a pure name/LRN roster). */}
@@ -397,7 +390,7 @@ export function AdvisoryInsightBoard({
                   </span>
                   <h4 className={styles.colTitle}>Anecdotal</h4>
                 </header>
-                {isRoster || anecdotalRecords.length === 0 ? (
+                {anecdotalRecords.length === 0 ? (
                   <p className={styles.empty}>
                     {isRoster
                       ? "Roster-only file — category only, never the private write-up."

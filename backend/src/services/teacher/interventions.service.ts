@@ -13,6 +13,7 @@ import {
   sectionAttendanceTotals,
 } from "../../services/risk.js";
 import { sectionHeadcounts } from "../../services/enrollment.js";
+import { subjectAverageAttendance } from "../../services/attendance.js";
 import { admCaseSnapshot } from "../../services/adm/attendancePolicy.js";
 import type { AdvisoryContext } from "../../services/advisory/advisory.types.js";
 import type {
@@ -372,6 +373,7 @@ async function liveRiskByLearner(
     rosterAttendance,
     rosterAnecdotes,
     sectionTotals,
+    subjectAvgs,
     headcounts,
     admCases,
   ] = await Promise.all([
@@ -412,6 +414,7 @@ async function liveRiskByLearner(
         })
       : Promise.resolve([]),
     sectionAttendanceTotals(sectionIds, termId),
+    subjectAverageAttendance(sectionIds, termId),
     sectionHeadcounts(sectionIds),
     profileIds.length
       ? admCaseSnapshot(termId, profileIds)
@@ -454,9 +457,11 @@ async function liveRiskByLearner(
   const out = new Map<string, LearnerRisk>();
   for (const learner of learners) {
     const bucket = bucketFor(learner.key);
+    const subjAvg = subjectAvgs.get(learner.key);
     const flags = computeRiskFactors({
       finalGrades: bucket.grades,
       attendance: bucket.attendance,
+      attendanceRate: subjAvg && subjAvg.hasSubjectData ? subjAvg.average : null,
       attendanceTotal: attendanceTotalFor(
         sectionTotals,
         learner.sectionId,

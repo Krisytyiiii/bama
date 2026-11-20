@@ -60,6 +60,16 @@
   line-height: 1.3;
 }
 
+/* Meetup-window hint: plain text in the panel's top-right, not a pill. */
+.meetupWindow {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 10px;
+  font-style: italic;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
 .lane {
   display: flex;
   flex-direction: column;

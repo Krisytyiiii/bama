@@ -40,7 +40,6 @@ export const NAV: NavGroup[] = [
     label: "Records",
     items: [
       { title: "Final Grades", href: "/registrar/final-grades", icon: NAV_ICONS.finalGrades },
-      { title: "Account Approvals", href: "/registrar/accounts", icon: NAV_ICONS.accountApprovals },
       {
         title: "Adviser Access Requests",
         href: "/registrar/adviser-access",
@@ -69,7 +68,6 @@ export const NAV: NavGroup[] = [
 const QUEUE_FOR_HREF: Record<string, keyof RegistrarNavDots> = {
   "/registrar/overview": "overview",
   "/registrar/final-grades": "finalGrades",
-  "/registrar/accounts": "accounts",
   "/registrar/adviser-access": "adviserAccess",
   "/registrar/sf10": "sf10",
   "/registrar/academics": "subjects",

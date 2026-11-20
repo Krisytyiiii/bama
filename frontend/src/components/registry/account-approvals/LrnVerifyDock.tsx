@@ -41,7 +41,7 @@ function messageOf(err: unknown): string {
 
 function matchLrn(lrn: string, name: string): Promise<LrnMatchResult> {
   return apiClient
-    .get<LrnMatchResult>("/api/auth/match-lrn", { params: { lrn, name } })
+    .get<LrnMatchResult>("/api/admin/account-approvals/lrn-match", { params: { lrn, name } })
     .then((res) => res.data);
 }
 
@@ -353,7 +353,7 @@ function Result({
       {!match ? (
         <motion.div {...enter(0.3)}>
           <InsightCallout>
-            Record keeper: confirm with the official SF10 / enrollment record before approving.
+            Administrator: confirm with the official SF10 / enrollment record before approving.
           </InsightCallout>
         </motion.div>
       ) : null}

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { KeyRound } from "lucide-react";
+import { KeyRound, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Pill } from "@/components/ui/pill";
@@ -98,20 +98,42 @@ function GateCard({
   );
 }
 
+/** One placeholder card, shaped exactly like the loaded class / advisee card. */
+function CardSkeleton() {
+  return (
+    <div className={styles.skelCard} aria-hidden="true">
+      <div className={styles.cardHead}>
+        <Skeleton className={styles.skelAvatar} />
+        <div className={styles.cardId}>
+          <Skeleton className="h-3.5 w-32 max-w-full" />
+          <Skeleton className="h-3 w-24 max-w-full" />
+        </div>
+        <Skeleton className={styles.skelPill} />
+      </div>
+      <div className={styles.metaRow}>
+        <Skeleton className={styles.skelMetaPill} />
+        <Skeleton className={styles.skelMetaPill} style={{ width: "4rem" }} />
+        <Skeleton className={styles.skelMetaPill} style={{ width: "4.5rem" }} />
+      </div>
+      <Skeleton className={styles.skelRail} />
+      <Skeleton className="h-3 w-44 max-w-full" />
+      <div className={styles.linksRow}>
+        <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-3 w-24" />
+      </div>
+      <div className={styles.cardActions}>
+        <Skeleton className="mr-auto h-3 w-24" />
+        <Skeleton className={styles.skelAction} />
+      </div>
+    </div>
+  );
+}
+
 function BoardSkeleton() {
   return (
     <div className={styles.skelGrid} aria-busy="true" aria-label="Loading lock grades">
-      {[0, 1, 2, 3].map((i) => (
-        <div key={i} className={styles.skelCard}>
-          <Skeleton className="h-4 w-40" />
-          <Skeleton className="h-3 w-28" />
-          <Skeleton className="h-1.5 w-full rounded-full" />
-          <Skeleton className="h-3 w-48" />
-          <div className="flex items-center justify-between pt-1">
-            <Skeleton className="h-7 w-28 rounded-md" />
-            <Skeleton className="h-6 w-24 rounded-md" />
-          </div>
-        </div>
+      {[0, 1, 2, 3, 4, 5].map((i) => (
+        <CardSkeleton key={i} />
       ))}
     </div>
   );
@@ -317,21 +339,28 @@ export default function TeacherLockGradesPage() {
   return (
     <section className={styles.page} aria-label="Lock grades">
       {gateActive ? null : (
-        <div className={styles.head}>
-          <div>
-            <h1 className={styles.title}>Lock Grades</h1>
-            <p className={styles.sub}>
+        <div className={styles.header}>
+          <div className={styles.headerText}>
+            <div className={styles.titleRow}>
+              <span className={styles.titleIcon} aria-hidden>
+                <Lock size={14} />
+              </span>
+              <h1 className={styles.title}>Lock Grades</h1>
+            </div>
+            <p className={styles.subtitle}>
               Review the lock status of your classes and advisees — read-only.
             </p>
           </div>
           {canTeach && canAdvise ? (
-            <FilterTabs
-              label="Lock grades mode"
-              options={MODE_OPTIONS}
-              value={effectiveMode}
-              onChange={setMode}
-              tone="blue"
-            />
+            <div className={styles.headerActions}>
+              <FilterTabs
+                label="Lock grades mode"
+                options={MODE_OPTIONS}
+                value={effectiveMode}
+                onChange={setMode}
+                tone="blue"
+              />
+            </div>
           ) : null}
         </div>
       )}

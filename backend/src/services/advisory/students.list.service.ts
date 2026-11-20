@@ -1,6 +1,6 @@
 import { prisma } from "../../lib/prisma.js";
 import { attendanceTotalFor, computeRiskFactors, levelFromFlags, sectionAttendanceTotals } from "../risk.js";
-import { ATTENDANCE_RISK_CUTOFF, subjectAverageAttendance, termHasStarted } from "../attendance.js";
+import { subjectAverageAttendance, termHasStarted } from "../attendance.js";
 import { sectionHeadcounts } from "../enrollment.js";
 import { admExemptStudentIds } from "../adm/attendancePolicy.js";
 import { adviserSectionsOr404 } from "../../modules/teacher/advisory.repository.js";
@@ -226,18 +226,13 @@ export async function getStudents(ctx: AdvisoryContext) {
     return active;
   };
 
-  const withSubjectAverage = <T extends { attendanceFlag: boolean }>(
-    key: string,
-    flags: T,
-  ): T => {
+  // The engine rates attendance on the term subject-average (per-subject
+  // present %, averaged) — the same figure the attendance column renders. A
+  // learner without subject marks yet keeps the section-meetup fallback
+  // instead of having an empty record set read as 0%.
+  const attendanceRateFor = (key: string): number | null => {
     const subjAvg = subjectAvgs.get(key);
-    // Only override when the learner actually has subject attendance marks —
-    // a roster transferee enlisted a day ago has no signal yet, and their
-    // empty record set must not be read as 0%.
-    if (subjAvg && subjAvg.hasSubjectData) {
-      flags.attendanceFlag = subjAvg.average < ATTENDANCE_RISK_CUTOFF;
-    }
-    return flags;
+    return subjAvg && subjAvg.hasSubjectData ? subjAvg.average : null;
   };
 
   // A term that has not started yet is outside its scope period: staged or
@@ -248,18 +243,16 @@ export async function getStudents(ctx: AdvisoryContext) {
   const students = [
     ...visibleAdvisees.map((s) => {
       const enrolled = enrolledBySection.get(s.sectionId!) ?? 0;
-      const factors = withSubjectAverage(
-        s.userId,
-        computeRiskFactors({
-          finalGrades: s.finalGrades,
-          rawAverages: rawAveragesFor(s.userId),
-          attendance: s.attendanceRecords,
-          attendanceTotal: sectionTotals.get(s.sectionId ?? ""),
-          anecdotalCount: s.anecdotalRecords.length,
-          enrolled,
-          attendanceExempt: admExempt.has(s.userId),
-        }),
-      );
+      const factors = computeRiskFactors({
+        finalGrades: s.finalGrades,
+        rawAverages: rawAveragesFor(s.userId),
+        attendance: s.attendanceRecords,
+        attendanceRate: attendanceRateFor(s.userId),
+        attendanceTotal: sectionTotals.get(s.sectionId ?? ""),
+        anecdotalCount: s.anecdotalRecords.length,
+        enrolled,
+        attendanceExempt: admExempt.has(s.userId),
+      });
       const activeFlags = toActiveFlags(factors);
       const present = s.attendanceRecords.filter((r) => r.status === "present").length;
       const total = Math.max(sectionTotals.get(s.sectionId ?? "") ?? 0, s.attendanceRecords.length);
@@ -302,17 +295,15 @@ export async function getStudents(ctx: AdvisoryContext) {
       const anec = anecdotalByRoster.get(r.id) ?? [];
       const enrolled = enrolledBySection.get(r.sectionId) ?? 0;
       const attTotal = attendanceTotalFor(sectionTotals, r.sectionId, r.id);
-      const factors = withSubjectAverage(
-        key,
-        computeRiskFactors({
-          finalGrades: finals,
-          rawAverages: rawAveragesFor(key),
-          attendance: att,
-          attendanceTotal: attTotal,
-          anecdotalCount: anec.length,
-          enrolled,
-        }),
-      );
+      const factors = computeRiskFactors({
+        finalGrades: finals,
+        rawAverages: rawAveragesFor(key),
+        attendance: att,
+        attendanceRate: attendanceRateFor(key),
+        attendanceTotal: attTotal,
+        anecdotalCount: anec.length,
+        enrolled,
+      });
       const activeFlags = toActiveFlags(factors);
       const present = att.filter((a) => a.status === "present").length;
       const ratedTotal = Math.max(attTotal ?? 0, att.length);

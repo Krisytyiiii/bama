@@ -262,59 +262,80 @@ export function BamaThread({
               <div className={styles.assistantCol}>
                 <p className={styles.bubbleAssistant}>{m.text}</p>
                 {m.preview ? (
-                  <div
-                    className={PICK_COLUMN.replace(" self-center", " self-start")}
-                    aria-label="Review before filing"
-                  >
-                    <PickColumnHead
-                      icon={<ClipboardCheck size={14} aria-hidden className="text-amber-500" />}
-                      title={m.preview.editing ? "Review changes before saving" : "Review before filing"}
-                      action={
-                        <Pill tone="amber" label="Section">
-                          {m.preview.section}
-                        </Pill>
-                      }
-                    />
-                    <div className={`${PICK_CARD} cursor-default`}>
-                      <span className="text-[12px] font-semibold tracking-wide text-muted-foreground uppercase">
-                        Student
+                  <section className={styles.reviewPanel} aria-label="Review before filing">
+                    <header className={styles.reviewHeader}>
+                      <span className={styles.reviewIcon} aria-hidden>
+                        <ClipboardCheck size={16} />
                       </span>
-                      <span className="flex flex-wrap items-center gap-1.5">
-                        <span className="text-sm font-medium text-foreground">
-                          {m.preview.studentName}
-                        </span>
+                      <span className={styles.reviewHeading}>
+                        <h3 className={styles.reviewTitle}>
+                          {m.preview.editing ? "Review changes before saving" : "Review before filing"}
+                        </h3>
+                        <p className={styles.reviewSub}>
+                          {m.preview.editing
+                            ? "Confirm the corrections — the filed record is replaced on save."
+                            : "Check the details before this is filed to the anecdotal log."}
+                        </p>
+                      </span>
+                      <Pill tone="green" label="Section" className="mt-0.5">
+                        {m.preview.section}
+                      </Pill>
+                    </header>
+
+                    <div className={styles.reviewStudent}>
+                      <span className={styles.reviewAvatar}>
+                        <StudentMascot
+                          name={m.preview.studentName}
+                          seed={m.preview.lrn}
+                          character={m.preview.mascot ?? undefined}
+                          size={32}
+                        />
+                      </span>
+                      <span className={styles.reviewIdentity}>
+                        <span className={styles.reviewStudentName}>{m.preview.studentName}</span>
                         <Pill label="LRN">{m.preview.lrn}</Pill>
                       </span>
                     </div>
-                    <div className={`${PICK_CARD} cursor-default`}>
-                      <span className="text-[12px] font-semibold tracking-wide text-muted-foreground uppercase">
-                        Details
-                      </span>
-                      <span className="flex flex-wrap gap-1.5">
-                        <Pill label="Category">{m.preview.category}</Pill>
-                        <Pill label="Confidentiality tier">{m.preview.tier}</Pill>
-                        <Pill label="Observation date & time">{m.preview.observationDateTime}</Pill>
-                        <Pill label="Location">{m.preview.location}</Pill>
-                      </span>
-                    </div>
-                    <div className={`${PICK_CARD} cursor-default`}>
-                      <span className="text-[12px] font-semibold tracking-wide text-muted-foreground uppercase">
-                        Incident
-                      </span>
-                      <span className="text-sm text-foreground">{m.preview.incident}</span>
+
+                    <dl className={styles.reviewGrid}>
+                      <div>
+                        <dt>Category</dt>
+                        <dd>{m.preview.category}</dd>
+                      </div>
+                      <div>
+                        <dt>Confidentiality</dt>
+                        <dd>{m.preview.tier}</dd>
+                      </div>
+                      <div>
+                        <dt>Observed</dt>
+                        <dd>{m.preview.observationDateTime}</dd>
+                      </div>
+                      <div>
+                        <dt>Location</dt>
+                        <dd>{m.preview.location}</dd>
+                      </div>
+                    </dl>
+
+                    <div className={styles.reviewBlock}>
+                      <p className={styles.reviewLabel}>Incident</p>
+                      <p className={styles.reviewBody}>{m.preview.incident}</p>
                     </div>
                     {m.preview.notes ? (
-                      <div className={`${PICK_CARD} cursor-default`}>
-                        <span className="text-[12px] font-semibold tracking-wide text-muted-foreground uppercase">
-                          Notes
-                        </span>
-                        <span className="text-sm text-foreground">{m.preview.notes}</span>
+                      <div className={styles.reviewBlock}>
+                        <p className={styles.reviewLabel}>Notes</p>
+                        <p className={styles.reviewBody}>{m.preview.notes}</p>
                       </div>
                     ) : null}
-                    <div className="flex justify-end gap-2">
+
+                    <footer className={styles.reviewActions}>
+                      <span className={styles.reviewHint}>
+                        {m.preview.editing
+                          ? "Saving overwrites the original record."
+                          : "Files as a GCForm-01 anecdotal record."}
+                      </span>
                       <Button
                         type="button"
-                        className="h-6 px-3 text-[12px]"
+                        className="h-6 shrink-0 px-3 text-[12px]"
                         disabled={flow.filing || !flow.canFile}
                         onClick={() => void flow.fileRecord()}
                       >
@@ -329,8 +350,8 @@ export function BamaThread({
                             ? "Save changes"
                             : "File record"}
                       </Button>
-                    </div>
-                  </div>
+                    </footer>
+                  </section>
                 ) : null}
                         {m.detail ? (
                           <div className={styles.filedCard}>

@@ -1,7 +1,7 @@
 import { prisma } from "../../lib/prisma.js";
 import { findTeacherTermGrant } from "../../lib/teacherGrant.js";
 import { sectionHeadcounts } from "../enrollment.js";
-import { ATTENDANCE_RISK_CUTOFF, subjectAverageAttendance } from "../attendance.js";
+import { subjectAverageAttendance } from "../attendance.js";
 import { attendanceTotalFor, computeRiskFactors, levelFromFlags, sectionAttendanceTotals } from "../risk.js";
 import {
   ACTION_LABEL,
@@ -363,6 +363,7 @@ export async function getOverview(
     const keyOf = (studentId: string | null, rosterId: string | null): string | null =>
       studentId ?? (rosterId ? `roster:${rosterId}` : null);
     const sectionTotals = await sectionAttendanceTotals(handledSectionIds, termId);
+    const classSubjectAvgs = await subjectAverageAttendance(handledSectionIds, termId);
     const finalsByKey = new Map<string, { computedAverage: number | null; transmutedGrade: number | null }[]>();
     for (const f of classFinals) {
       const key = keyOf(f.studentId, f.rosterId);
@@ -395,10 +396,13 @@ export async function getOverview(
       const rawAverages = Array.from((rawBySubject.get(b.studentId) ?? new Map()).values()).map(
         (cell) => cell.sum / cell.count,
       );
+      const classSubjAvg = classSubjectAvgs.get(b.studentId);
       const flags = computeRiskFactors({
         finalGrades: finalsByKey.get(b.studentId) ?? [],
         rawAverages,
         attendance: attByKey.get(b.studentId) ?? [],
+        attendanceRate:
+          classSubjAvg && classSubjAvg.hasSubjectData ? classSubjAvg.average : null,
         attendanceTotal: sectionTotals.get(b.sectionId),
         anecdotalCount: 0,
         enrolled: 0,
@@ -778,20 +782,20 @@ export async function getOverview(
       enrolled: number,
     ) => {
       const rosterId = key.startsWith("roster:") ? key.slice("roster:".length) : null;
+      const subjAvg = subjectAvgs.get(key);
       const flags = computeRiskFactors({
         finalGrades,
         rawAverages: rawAveragesFor(key),
         attendance,
+        // Term subject-average presence decides the attendance factor; the
+        // section-meetup total is only the legacy/no-signal fallback.
+        attendanceRate: subjAvg && subjAvg.hasSubjectData ? subjAvg.average : null,
         // Transferees count only the meetups elapsed after their enlistment day.
         attendanceTotal: attendanceTotalFor(sectionTotals, advisorySection.id, rosterId),
         anecdotalCount,
         enrolled,
       });
 
-      const subjAvg = subjectAvgs.get(key);
-      if (subjAvg && subjAvg.hasSubjectData) {
-        flags.attendanceFlag = subjAvg.average < ATTENDANCE_RISK_CUTOFF;
-      }
       const activeFlags: ("academic" | "attendance" | "behavioral")[] = [];
       if (flags.academicFlag) activeFlags.push("academic");
       if (flags.attendanceFlag) activeFlags.push("attendance");

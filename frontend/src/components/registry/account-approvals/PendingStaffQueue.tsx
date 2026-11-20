@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Briefcase, Check, Loader2, Search, X } from "lucide-react";
 import { apiClient } from "@/lib/api/client";
 import { Button } from "@/components/ui/button";
@@ -13,12 +13,19 @@ import { KanbanOverlay } from "@/components/ui/kanban-overlay";
 import { RowList, type RowListItem } from "@/components/ui/row-list";
 import { RowListSkeleton } from "@/components/shared/zentra-skeletons/ZentraSkeletons";
 import { PAGE_SIZE, Pagination } from "@/components/shared/pagination";
+import {
+  ACCOUNT_APPROVALS_BASE,
+  ACCOUNT_APPROVALS_KEY,
+  approveAccountRequest,
+  messageOf,
+  rejectAccountRequest,
+  useApprovalInvalidation,
+} from "./api";
 
 /**
  * Self-registered teacher accounts awaiting approval. Teachers sign up through
- * `/register/teacher` or the staff Google portal; both accounts desks (G7–10
- * record keeper and G11–12 registrar) see the same unbanded queue. Approval is
- * the administrator's call — the principal is not part of this flow.
+ * `/register/teacher` or the staff Google portal; the administrator owns the
+ * queue (the registry desks no longer review sign-ups).
  */
 
 type PendingStaffRow = {
@@ -40,18 +47,17 @@ type PendingStaffResponse = {
 
 function fetchPendingStaff(page: number, signal?: AbortSignal): Promise<PendingStaffResponse> {
   return apiClient
-    .get<PendingStaffResponse>("/api/auth/pending", {
+    .get<PendingStaffResponse>(ACCOUNT_APPROVALS_BASE, {
       params: { role: "staff", page, pageSize: PAGE_SIZE },
       signal,
     })
     .then((res) => res.data);
 }
 
-/** Shared queue total so a page's "truly empty" state stays honest when a
- *  teacher request is waiting (same query key as page 1 of the queue). */
-export function usePendingStaffTotal(desk: "registrar" | "record_keeper"): number {
+/** Shared queue total so the users page can badge the pending count. */
+export function usePendingStaffTotal(): number {
   const { data } = useQuery({
-    queryKey: ["pending-staff", desk, 1],
+    queryKey: [...ACCOUNT_APPROVALS_KEY, "staff", 1],
     queryFn: ({ signal }) => fetchPendingStaff(1, signal),
   });
   return data?.total ?? data?.students.length ?? 0;
@@ -72,29 +78,28 @@ function formatRelativeTime(iso: string): string {
   return `${Math.round(hr / 24)}d ago`;
 }
 
-function messageOf(err: unknown): string {
-  return (
-    (err as { response?: { data?: { error?: { message?: string }; message?: string } } })?.response
-      ?.data?.error?.message ??
-    (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-    "Could not process this account. Try again."
-  );
-}
-
-export function PendingStaffQueue({ desk }: { desk: "registrar" | "record_keeper" }) {
-  const qc = useQueryClient();
+export function PendingStaffQueue() {
+  const invalidate = useApprovalInvalidation();
   const [page, setPage] = React.useState(1);
   const [queryInput, setQueryInput] = React.useState("");
   const [rejectTarget, setRejectTarget] = React.useState<PendingStaffRow | null>(null);
   const [rejectReason, setRejectReason] = React.useState("");
 
   const { data, isPending, isError } = useQuery({
-    queryKey: ["pending-staff", desk, page],
+    queryKey: [...ACCOUNT_APPROVALS_KEY, "staff", page],
     queryFn: ({ signal }) => fetchPendingStaff(page, signal),
   });
   const act = useMutation({
-    mutationFn: ({ id, approve, reason }: { id: string; approve: boolean; reason?: string; name: string }) =>
-      apiClient.post(approve ? `/api/auth/approve/${id}` : `/api/auth/reject/${id}`, approve ? {} : { reason }),
+    mutationFn: ({
+      id,
+      approve,
+      reason,
+    }: {
+      id: string;
+      approve: boolean;
+      reason?: string;
+      name: string;
+    }) => (approve ? approveAccountRequest(id) : rejectAccountRequest(id, reason ?? "")),
     onSuccess: (_data, { approve, name }) => {
       toast.success({
         title: approve ? "Approved" : "Rejected",
@@ -103,11 +108,7 @@ export function PendingStaffQueue({ desk }: { desk: "registrar" | "record_keeper
     },
     onError: (err) => toast.error({ title: "Action failed", description: messageOf(err) }),
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: ["pending-staff"] });
-      qc.invalidateQueries({ queryKey: ["pending-students"] });
-      qc.invalidateQueries({ queryKey: ["record-keeper-pending-students"] });
-      qc.invalidateQueries({ queryKey: ["account-breakdown"] });
-      qc.invalidateQueries({ queryKey: ["record-keeper-account-breakdown"] });
+      invalidate();
     },
   });
 
@@ -133,14 +134,19 @@ export function PendingStaffQueue({ desk }: { desk: "registrar" | "record_keeper
         idLabel: ROLE_LABEL[r.role ?? ""] ?? "Teacher",
         idLabelClassName: "text-[12px] font-medium",
         meta: [
-          { label: r.department ?? r.email, tone: "muted", dot: false, title: r.department ? `${r.department} — ${r.email}` : r.email },
+          {
+            label: r.department ?? r.email,
+            tone: "muted",
+            dot: false,
+            title: r.department ? `${r.department} — ${r.email}` : r.email,
+          },
           ...(r.employeeId
             ? [{ label: `ID ${r.employeeId}`, tone: "amber" as const, dot: false }]
             : []),
           ...(r.contactNumber && r.contactNumber !== "—"
             ? [{ label: r.contactNumber, tone: "muted" as const, dot: false }]
             : []),
-          { label: formatRelativeTime(r.requestedAt), tone: "muted", dot: false },
+          { label: formatRelativeTime(r.requestedAt), tone: "muted" as const, dot: false },
         ],
         ariaLabel: `${r.name}, pending teacher account`,
         actions: (
@@ -190,7 +196,10 @@ export function PendingStaffQueue({ desk }: { desk: "registrar" | "record_keeper
         ariaLabel="Pending teacher accounts"
         actions={
           <div className="relative">
-            <Search className="pointer-events-none absolute top-1/2 left-2 size-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden />
+            <Search
+              className="pointer-events-none absolute top-1/2 left-2 size-3.5 -translate-y-1/2 text-muted-foreground"
+              aria-hidden
+            />
             <Input
               className="h-8 w-60 rounded-[16px] pl-7 text-sm"
               placeholder="Search name or email…"
@@ -207,7 +216,13 @@ export function PendingStaffQueue({ desk }: { desk: "registrar" | "record_keeper
         }
       >
         {isPending ? (
-          <RowListSkeleton rows={4} gutter="0.625rem" withMetaAvatar={false} withActions metaPills={2} />
+          <RowListSkeleton
+            rows={4}
+            gutter="0.625rem"
+            withMetaAvatar={false}
+            withActions
+            metaPills={2}
+          />
         ) : isError ? (
           <p className="py-4 text-sm text-muted-foreground">Could not load pending teachers.</p>
         ) : visibleRows.length === 0 ? (

@@ -6,6 +6,13 @@
   padding: 0 0 0.25rem;
 }
 
+/* Dark mode: every card on this desk reads as a see-through pane over the
+   desk canvas. Three classes (.dark .page .board-surface) outrank the global
+   `.dark .board-surface` fill, and this stays scoped to the overview only. */
+:global(.dark) .page :global(.board-surface) {
+  background-color: transparent;
+}
+
 .divider {
   margin: 0;
   border: none;

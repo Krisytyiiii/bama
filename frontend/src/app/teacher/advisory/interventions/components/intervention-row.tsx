@@ -1,9 +1,10 @@
 "use client";
 
 import type { KeyboardEvent } from "react";
-import { Clock } from "lucide-react";
+import { ArrowUpRight, CalendarClock, CheckCircle2, Clock } from "lucide-react";
 import { formatElapsedShort, msSinceDate } from "@/lib/clock";
 import { StudentMascot } from "@/components/student-mascot/StudentMascot";
+import { Button } from "@/components/ui/button";
 import { Pill, type PillTone } from "@/components/ui/pill";
 import { formatStatus } from "@/lib/labels/text";
 import { riskTone } from "@/lib/labels/status-tone";
@@ -103,8 +104,13 @@ export function InterventionRowCard({
 }) {
   const status = advisoryPipelineStatus(row);
   const activeFactors = FACTORS.filter((factor) => row.factors[factor.key]);
-  const doneCount =
-    row.intervention?.sessions.filter((session) => session.status === "completed").length ?? 0;
+  const sessions = row.intervention?.sessions ?? [];
+  const doneCount = sessions.filter((session) => session.status === "completed").length;
+  const nextSession = sessions.find(
+    (session) =>
+      session.status === "scheduled" &&
+      new Date(session.scheduledAt).getTime() >= now,
+  );
   const detectedMs = row.detectedAt ? msSinceDate(row.detectedAt, now) : null;
   const detectedElapsed =
     detectedMs === null
@@ -123,41 +129,36 @@ export function InterventionRowCard({
 
   return (
     <li
-      style={{ animationDelay: `${450 + Math.min(index, 11) * 140}ms` }}
-      className={styles.caseRow}
+      style={{ animationDelay: `${Math.min(index, 11) * 35}ms` }}
+      className={`${styles.card} ${row.riskLevel === "High" ? styles.cardHigh : ""}`}
       onClick={() => onOpen(row)}
       onKeyDown={handleKeyDown}
       tabIndex={0}
       aria-label={`${row.name}'s intervention case`}
     >
-      <div className={styles.caseCardHead}>
+      <header className={styles.cardHead}>
         <StudentMascot
           name={row.name}
           seed={row.lrn}
           character={row.mascot ?? undefined}
           size={36}
         />
-        <div className={styles.caseCardId}>
-          <p className={styles.caseCardName}>{row.name}</p>
-          <div className={styles.caseCardMeta}>
+        <div className={styles.cardId}>
+          <p className={styles.cardName} title={row.name}>
+            {row.name}
+          </p>
+          <div className={styles.cardMeta}>
             <Pill label="LRN" className="tabular-nums">
               {row.lrn || "—"}
             </Pill>
-            <Pill
-              tone="amber"
-              aria-label={`Section ${row.section}`}
-              label={row.gradeLevel || "Grade level"}
-            >
-              {row.section || "—"}
-            </Pill>
           </div>
         </div>
-        <Pill tone={riskTone(row.riskLevel)} label="Risk level">
+        <Pill tone={riskTone(row.riskLevel)} label="Risk level" className={styles.gradePill}>
           {row.riskLevel}
         </Pill>
-      </div>
+      </header>
 
-      <div className={styles.caseCardPills}>
+      <div className={styles.metaRow}>
         {activeFactors.length > 0 ? (
           activeFactors.map((factor) => (
             <Pill key={factor.key} tone={factor.tone} label={`${factor.label} risk factor`}>
@@ -172,18 +173,52 @@ export function InterventionRowCard({
         <Pill tone={status.tone} label="Status">
           {status.label}
         </Pill>
-        {doneCount > 0 && row.intervention?.outcomeStatus !== "resolved" ? (
-          <Pill label="Sessions completed">
-            {doneCount} session{doneCount === 1 ? "" : "s"} done
-          </Pill>
-        ) : null}
       </div>
 
-      <div className={styles.caseCardFoot}>
-        <Pill label="Detected at" className="tabular-nums">
+      <div className={styles.linksRow}>
+        <span className={styles.linkStat}>
           <Clock size={11} aria-hidden />
-          {detectedElapsed}
-        </Pill>
+          Flagged {detectedElapsed}
+        </span>
+        <span className={styles.linkStat}>
+          <CheckCircle2 size={11} aria-hidden />
+          {doneCount} session{doneCount === 1 ? "" : "s"} done
+        </span>
+      </div>
+
+      {!row.intervention ? (
+        <p className={styles.notice}>
+          <Clock size={11} aria-hidden />
+          <span>No guidance plan yet — the counselling desk has not opened this case.</span>
+        </p>
+      ) : nextSession ? (
+        <p className={`${styles.notice} ${styles.noticeGreen}`}>
+          <CalendarClock size={11} aria-hidden />
+          <span>
+            Session booked · <strong>{formatDateTime(nextSession.scheduledAt)}</strong>
+          </span>
+        </p>
+      ) : null}
+
+      <div className={styles.cardActions}>
+        <span className={styles.footHint}>
+          <CalendarClock size={11} aria-hidden />
+          <span className="min-w-0 truncate">
+            {nextSession ? sessionTypeLabel(nextSession.sessionType) : "No session booked"}
+          </span>
+        </span>
+        <Button
+          variant="outline"
+          className="h-6 gap-1 bg-card px-2 text-[12px] text-foreground"
+          aria-label={`View ${row.name}'s case`}
+          onClick={(event) => {
+            event.stopPropagation();
+            onOpen(row);
+          }}
+        >
+          <ArrowUpRight size={12} className="text-amber-500" aria-hidden />
+          View case
+        </Button>
       </div>
     </li>
   );

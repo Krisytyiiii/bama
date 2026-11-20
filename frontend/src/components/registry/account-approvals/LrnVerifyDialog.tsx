@@ -20,11 +20,11 @@ import type { LrnMatchResult, PendingStudent } from "./types";
 import styles from "./lrn-verification.module.css";
 
 const PROCESS_STEPS = [
-  "Record keeper clicks “Verify LRN” to open the verification overlay.",
+  "The administrator clicks “Verify LRN” to open the verification overlay.",
   "The system looks up the claimed LRN against the official student records.",
   "Submitted applicant details are cross-checked against the matching record.",
   "The verdict (Verified / Mismatch / Not found) is shown to guide the decision.",
-  "Record keeper confirms the applicant's identity before approving the account.",
+  "The administrator confirms the applicant's identity before approving the account.",
 ];
 
 type Props = {
@@ -52,7 +52,7 @@ export function LrnVerifyDialog({ student, onApprove, onReject, approving }: Pro
     }
     setState({ status: "loading" });
     apiClient
-      .get<LrnMatchResult>("/api/auth/match-lrn", {
+      .get<LrnMatchResult>("/api/admin/account-approvals/lrn-match", {
         params: { lrn: trimmed, name: student.name },
       })
       .then((res) => setState({ status: "done", data: res.data }))
@@ -356,7 +356,7 @@ function Result({
 
       {verdict !== "match" ? (
         <p className={styles.hint}>
-          Record keeper: confirm with the official SF10 / enrollment record before approving.
+          Administrator: confirm with the official SF10 / enrollment record before approving.
         </p>
       ) : null}
 

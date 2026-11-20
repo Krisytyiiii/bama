@@ -14,10 +14,13 @@ export interface MineQuery {
   pageSize: number;
   q: string;
   highlight: string;
+  /** "" = every case; otherwise the casebook tab the desk is on. */
+  status?: "" | "open" | "resolved" | "closed";
 }
 
 export async function listMine(ctx: ReferralContext, query: MineQuery) {
   const { hasPaginationParams, page, pageSize, q, highlight } = query;
+  const statusFilter = query.status ?? "";
   const teacherId = ctx.userId;
   const sections = await prisma.section.findMany({
     where: { adviserId: teacherId },
@@ -304,9 +307,19 @@ export async function listMine(ctx: ReferralContext, query: MineQuery) {
     return formatted;
   }
 
-  const unfilteredTotal = formatted.length;
+  // Casebook counts are always over the whole term scope (never narrowed by
+  // the search box), so the tabs stay stable while the user types.
+  const caseGroup = (status: string): "open" | "resolved" | "closed" =>
+    status === "resolved" ? "resolved" : status === "dismissed" ? "closed" : "open";
+  const counts = { all: formatted.length, open: 0, resolved: 0, closed: 0 };
+  for (const r of formatted) counts[caseGroup(r.status)] += 1;
+
+  const statusScoped = statusFilter
+    ? formatted.filter((r) => caseGroup(r.status) === statusFilter)
+    : formatted;
+  const unfilteredTotal = statusScoped.length;
   const filtered = q
-    ? formatted.filter((r) => {
+    ? statusScoped.filter((r) => {
         const hay = [
           r.studentName,
           r.lrn,
@@ -321,7 +334,7 @@ export async function listMine(ctx: ReferralContext, query: MineQuery) {
           .toLowerCase();
         return hay.includes(q);
       })
-    : formatted;
+    : statusScoped;
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
@@ -340,6 +353,7 @@ export async function listMine(ctx: ReferralContext, query: MineQuery) {
     referrals: rows,
     total,
     unfilteredTotal,
+    counts,
     summary: { total: unfilteredTotal, filtered: total },
     page: safePage,
     totalPages,

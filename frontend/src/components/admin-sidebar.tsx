@@ -10,6 +10,7 @@ import BranchedMenu from "./nav/BranchedMenu";
 import { NAV_ICONS } from "./nav/sidebar-icons";
 import { SidebarIconRail } from "./nav/SidebarIconRail";
 import { ScrollDownHint } from "@/components/ui/scroll-down-hint";
+import { usePendingApprovalCounts } from "@/components/registry/account-approvals/api";
 
 type NavItem = {
   title: string;
@@ -49,6 +50,11 @@ export const NAV: NavGroup[] = [
         icon: NAV_ICONS.accountApprovals,
       },
       {
+        title: "Pending Approvals",
+        href: "/admin/users/pending",
+        icon: NAV_ICONS.pendingApprovals,
+      },
+      {
         title: "Audit Log",
         href: "/admin/audit",
         icon: NAV_ICONS.auditLog,
@@ -67,7 +73,20 @@ export const NAV: NavGroup[] = [
   },
 ];
 
-const TABS: NavItem[] = NAV.flatMap((group) => group.items);
+const PENDING_APPROVALS_HREF = "/admin/users/pending";
+
+/** Show the live pending-sign-up count on the administrator approval item. */
+function withPendingBadge(groups: NavGroup[], total: number): NavGroup[] {
+  if (total <= 0) return groups;
+  const badge = total > 99 ? "99+" : String(total);
+  return groups.map((group) => ({
+    ...group,
+    items: group.items.map((item) =>
+      item.href === PENDING_APPROVALS_HREF ? { ...item, badge } : item,
+    ),
+  }));
+}
+
 
 function matches(href: string, pathname: string) {
   if (href === ROOT) return pathname === href || pathname === "/admin";
@@ -105,6 +124,7 @@ function AdminNavbar({ tabs }: { tabs: NavItem[] }) {
               >
                 <item.icon className={styles.tabIcon} aria-hidden="true" />
                 <span className={styles.tabLabel}>{item.title}</span>
+                {item.badge ? <span className={styles.badge}>{item.badge}</span> : null}
               </Link>
             </li>
           );
@@ -150,7 +170,10 @@ export function AdminSidebar({
 } = {}) {
   const pathname = usePathname();
   const railScrollRef = React.useRef<HTMLDivElement | null>(null);
-  const activeHref = findActiveHref(TABS, pathname);
+  const { total: pendingTotal } = usePendingApprovalCounts();
+  const nav = React.useMemo(() => withPendingBadge(NAV, pendingTotal), [pendingTotal]);
+  const tabs = React.useMemo(() => nav.flatMap((group) => group.items), [nav]);
+  const activeHref = findActiveHref(tabs, pathname);
 
   return (
     <>
@@ -160,14 +183,14 @@ export function AdminSidebar({
       >
         {collapsed ? (
           <SidebarIconRail
-            groups={NAV}
+            groups={nav}
             ariaLabel="Administrator sections, icon only"
             activeHref={activeHref}
           />
         ) : (
           <>
             <div ref={railScrollRef} className={styles.railScroll}>
-              <AdminRail groups={NAV} />
+              <AdminRail groups={nav} />
             </div>
             <div className={styles.railHintWrap}>
               <ScrollDownHint
@@ -181,7 +204,7 @@ export function AdminSidebar({
         )}
       </aside>
       <div className={styles.tabsMobile}>
-        <AdminNavbar tabs={TABS} />
+        <AdminNavbar tabs={tabs} />
       </div>
     </>
   );

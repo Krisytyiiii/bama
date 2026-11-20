@@ -5,140 +5,123 @@ import { ZentraPaginationSkeleton } from "@/components/shared/zentra-skeletons/Z
 import styles from "./modules-skeleton.module.css";
 
 const MODULE_CARDS = 6;
-const SUBMISSION_CARDS = 6;
+const SUBMISSION_ROWS = 6;
 
-/** One module tile placeholder — mirrors the loaded <article> in ModulesPanel. */
+/** One module tile placeholder — mirrors the loaded card in ModulesPanel. */
 function ModuleCardSkeleton() {
   return (
     <article
-      className="flex min-w-0 flex-col gap-2 rounded-xl border border-border bg-muted/60 p-2.5 dark:bg-muted/20"
+      className="flex min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-card"
       aria-hidden
     >
-      <div className="-mx-2.5 flex min-w-0 items-center justify-between gap-1.5 border-b border-border px-3.5 pb-2">
-        <span className="inline-flex min-w-0 items-center gap-1.5">
-          <Skeleton className="size-3.5 shrink-0 rounded" />
-          <Skeleton className="h-3.5 w-28" />
-        </span>
-        <Skeleton className="h-5 w-20 shrink-0 rounded-full" />
+      <div className="flex min-w-0 items-start gap-2.5 p-3">
+        <Skeleton className="size-9 shrink-0 rounded-lg" />
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <Skeleton className="h-3.5 w-32" />
+          <Skeleton className="h-3 w-24" />
+        </div>
+        <Skeleton className="h-5 w-20 shrink-0 rounded-md" />
       </div>
 
-      <div className="flex min-w-0 flex-col gap-2 rounded-lg border bg-white p-3 shadow-sm dark:bg-card">
-        <div className="flex w-full justify-center">
-          <Skeleton className="h-[100px] w-[120px] rounded-lg" />
+      <div className="mx-3 mb-3 flex min-w-0 flex-col gap-1.5 rounded-lg border border-border/70 bg-muted/30 px-2.5 py-2">
+        <div className="flex items-center justify-between gap-2">
+          <Skeleton className="h-3 w-20" />
+          <Skeleton className="h-3 w-10" />
         </div>
-        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-          <Skeleton className="h-5 w-12 rounded-full" />
-          <Skeleton className="h-5 w-28 rounded-full" />
-          <Skeleton className="h-5 w-20 rounded-full" />
-        </div>
+        <Skeleton className="h-1.5 w-full rounded-full" />
+        <Skeleton className="h-3 w-24" />
       </div>
 
-      <div className="flex items-center justify-between gap-2">
-        <Skeleton className="h-3 w-16" />
+      <div className="mt-auto flex items-center justify-between gap-2 border-t border-border/70 px-3 py-2">
+        <Skeleton className="h-3 w-24" />
         <div className="flex shrink-0 items-center gap-1">
-          <Skeleton className="h-6 w-14 rounded-md" />
-          <Skeleton className="h-6 w-6 rounded-md" />
+          <Skeleton className="h-6 w-16 rounded-md" />
+          <Skeleton className="size-6 rounded-md" />
+          <Skeleton className="size-6 rounded-md" />
         </div>
       </div>
     </article>
   );
 }
 
-/** One learner submission tile — mirrors the loaded <article> in SubmissionsTable. */
-function SubmissionCardSkeleton() {
+/** One submission row placeholder — mirrors the loaded table in SubmissionsTable. */
+function SubmissionRowSkeleton() {
   return (
-    <article
-      className="flex min-w-0 flex-col gap-2 rounded-xl border border-border bg-muted/60 p-2.5 dark:bg-muted/20"
-      aria-hidden
-    >
-      <div className="-mx-2.5 flex min-w-0 items-center justify-between gap-1.5 border-b border-border px-3.5 pb-2">
-        <span className="flex min-w-0 items-center gap-2">
-          <Skeleton className="size-[26px] shrink-0 rounded-full" />
-          <span className="flex min-w-0 flex-col gap-1">
-            <Skeleton className="h-3.5 w-32" />
-            <Skeleton className="h-2.5 w-24" />
-          </span>
-        </span>
-        <Skeleton className="h-5 w-28 shrink-0 rounded-full" />
+    <div className="flex items-center gap-3 border-b border-border px-4 py-2.5" aria-hidden>
+      <Skeleton className="size-7 shrink-0 rounded-full" />
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <Skeleton className="h-3.5 w-32" />
+        <Skeleton className="h-2.5 w-24" />
       </div>
-
-      <div className="flex min-w-0 flex-1 flex-col gap-2 rounded-lg border bg-white p-2.5 shadow-sm dark:bg-card">
-        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-          <Skeleton className="h-5 w-16 rounded-full" />
-          <Skeleton className="h-5 w-20 rounded-full" />
-        </div>
-
-        <div className="flex min-w-0 flex-col gap-1">
-          <Skeleton className="h-2.5 w-14" />
-          <Skeleton className="h-3 w-32" />
-        </div>
-
-        <div className="flex min-w-0 flex-col gap-1">
-          <Skeleton className="h-2.5 w-16" />
-          <Skeleton className="h-3 w-full" />
-          <Skeleton className="h-3 w-2/3" />
-        </div>
-      </div>
-
-      <div className="flex items-center justify-end px-0.5">
-        <Skeleton className="h-6 w-32 rounded-md" />
-      </div>
-    </article>
+      <Skeleton className="h-5 w-24 shrink-0 rounded-md" />
+      <Skeleton className="h-5 w-16 shrink-0 rounded-md" />
+    </div>
   );
 }
 
 /**
  * Loading state for the adviser Modules desk. Mirrors the loaded page one-for-one:
- * the Modules panel (title + submitted pill, status filter tabs, section picker +
- * Add module, the card grid and its pager) followed by the Student submissions
- * panel (module pill, submitted pill, learner cards and its pager).
+ * the Modules panel (header, status filter bar, card grid and pager) followed by
+ * the Student submissions panel (header, learner rows and pager).
  */
 export function AdvisoryModulesSkeleton() {
   return (
-    <div className={`${styles.root} flex flex-col gap-10`} aria-busy="true" aria-label="Loading modules">
-      <section className="flex min-w-0 flex-col gap-3" aria-hidden>
-        <div className="grid items-center gap-2 sm:[grid-template-columns:1fr_auto_1fr]">
-          <div className="flex items-center gap-2 sm:justify-self-start">
+    <div className={`${styles.root} flex flex-col gap-4`} aria-busy="true" aria-label="Loading modules">
+      <section className="flex min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-card" aria-hidden>
+        <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-border px-4 py-3">
+          <div className="flex items-center gap-2">
             <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-5 w-28 rounded-full" />
+            <Skeleton className="h-5 w-28 rounded-md" />
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:justify-self-center">
-            <Skeleton className="h-5 w-16 rounded-md" />
-            <Skeleton className="h-5 w-20 rounded-md" />
-            <Skeleton className="h-5 w-16 rounded-md" />
-            <Skeleton className="h-5 w-16 rounded-md" />
-          </div>
-          <div className="flex flex-wrap items-center gap-2 sm:justify-self-end">
+          <div className="flex flex-wrap items-center gap-2">
             <Skeleton className="h-7 w-40 rounded-md" />
             <Skeleton className="h-7 w-24 rounded-md" />
           </div>
         </div>
 
-        <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fill,minmax(230px,1fr))]">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-muted/30 px-4 py-2.5">
+          <div className="flex flex-wrap items-center gap-1.5">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-6 w-16 rounded-md" />
+            ))}
+          </div>
+          <Skeleton className="h-3 w-40" />
+        </div>
+
+        <div className="grid gap-3 p-4 [grid-template-columns:repeat(auto-fill,minmax(260px,1fr))]">
           {Array.from({ length: MODULE_CARDS }).map((_, i) => (
             <ModuleCardSkeleton key={i} />
           ))}
         </div>
 
-        <ZentraPaginationSkeleton />
+        <div className="border-t border-border px-4 py-2">
+          <ZentraPaginationSkeleton />
+        </div>
       </section>
 
-      <section className="flex min-w-0 flex-col gap-3" aria-hidden>
-        <div className="flex flex-wrap items-center justify-between gap-2">
+      <section className="flex min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-card" aria-hidden>
+        <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-border px-4 py-3">
           <div className="flex flex-wrap items-center gap-2">
             <Skeleton className="h-4 w-36" />
-            <Skeleton className="h-5 w-32 rounded-full" />
+            <Skeleton className="h-5 w-32 rounded-md" />
           </div>
-          <Skeleton className="h-5 w-28 rounded-full" />
+          <Skeleton className="h-5 w-28 rounded-md" />
         </div>
 
-        <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fill,minmax(260px,1fr))]">
-          {Array.from({ length: SUBMISSION_CARDS }).map((_, i) => (
-            <SubmissionCardSkeleton key={i} />
+        <div className="flex flex-col">
+          <div className="flex items-center gap-3 border-b border-border bg-muted/30 px-4 py-2.5">
+            <Skeleton className="h-3 w-16" />
+            <Skeleton className="ml-auto h-3 w-16" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+          {Array.from({ length: SUBMISSION_ROWS }).map((_, i) => (
+            <SubmissionRowSkeleton key={i} />
           ))}
         </div>
 
-        <ZentraPaginationSkeleton />
+        <div className="border-t border-border px-4 py-2">
+          <ZentraPaginationSkeleton />
+        </div>
       </section>
     </div>
   );

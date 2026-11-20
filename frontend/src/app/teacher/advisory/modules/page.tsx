@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { BookOpen, Trash2 } from "lucide-react";
+import { BookOpen, Megaphone, Trash2 } from "lucide-react";
 import { TeacherEmptyCard } from "../../components/TeacherEmptyCard";
 import { Button } from "@/components/ui/button";
 import { useDock } from "@/components/dock/dock-store";
@@ -248,15 +248,27 @@ export default function TeacherAdvisoryModulesPage() {
           />
 
           {activeModule?.kind === "general" ? (
-            <section className="flex min-w-0 flex-col gap-2 rounded-lg border bg-card p-4" aria-label="General module">
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="m-0 text-sm font-bold tracking-[-0.01em] text-foreground">General module</h2>
-                <Pill tone="neutral" label="Module type">General</Pill>
+            <section
+              className="flex min-w-0 items-start gap-3 rounded-xl border border-border bg-card p-4"
+              aria-label="General module"
+            >
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                <Megaphone size={16} aria-hidden />
+              </span>
+              <div className="flex min-w-0 flex-col gap-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="m-0 text-[0.9375rem] font-bold tracking-[-0.01em] text-foreground">
+                    General module
+                  </h2>
+                  <Pill tone="neutral" label="Module type">
+                    General post
+                  </Pill>
+                </div>
+                <p className="m-0 text-xs leading-relaxed text-muted-foreground">
+                  &ldquo;{activeModule.moduleName}&rdquo; is a post-only module — it carries no
+                  submission tracking. Switch to an ADM module to track learners&apos; answers.
+                </p>
               </div>
-              <p className="m-0 text-xs text-muted-foreground">
-                &ldquo;{activeModule.moduleName}&rdquo; is a post-only module — it carries no
-                submission tracking. Switch to an ADM module to track learners&apos; answers.
-              </p>
             </section>
           ) : (
             <SubmissionsTable

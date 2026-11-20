@@ -233,11 +233,60 @@
   min-height: 0;
 }
 
-/* The referral table blends into the page — no card tint behind the rows
-   (same background-free treatment as the overview chart kanban boards).
-   Doubled class keeps this ahead of the shared `.tableWrap` card fill. */
-.flatTable.flatTable {
+/* ---- Casebook panel ----------------------------------------------------
+   One framed surface: header strip, filter toolbar, table, pager footer.
+   Keeps the desk reading as a single casebook instead of a floating table. */
+.panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background-color: var(--card);
+  box-shadow: 0 0 0 1px color-mix(in oklch, var(--foreground), transparent 96%);
+}
+
+.panelHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: var(--foreground);
+}
+
+.panelToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.625rem 1rem;
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background-color: color-mix(in oklch, var(--muted) 30%, transparent);
+}
+
+/* Inner table: the panel already carries the border/radius. */
+.panelBody.panelBody {
+  border: 0;
+  border-radius: 0;
   background-color: transparent;
+}
+
+.panelFooter {
+  border-top: 1px solid var(--border);
+  padding: 0.5rem 1rem;
 }
 
 .workspace {

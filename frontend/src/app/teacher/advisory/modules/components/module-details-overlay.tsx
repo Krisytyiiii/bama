@@ -14,9 +14,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { KanbanOverlay } from "@/components/ui/kanban-overlay";
 import { Pill, type PillTone } from "@/components/ui/pill";
-import type {
-  AdvisoryModuleRow,
-  AdvisoryModuleStatus,
+import {
+  isUploadedModuleFile,
+  moduleFileName,
+  type AdvisoryModuleRow,
+  type AdvisoryModuleStatus,
 } from "@/services/teacher/advisoryModules.service";
 
 const STATUS: Record<
@@ -218,7 +220,7 @@ export function ModuleDetailsOverlay({
 
             <div className="flex min-w-0 flex-col rounded-lg border border-border bg-white p-2.5 shadow-sm dark:bg-card">
               <h4 className="m-0 mb-1 text-[12px] font-semibold tracking-wide text-muted-foreground uppercase">
-                Module link
+                Module handout
               </h4>
               {module.moduleUrl ? (
                 <a
@@ -228,15 +230,23 @@ export function ModuleDetailsOverlay({
                   className="group flex min-w-0 items-start gap-2 rounded-md border border-border/60 px-2 py-1.5 text-[12px] font-medium text-primary transition-colors hover:border-primary/40 hover:bg-primary/5"
                   title={module.moduleUrl}
                 >
-                  <ExternalLink size={12} className="mt-0.5 shrink-0" aria-hidden />
-                  <span className="min-w-0 flex-1 break-all">{module.moduleUrl}</span>
+                  {isUploadedModuleFile(module.moduleUrl) ? (
+                    <FileText size={12} className="mt-0.5 shrink-0" aria-hidden />
+                  ) : (
+                    <ExternalLink size={12} className="mt-0.5 shrink-0" aria-hidden />
+                  )}
+                  <span className="min-w-0 flex-1 break-words">
+                    {isUploadedModuleFile(module.moduleUrl)
+                      ? (moduleFileName(module.moduleUrl) ?? "Attached file")
+                      : module.moduleUrl}
+                  </span>
                   <span className="shrink-0 text-[12px] text-muted-foreground group-hover:text-primary">
                     Open
                   </span>
                 </a>
               ) : (
                 <p className="m-0 rounded-md border border-dashed px-2 py-3 text-center text-[12px] text-muted-foreground">
-                  No link posted for this module yet.
+                  No handout attached to this module yet.
                 </p>
               )}
               <h4 className="m-0 mb-1 mt-2 text-[12px] font-semibold tracking-wide text-muted-foreground uppercase">

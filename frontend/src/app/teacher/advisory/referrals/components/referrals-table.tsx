@@ -8,8 +8,20 @@ import {
   type ColumnDef,
   type SortingState,
 } from "@tanstack/react-table";
-import { FilePlus2, Loader2, MessageSquareText, SearchIcon, X } from "lucide-react";
+import {
+  ArrowUpRight,
+  Building2,
+  ChevronDown,
+  ChevronUp,
+  ChevronsUpDown,
+  FilePlus2,
+  Loader2,
+  MessageSquareText,
+  SearchIcon,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FilterTabs } from "@/components/ui/filter-tabs";
 import { KanbanOverlay } from "@/components/ui/kanban-overlay";
 import { Pill } from "@/components/ui/pill";
 import { InputGroup, InputGroupInput, InputGroupAddon } from "@/components/ui/input-group";
@@ -22,13 +34,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Pagination, PAGE_SIZE } from "@/components/shared/pagination";
+import { Pagination, PAGE_SIZE, shouldShowPagination } from "@/components/shared/pagination";
 import assign from "@/app/principal/academics/assign/components/section-assignments.module.css";
 import listStyles from "../../list/components/advisory-list.module.css";
 import refStyles from "./referrals.module.css";
 import { formatSurnameFirst } from "@/lib/names";
 import { typeForDesk } from "./referral-types";
-import { isWithdrawnDismissal, type ReferralRow } from "./use-my-referrals";
+import {
+  isWithdrawnDismissal,
+  type ReferralRow,
+  type ReferralStatusFilter,
+} from "./use-my-referrals";
 import { StudentMascot } from "./StudentMascot";
 import { ReferralEmptyKanban } from "./ReferralEmptyKanban";
 import { ReferralPageActions } from "./ReferralPageActions";
@@ -131,6 +147,26 @@ function formatReferredDate(iso: string): string {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
+/** Quiet relative stamp under the absolute date (“3d ago”). */
+function relativeDay(iso: string): string {
+  const then = new Date(iso).getTime();
+  if (!Number.isFinite(then)) return "";
+  const days = Math.floor((Date.now() - then) / 86_400_000);
+  if (days < 0) return "";
+  if (days === 0) return "Today";
+  if (days === 1) return "Yesterday";
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  return months < 12 ? `${months}mo ago` : `${Math.floor(months / 12)}y ago`;
+}
+
+const STATUS_TAB_OPTIONS: ReadonlyArray<{ value: ReferralStatusFilter; label: string }> = [
+  { value: "all", label: "All" },
+  { value: "open", label: "Open" },
+  { value: "resolved", label: "Resolved" },
+  { value: "closed", label: "Closed" },
+];
+
 /** Short pill text + full tooltip text for a booked session slot. */
 function formatSessionSlot(iso: string): { short: string; full: string } {
   const d = new Date(iso);
@@ -160,7 +196,9 @@ function bookedSessionPill(session: NonNullable<ReferralRow["bookedSession"]>) {
 
 export function ReferralsTable({
   referrals,
-  unfilteredTotal,
+  counts,
+  status,
+  onStatusChange,
   query,
   onQueryChange,
   highlightId,
@@ -175,6 +213,9 @@ export function ReferralsTable({
   referrals: ReferralRow[];
   total: number;
   unfilteredTotal: number;
+  counts: { all: number; open: number; resolved: number; closed: number };
+  status: ReferralStatusFilter;
+  onStatusChange: (next: ReferralStatusFilter) => void;
   query: string;
   onQueryChange: (v: string) => void;
   highlightId: string | null;
@@ -239,42 +280,37 @@ export function ReferralsTable({
         ),
       },
       {
-        id: "type",
-        accessorFn: (row) => typeForDesk(row.targetRole).label,
-        header: "Type",
-        size: 120,
+        id: "case",
+        accessorFn: (row) => `${typeForDesk(row.targetRole).label} ${deskHolding(row)}`,
+        header: "Case",
+        size: 200,
         cell: ({ row }) => {
           const type = typeForDesk(row.original.targetRole);
           const session =
             row.original.status === "dismissed" ? null : row.original.bookedSession;
           return (
-            <div className="flex min-w-0 flex-wrap items-center gap-1">
-              <Pill tone={type.key === "adm" ? "amber" : "blue"} label="Referral type">
-                {type.label}
-              </Pill>
-              {session ? (
-                <Pill
-                  tone="teal"
-                  label={bookedSessionPill(session).tooltip}
-                  className="max-w-full overflow-hidden"
-                >
-                  <span className="truncate">{bookedSessionPill(session).text}</span>
+            <div className="flex min-w-0 flex-col gap-1">
+              <div className="flex min-w-0 flex-wrap items-center gap-1">
+                <Pill tone={type.key === "adm" ? "amber" : "blue"} label="Referral type">
+                  {type.label}
                 </Pill>
-              ) : null}
+                {session ? (
+                  <Pill
+                    tone="teal"
+                    label={bookedSessionPill(session).tooltip}
+                    className="max-w-full overflow-hidden"
+                  >
+                    <span className="truncate">{bookedSessionPill(session).text}</span>
+                  </Pill>
+                ) : null}
+              </div>
+              <span className="flex min-w-0 items-center gap-1 text-[12px] text-muted-foreground">
+                <Building2 size={12} className="shrink-0 opacity-70" aria-hidden />
+                <span className="truncate">{deskHolding(row.original)}</span>
+              </span>
             </div>
           );
         },
-      },
-      {
-        id: "desk",
-        accessorFn: (row) => deskHolding(row),
-        header: "Desk",
-        size: 160,
-        cell: ({ row }) => (
-          <Pill className="max-w-full overflow-hidden" label="Desk handling the case">
-            <span className="truncate">{deskHolding(row.original)}</span>
-          </Pill>
-        ),
       },
       {
         id: "status",
@@ -296,15 +332,20 @@ export function ReferralsTable({
         header: "Referred",
         size: 130,
         cell: ({ row }) => (
-          <span className="whitespace-nowrap text-[12px] text-muted-foreground">
-            {formatReferredDate(row.original.referredAt)}
-          </span>
+          <div className="flex min-w-0 flex-col leading-tight">
+            <span className="whitespace-nowrap text-[12px] text-foreground">
+              {formatReferredDate(row.original.referredAt)}
+            </span>
+            <span className="whitespace-nowrap text-[12px] text-muted-foreground">
+              {relativeDay(row.original.referredAt)}
+            </span>
+          </div>
         ),
       },
       {
         id: "actions",
         header: "Actions",
-        size: 240,
+        size: 230,
         enableSorting: false,
         cell: ({ row }) => {
           const r = row.original;
@@ -312,24 +353,25 @@ export function ReferralsTable({
           const cancellable = isCancellable(r.status);
           return (
             <div
-              className="flex items-center justify-end gap-1.5"
+              className="flex items-center justify-end gap-1 opacity-80 transition-opacity duration-150 group-hover/row:opacity-100 focus-within:opacity-100"
               onClick={(event) => event.stopPropagation()}
             >
               <Button
                 type="button"
                 size="xs"
-                variant="default"
-                className="h-6 px-2 text-[12px]"
+                variant="outline"
+                className="h-7 gap-1 px-2 text-[12px]"
                 onClick={() => onTrack(r)}
               >
-                Track case
+                Track
+                <ArrowUpRight size={12} aria-hidden />
               </Button>
               {cancelled ? (
                 <Button
                   type="button"
                   size="xs"
-                  variant="outline"
-                  className="h-6 gap-1 px-2 text-[12px]"
+                  variant="ghost"
+                  className="h-7 gap-1 px-2 text-[12px]"
                   title="A cancelled referral stays closed — file a new anecdotal record to start a fresh referral"
                   aria-label={`File a new anecdotal record to refer ${r.studentName} again`}
                   onClick={() =>
@@ -347,19 +389,15 @@ export function ReferralsTable({
                 <Button
                   type="button"
                   size="xs"
-                  variant="outline"
-                  className="h-6 gap-1 px-2 text-[12px] text-red-600 hover:text-red-600 dark:text-red-400"
+                  variant="ghost"
+                  className="h-7 gap-1 px-2 text-[12px] text-red-600 hover:text-red-600 dark:text-red-400"
                   disabled={!cancellable}
                   onClick={() => onRequestCancel(r)}
                 >
                   <X size={12} aria-hidden />
-                  {cancellable ? "Cancel" : "Cancel (closed)"}
+                  {cancellable ? "Cancel" : "Closed"}
                 </Button>
               )}
-              <span
-                aria-hidden
-                className="mx-0.5 h-4 w-px shrink-0 bg-border"
-              />
               <button
                 type="button"
                 onClick={() => setReasonFor(r)}
@@ -377,7 +415,7 @@ export function ReferralsTable({
                       : "Reason for rejection"
                     : "Reason for referral"
                 }
-                className="inline-flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-md border border-border bg-muted/40 text-muted-foreground transition-colors hover:border-primary/60 hover:bg-muted hover:text-foreground"
+                className="inline-flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
                 <MessageSquareText size={13} aria-hidden />
               </button>
@@ -433,9 +471,9 @@ export function ReferralsTable({
     );
   }
 
-  // Only the truly empty desk gets the starter board; a search with no hits
-  // keeps the data table on screen and shows its own "no match" row.
-  if (referrals.length === 0 && unfilteredTotal === 0) {
+  // Only the truly empty desk gets the starter board; a search or status tab
+  // with no hits keeps the table on screen and shows its own "no match" row.
+  if (counts.all === 0) {
     return (
       <div className="flex min-h-[calc(100dvh-10rem)] w-full items-center justify-center">
         <div className="w-full">
@@ -454,104 +492,168 @@ export function ReferralsTable({
 
   return (
     <div className="flex min-w-0 flex-col gap-4" aria-busy={isPageLoading || undefined}>
-      {/* Search sits on the top-left gutter, page actions on the top-right —
-          same row as the advisory list desk (24px controls). */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <InputGroup className="w-40 shrink-0 rounded-[16px]">
-          <InputGroupInput
-            placeholder="Filter referrals..."
-            value={query}
-            onChange={(event) => onQueryChange(event.target.value)}
-            aria-label="Filter referrals"
-          />
-          <InputGroupAddon>
-            <SearchIcon />
-          </InputGroupAddon>
-        </InputGroup>
-        <ReferralPageActions onNewReferral={onNewReferral} />
-      </div>
+      <section className={refStyles.panel} aria-label="Referral casebook">
+        <header className={refStyles.panelHead}>
+          <div className="min-w-0">
+            <h2 className={refStyles.panelTitle}>Referral casebook</h2>
+          </div>
+          <ReferralPageActions onNewReferral={onNewReferral} />
+        </header>
 
-      <div className={`${listStyles.tableWrap} ${refStyles.flatTable}`}>
-        <Table className="w-full table-fixed">
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="bg-muted/50 [&>th]:border-t-0">
-                {headerGroup.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    style={{ width: header.getSize() }}
-                    onClick={header.column.getToggleSortingHandler()}
-                    className={`h-10 truncate whitespace-nowrap select-none ${
-                      header.column.id === "actions" ? "text-right" : ""
-                    } ${header.column.getCanSort() ? "cursor-pointer" : ""}`}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {isPageLoading ? (
-              Array.from({ length: loadingRowCount }).map((_, i) => (
-                <ReferralRowSkeleton key={`page-skeleton-${i}`} />
-              ))
-            ) : table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => {
-                const r = row.original;
-                const highlighted = highlightId !== null && highlightId === r.id;
-                return (
-                  <TableRow
-                    key={row.id}
-                    id={`teacher-referral-${r.id}`}
-                    data-highlighted={highlighted || undefined}
-                    onClick={() => onTrack(r)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        onTrack(r);
-                      }
-                    }}
-                    tabIndex={0}
-                    aria-label={`Referral for ${r.studentName}, ${statusBadge(r.status, r.dismissedByRole).label}`}
-                    className={`${listStyles.row} ${highlighted ? listStyles.selected : ""}`}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell
-                        key={cell.id}
-                        style={{ width: cell.column.getSize() }}
-                        className="truncate"
+        <div className={refStyles.panelToolbar}>
+          <FilterTabs
+            label="Filter referrals by status"
+            value={status}
+            onChange={onStatusChange}
+            options={STATUS_TAB_OPTIONS.map((option) => ({
+              ...option,
+              count: counts[option.value],
+            }))}
+          />
+          <InputGroup className="w-52 max-w-full shrink-0 rounded-[16px]">
+            <InputGroupInput
+              placeholder="Filter referrals..."
+              value={query}
+              onChange={(event) => onQueryChange(event.target.value)}
+              aria-label="Filter referrals"
+            />
+            <InputGroupAddon>
+              {query ? (
+                <button
+                  type="button"
+                  onClick={() => onQueryChange("")}
+                  aria-label="Clear referral filter"
+                  className="inline-flex size-4 items-center justify-center rounded-sm text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <X size={12} aria-hidden />
+                </button>
+              ) : (
+                <SearchIcon />
+              )}
+            </InputGroupAddon>
+          </InputGroup>
+        </div>
+
+        <div className={`${listStyles.tableWrap} ${refStyles.panelBody}`}>
+          <Table className="w-full table-fixed">
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="bg-muted/30 [&>th]:border-t-0">
+                  {headerGroup.headers.map((header) => {
+                    const sorted = header.column.getIsSorted();
+                    return (
+                      <TableHead
+                        key={header.id}
+                        style={{ width: header.getSize() }}
+                        onClick={header.column.getToggleSortingHandler()}
+                        aria-sort={
+                          sorted === "asc"
+                            ? "ascending"
+                            : sorted === "desc"
+                              ? "descending"
+                              : undefined
+                        }
+                        className={`group/th h-10 truncate whitespace-nowrap select-none ${
+                          header.column.id === "actions" ? "text-right" : ""
+                        } ${header.column.getCanSort() ? "cursor-pointer" : ""}`}
                       >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                );
-              })
-            ) : (
-              <TableRow className="hover:bg-transparent">
-                <TableCell colSpan={columns.length} className="h-40 whitespace-normal">
-                  <div className="flex w-full justify-center">
-                    <InsightCallout role="status" className="w-full max-w-xl text-left">
-                      <strong>No referrals match your search.</strong> Try a different
-                      name, LRN, desk, or status — or clear the filter to see every
-                      referral.
-                    </InsightCallout>
-                  </div>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      <Pagination
-        currentPage={page}
-        totalItems={totalItems}
-        pageSize={PAGE_SIZE}
-        onPageChange={onPageChange}
-      />
+                        {header.isPlaceholder ? null : (
+                          <span
+                            className={`inline-flex items-center gap-1 ${
+                              header.column.id === "actions" ? "justify-end" : ""
+                            }`}
+                          >
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            {header.column.getCanSort() ? (
+                              <span
+                                className={`transition-opacity ${
+                                  sorted ? "opacity-100" : "opacity-0 group-hover/th:opacity-60"
+                                }`}
+                                aria-hidden
+                              >
+                                {sorted === "asc" ? (
+                                  <ChevronUp size={12} />
+                                ) : sorted === "desc" ? (
+                                  <ChevronDown size={12} />
+                                ) : (
+                                  <ChevronsUpDown size={12} />
+                                )}
+                              </span>
+                            ) : null}
+                          </span>
+                        )}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {isPageLoading ? (
+                Array.from({ length: loadingRowCount }).map((_, i) => (
+                  <ReferralRowSkeleton key={`page-skeleton-${i}`} />
+                ))
+              ) : table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((row) => {
+                  const r = row.original;
+                  const highlighted = highlightId !== null && highlightId === r.id;
+                  return (
+                    <TableRow
+                      key={row.id}
+                      id={`teacher-referral-${r.id}`}
+                      data-highlighted={highlighted || undefined}
+                      onClick={() => onTrack(r)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          onTrack(r);
+                        }
+                      }}
+                      tabIndex={0}
+                      aria-label={`Referral for ${r.studentName}, ${statusBadge(r.status, r.dismissedByRole).label}`}
+                      className={`group/row ${listStyles.row} ${
+                        highlighted ? listStyles.selected : ""
+                      }`}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell
+                          key={cell.id}
+                          style={{ width: cell.column.getSize() }}
+                          className="truncate"
+                        >
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  );
+                })
+              ) : (
+                <TableRow className="hover:bg-transparent">
+                  <TableCell colSpan={columns.length} className="h-40 whitespace-normal">
+                    <div className="flex w-full justify-center">
+                      <InsightCallout role="status" className="w-full max-w-xl text-left">
+                        <strong>No referrals match your filters.</strong> Try a different
+                        name, LRN, or status — or clear the filters to see every referral.
+                      </InsightCallout>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        {shouldShowPagination(totalItems, PAGE_SIZE) ? (
+          <footer className={refStyles.panelFooter}>
+            <Pagination
+              currentPage={page}
+              totalItems={totalItems}
+              pageSize={PAGE_SIZE}
+              onPageChange={onPageChange}
+            />
+          </footer>
+        ) : null}
+      </section>
 
       <KanbanOverlay
         open={reasonFor !== null}
@@ -568,74 +670,106 @@ export function ReferralsTable({
           </span>
         }
         width="md"
-        footer={
-          reasonFor ? (
-            <p className="m-0 px-1 pb-1 text-[12px] text-muted-foreground">
-              Filed {formatReferredDate(reasonFor.referredAt)}
-            </p>
-          ) : undefined
-        }
       >
         {reasonFor ? (
           <div className="flex min-w-0 flex-col gap-3 px-1 pb-1">
-            <div className="flex min-w-0 items-center gap-2 rounded-lg border border-border bg-white p-2.5 shadow-sm dark:bg-card">
+            {/* Identity strip: mascot, surname-first name, LRN + filed date,
+                and the live status on the right. */}
+            <div className="flex min-w-0 items-center gap-2.5">
               <StudentMascot
                 name={reasonFor.studentName}
                 seed={reasonFor.lrn}
                 character={reasonFor.mascot ?? undefined}
-                size={32}
+                size={36}
               />
-              <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <span
-                  className="truncate text-[13px] font-semibold text-foreground"
+                  className="truncate text-[14px] font-semibold leading-tight text-foreground"
                   title={reasonFor.studentName}
                 >
                   {formatSurnameFirst(reasonFor.studentName)}
                 </span>
-                <Pill className="tabular-nums self-start" label="LRN">
-                  {reasonFor.lrn}
-                </Pill>
+                <span className="flex min-w-0 flex-wrap items-center gap-1 text-[12px] text-muted-foreground">
+                  <span className="tabular-nums">LRN {reasonFor.lrn}</span>
+                  <span aria-hidden>·</span>
+                  <span className="truncate">
+                    Filed {formatReferredDate(reasonFor.referredAt)}
+                  </span>
+                </span>
               </div>
-            </div>
-            <div className="flex min-w-0 flex-wrap items-center gap-1">
-              <Pill tone={typeForDesk(reasonFor.targetRole).key === "adm" ? "amber" : "blue"} label="Referral type">
-                {typeForDesk(reasonFor.targetRole).label}
-              </Pill>
-              <Pill tone={STATUS_TONE[statusBadge(reasonFor.status, reasonFor.dismissedByRole).variant]} label="Referral status">
+              <Pill
+                tone={STATUS_TONE[statusBadge(reasonFor.status, reasonFor.dismissedByRole).variant]}
+                label="Referral status"
+              >
                 {statusBadge(reasonFor.status, reasonFor.dismissedByRole).label}
               </Pill>
-              <Pill label="Desk handling the case">{deskHolding(reasonFor)}</Pill>
             </div>
-            {closedMeta ? (
-              <>
-                <p className="m-0 break-words text-[13px] leading-relaxed whitespace-pre-wrap text-foreground">
-                  {closedMeta.label}
-                </p>
-                {closedMeta.note ? (
-                  <div className="flex min-w-0 flex-col gap-1 rounded-lg border border-border/70 bg-muted/40 p-2.5">
-                    <span className="text-[12px] font-semibold tracking-wide text-muted-foreground uppercase">
-                      {isWithdrawnDismissal(reasonFor.dismissedByRole)
-                        ? "Note from the filing teacher"
-                        : "Note from the desk"}
-                    </span>
-                    <p className="m-0 break-words text-[12px] leading-relaxed whitespace-pre-wrap text-foreground">
-                      {closedMeta.note}
-                    </p>
-                  </div>
-                ) : (
-                  <p className="m-0 text-[12px] text-muted-foreground">
-                    No note was left
-                    {isWithdrawnDismissal(reasonFor.dismissedByRole)
-                      ? " by the filing teacher."
-                      : " by the desk."}
+
+            {/* Case facts: a quiet two-column definition grid. */}
+            <dl className="grid min-w-0 grid-cols-2 gap-3 rounded-lg border border-border/70 bg-muted/30 px-3 py-2.5">
+              <div className="flex min-w-0 flex-col gap-1">
+                <dt className="m-0 text-[12px] font-medium tracking-wide text-muted-foreground uppercase">
+                  Referral type
+                </dt>
+                <dd className="m-0 min-w-0">
+                  <Pill
+                    tone={
+                      typeForDesk(reasonFor.targetRole).key === "adm" ? "amber" : "blue"
+                    }
+                    label="Referral type"
+                  >
+                    {typeForDesk(reasonFor.targetRole).label}
+                  </Pill>
+                </dd>
+              </div>
+              <div className="flex min-w-0 flex-col gap-1">
+                <dt className="m-0 text-[12px] font-medium tracking-wide text-muted-foreground uppercase">
+                  Handled by
+                </dt>
+                <dd className="m-0 truncate text-[13px] font-medium leading-snug text-foreground">
+                  {deskHolding(reasonFor)}
+                </dd>
+              </div>
+            </dl>
+
+            <section className="flex min-w-0 flex-col gap-1.5">
+              <h3 className="m-0 text-[12px] font-medium tracking-wide text-muted-foreground uppercase">
+                {closedMeta ? "Closing note" : "Reason for referral"}
+              </h3>
+              {closedMeta ? (
+                <>
+                  <p className="m-0 break-words text-[13px] leading-relaxed whitespace-pre-wrap text-foreground">
+                    {closedMeta.label}
                   </p>
-                )}
-              </>
-            ) : (
-              <p className="m-0 break-words text-[13px] leading-relaxed whitespace-pre-wrap text-foreground">
-                {reasonFor.reason?.trim() || "No reason was recorded for this referral."}
-              </p>
-            )}
+                  {closedMeta.note ? (
+                    <div className="flex min-w-0 flex-col gap-1 rounded-lg border border-border/70 bg-muted/40 p-2.5">
+                      <span className="text-[12px] font-semibold tracking-wide text-muted-foreground uppercase">
+                        {isWithdrawnDismissal(reasonFor.dismissedByRole)
+                          ? "Note from the filing teacher"
+                          : "Note from the desk"}
+                      </span>
+                      <p className="m-0 break-words text-[12px] leading-relaxed whitespace-pre-wrap text-foreground">
+                        {closedMeta.note}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="m-0 text-[12px] text-muted-foreground">
+                      No note was left
+                      {isWithdrawnDismissal(reasonFor.dismissedByRole)
+                        ? " by the filing teacher."
+                        : " by the desk."}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <div className="rounded-lg border border-border/70 bg-card px-3 py-2.5 dark:bg-card/60">
+                  <p className="m-0 break-words text-[13px] leading-relaxed whitespace-pre-wrap text-foreground">
+                    {reasonFor.reason?.trim() ||
+                      "No reason was recorded for this referral."}
+                  </p>
+                </div>
+              )}
+            </section>
           </div>
         ) : null}
       </KanbanOverlay>

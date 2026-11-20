@@ -10,6 +10,12 @@
   box-shadow: 0 0 0 1px color-mix(in oklch, var(--foreground), transparent 96%);
 }
 
+/* Inner cards follow the overview boards: see-through in dark mode. Doubled
+   class outranks the `dark:bg-card`/`dark:bg-muted/20` utilities. */
+:global(.dark) .pane.pane {
+  background-color: transparent;
+}
+
 .boardHead {
   display: flex;
   align-items: center;

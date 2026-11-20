@@ -20,6 +20,9 @@ function TeacherAdvisoryReferralsView({ highlightId }: { highlightId: string | n
   const {
     query,
     setQuery,
+    status,
+    setStatus,
+    counts,
     referralsQuery,
     referrals,
     total,
@@ -49,6 +52,7 @@ function TeacherAdvisoryReferralsView({ highlightId }: { highlightId: string | n
       id: r.id,
       studentName: r.studentName,
       lrn: r.lrn,
+      mascot: r.mascot ?? null,
       targetRole: r.targetRole,
       track: r.targetRole === "adm_coordinator" ? "adm" : "general",
       typeLabel: type.label,
@@ -85,6 +89,9 @@ function TeacherAdvisoryReferralsView({ highlightId }: { highlightId: string | n
             referrals={referrals}
             total={total}
             unfilteredTotal={unfilteredTotal}
+            counts={counts}
+            status={status}
+            onStatusChange={setStatus}
             query={query}
             onQueryChange={(v) => {
               setQuery(v);
