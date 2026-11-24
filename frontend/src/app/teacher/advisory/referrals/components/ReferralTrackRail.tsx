@@ -1,12 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { Building2, Check, Clock, History, MessageSquareText } from "lucide-react";
+import { Building2, CalendarClock, Check, Clock, History, MapPin, MessageSquareText } from "lucide-react";
 import { Pill } from "@/components/ui/pill";
 import { GlassCard } from "@/components/ui/glass-card";
 import { StudentMascot } from "@/components/student-mascot/StudentMascot";
 import { buildAdmTrackSteps } from "@/components/adm-tracker/adm-track-data";
 import type { TrackerCaseInput } from "@/components/adm-tracker/adm-stage-activity";
+import { sessionTypeLabel } from "@/lib/labels/sessions";
 import type { TrackableReferral } from "./ReferralTrackDialog";
 import styles from "./referrals.module.css";
 
@@ -48,6 +49,46 @@ const REVIEWER_LABELS: Record<string, string> = {
 
 /** ADM stages where the case still sits with the consultation reviewer. */
 const EARLY_ADM_STAGES = new Set(["anecdotal", "consultation"]);
+
+type RailTimelineEntry = TrackableReferral["timeline"][number];
+
+/** Which ADM stage a logged update belongs to — the rail nests its feed there. */
+function activityStage(entry: RailTimelineEntry): string {
+  if (entry.stage) return entry.stage;
+  if (entry.action === "adm_approved") return "principal_approval";
+  if (entry.source === "adm_parent_meetings") {
+    return entry.homeVisit ? "home_visitation" : "meeting_parents";
+  }
+  // Counselors and the nurse work the consultation loop, so session updates and
+  // referral notes belong to that stage.
+  return "consultation";
+}
+
+/** One desk update inside an expanded stage. */
+function StageActivityRow({ entry }: { entry: RailTimelineEntry }) {
+  return (
+    <li className={styles.trackFeedItem}>
+      <span
+        className={styles.trackFeedDot}
+        data-source={entry.source ?? "case"}
+        aria-hidden
+      />
+      <div className={styles.trackFeedBody}>
+        <p className={styles.trackFeedLabel}>{entry.label}</p>
+        {entry.detail?.trim() ? (
+          <p className={styles.trackFeedDetail}>{entry.detail}</p>
+        ) : null}
+        <p className={styles.trackFeedMeta}>
+          {entry.byRole ? humanize(entry.byRole) : "Receiving desk"}
+          <span className={styles.trackDot} aria-hidden>·</span>
+          {SOURCE_LABEL[entry.source ?? "case"] ?? "Case update"}
+          <span className={styles.trackDot} aria-hidden>·</span>
+          {formatDateTime(entry.at ?? entry.date)}
+        </p>
+      </div>
+    </li>
+  );
+}
 
 const VARIANT_TONE: Record<
   TrackableReferral["statusVariant"],
@@ -195,6 +236,24 @@ function RailBody({ referral }: { referral: TrackableReferral }) {
     return currentIndex >= 0 ? currentIndex : 0;
   });
 
+  // ADM stages are generic; the timeline carries what the other desks actually
+  // did (booked/moved sessions, meeting minutes, coordinator moves, sign-off).
+  // Bucket those updates by the stage they belong to so each step can show its
+  // own desk activity when expanded.
+  const activitiesByStage = React.useMemo(() => {
+    const map = new Map<string, TrackableReferral["timeline"]>();
+    for (const entry of referral.timeline ?? []) {
+      const key = activityStage(entry);
+      const list = map.get(key);
+      if (list) list.push(entry);
+      else map.set(key, [entry]);
+    }
+    for (const list of map.values()) {
+      list.sort((a, b) => ((a.at ?? a.date) < (b.at ?? b.date) ? 1 : -1));
+    }
+    return map;
+  }, [referral.timeline]);
+
   return (
     <aside className={styles.trackRail} aria-label="Referral tracking">
       <header className={styles.trackHead}>
@@ -240,18 +299,27 @@ function RailBody({ referral }: { referral: TrackableReferral }) {
           >
             {referral.typeLabel}
           </Pill>
-          {referral.bookedSession && referral.status !== "dismissed" ? (
-            <Pill
-              className="h-6 leading-none"
-              tone="teal"
-              label={`Session booked ${formatDateTime(
-                referral.bookedSession.scheduledAt,
-              )}`}
-            >
-              Session {formatShortDate(referral.bookedSession.scheduledAt)}
-            </Pill>
-          ) : null}
         </div>
+
+        {referral.bookedSession && referral.status !== "dismissed" ? (
+          <div className={styles.trackBooking}>
+            <span className={styles.trackBookingIcon} aria-hidden>
+              <CalendarClock size={12} />
+            </span>
+            <div className={styles.trackBookingBody}>
+              <p className={styles.trackBookingLabel}>Booked session</p>
+              <p className={styles.trackBookingValue}>
+                {sessionTypeLabel(referral.bookedSession.sessionType)}
+                <span className={styles.trackDot} aria-hidden>·</span>
+                {formatDateTime(referral.bookedSession.scheduledAt)}
+              </p>
+              <p className={styles.trackBookingMeta}>
+                <MapPin size={10} aria-hidden />
+                {referral.bookedSession.venue?.trim() || "Venue not set"}
+              </p>
+            </div>
+          </div>
+        ) : null}
 
         <div className={styles.trackHeldBy}>
           <Building2 size={12} aria-hidden />
@@ -285,12 +353,15 @@ function RailBody({ referral }: { referral: TrackableReferral }) {
       </header>
 
       {railItems.length > 0 ? (
-        <>
+        <div className={styles.trackScroll}>
           <ol
             className={styles.trackSteps}
             aria-label={isAdm ? "ADM pipeline" : "Case updates"}
           >
-            {railItems.map((item, index) => (
+            {railItems.map((item, index) => {
+              const stageEntries =
+                isAdm ? (activitiesByStage.get(item.key) ?? []) : [];
+              return (
               <li key={item.key}>
                 <button
                   type="button"
@@ -299,6 +370,13 @@ function RailBody({ referral }: { referral: TrackableReferral }) {
                   } ${item.state === "todo" ? styles.trackStepTodo : ""}`}
                   onClick={() => setActiveStep(index)}
                   aria-pressed={index === activeStep}
+                  aria-label={
+                    isAdm && stageEntries.length > 0
+                      ? `${item.label}, ${stageEntries.length} desk update${
+                          stageEntries.length === 1 ? "" : "s"
+                        }`
+                      : undefined
+                  }
                 >
                   <span
                     className={styles.trackStepMarker}
@@ -315,6 +393,17 @@ function RailBody({ referral }: { referral: TrackableReferral }) {
                     <span className={styles.trackStepLabel}>{item.label}</span>
                     <span className={styles.trackStepMeta}>{item.meta}</span>
                   </span>
+                  {stageEntries.length > 0 ? (
+                    <span
+                      className={styles.trackStepCount}
+                      title={`${stageEntries.length} desk update${
+                        stageEntries.length === 1 ? "" : "s"
+                      }`}
+                      aria-hidden
+                    >
+                      {stageEntries.length}
+                    </span>
+                  ) : null}
                 </button>
 
                 {index === activeStep ? (
@@ -346,10 +435,30 @@ function RailBody({ referral }: { referral: TrackableReferral }) {
                         </span>
                       </div>
                     ) : null}
+                    {isAdm ? (
+                      stageEntries.length > 0 ? (
+                        <ul
+                          className={styles.trackStageFeed}
+                          aria-label={`Desk activity for ${item.label}`}
+                        >
+                          {stageEntries.map((entry, entryIndex) => (
+                            <StageActivityRow
+                              key={`${entry.label}-${entry.at ?? entry.date}-${entryIndex}`}
+                              entry={entry}
+                            />
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className={styles.trackStageEmpty}>
+                          Nothing logged by the desk on this stage yet.
+                        </p>
+                      )
+                    ) : null}
                   </div>
                 ) : null}
               </li>
-            ))}
+              );
+            })}
           </ol>
 
           {referral.reason.trim() ? (
@@ -358,7 +467,7 @@ function RailBody({ referral }: { referral: TrackableReferral }) {
               <p className={styles.trackFootText}>{referral.reason}</p>
             </footer>
           ) : null}
-        </>
+        </div>
       ) : (
         <div className={styles.trackNoSteps}>
           <p className={styles.trackEmptyTitle}>No updates yet</p>

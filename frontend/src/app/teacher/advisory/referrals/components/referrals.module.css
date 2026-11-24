@@ -639,6 +639,75 @@
   opacity: 0.6;
 }
 
+/* Booked session card in the rail head — the adviser sees the slot the
+   receiving desk set (type, date/time, venue) without opening anything. */
+.trackBooking {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.4375rem 0.5rem;
+  border: 1px solid color-mix(in srgb, #14b8a6 35%, var(--border));
+  border-radius: 0.5rem;
+  background-color: color-mix(in srgb, #14b8a6 8%, transparent);
+}
+
+.trackBookingIcon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0.0625rem;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, #14b8a6 16%, transparent);
+  color: #0d9488;
+}
+
+:global(.dark) .trackBookingIcon {
+  color: #2dd4bf;
+}
+
+.trackBookingBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+  min-width: 0;
+}
+
+.trackBookingLabel {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #0f766e;
+}
+
+:global(.dark) .trackBookingLabel {
+  color: #5eead4;
+}
+
+.trackBookingValue {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.trackBookingMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
 /* Segmented plan bar — one segment per stage/update, like a run plan. */
 .trackSegments {
   display: flex;
@@ -663,19 +732,26 @@
 
 .trackSteps {
   display: flex;
-  flex: 1 1 auto;
   flex-direction: column;
   gap: 0.125rem;
-  min-height: 0;
   margin: 0;
   padding: 0.375rem;
-  overflow-y: auto;
   list-style: none;
+}
+
+/* Steps + desk activity share one scroll area so the feed never fights the
+   fixed rail height. */
+.trackScroll {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
-.trackSteps::-webkit-scrollbar {
+.trackScroll::-webkit-scrollbar {
   display: none;
 }
 
@@ -863,6 +939,110 @@
   line-height: 1.4;
   color: var(--foreground);
   overflow-wrap: anywhere;
+}
+
+/* Desk activity (ADM): the logged updates that belong to one pipeline stage,
+   nested under the expanded step — one row per action, newest first. */
+.trackStageFeed {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.4375rem 0 0;
+  border-top: 1px dashed var(--border);
+  list-style: none;
+}
+
+.trackStageEmpty {
+  margin: 0;
+  padding-top: 0.375rem;
+  border-top: 1px dashed var(--border);
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.trackStepCount {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  margin-left: auto;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background-color: color-mix(in srgb, #f59e0b 16%, transparent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #b45309;
+}
+
+:global(.dark) .trackStepCount {
+  background-color: color-mix(in srgb, #fbbf24 18%, transparent);
+  color: #fcd34d;
+}
+
+.trackFeedItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.trackFeedDot {
+  flex: none;
+  width: 0.4375rem;
+  height: 0.4375rem;
+  margin-top: 0.3125rem;
+  border-radius: 999px;
+  background-color: var(--muted-foreground);
+}
+
+.trackFeedDot[data-source="counseling_sessions"] {
+  background-color: #14b8a6;
+}
+
+.trackFeedDot[data-source="adm_parent_meetings"] {
+  background-color: #8b5cf6;
+}
+
+.trackFeedDot[data-source="referrals"] {
+  background-color: #f59e0b;
+}
+
+.trackFeedBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem;
+  min-width: 0;
+}
+
+.trackFeedLabel {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--foreground);
+  overflow-wrap: anywhere;
+}
+
+.trackFeedDetail {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--muted-foreground);
+  overflow-wrap: anywhere;
+}
+
+.trackFeedMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
 }
 
 .trackEmpty,

@@ -384,7 +384,6 @@ function AdviserInterventionsPageInner() {
               <span>Factors</span>
               <span>Pipeline</span>
               <span>Flagged</span>
-              <span>Sessions</span>
               <span />
             </div>
             <ul className={styles.listBody} aria-label="Intervention cases on the advisory desk">

@@ -52,7 +52,6 @@ export function InterventionsSkeleton() {
               <Skeleton className={styles.skelHeadLabel} style={{ width: "4.25rem" }} />
               <Skeleton className={styles.skelHeadLabel} style={{ width: "4rem" }} />
               <Skeleton className={styles.skelHeadLabel} style={{ width: "3.25rem" }} />
-              <Skeleton className={styles.skelHeadLabel} style={{ width: "4rem" }} />
               <span />
             </div>
             <ul className={styles.listBody} aria-hidden>
@@ -82,11 +81,6 @@ export function InterventionsSkeleton() {
 
                   <div className={`${styles.cell} ${styles.cellMetaRow} ${styles.cellFlagged}`}>
                     <Skeleton className={styles.skelMeta} style={{ width: "3.25rem" }} />
-                  </div>
-
-                  <div className={`${styles.cell} ${styles.cellMetaRow} ${styles.cellSessions}`}>
-                    <Skeleton className={styles.skelMeta} style={{ width: "5rem" }} />
-                    <Skeleton className={styles.skelSub} style={{ width: "6.5rem" }} />
                   </div>
 
                   <div className={`${styles.cell} ${styles.cellAction}`}>

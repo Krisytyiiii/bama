@@ -132,7 +132,7 @@
 /* ── Case list: one glass panel, one row per case (no card grid) ───────────── */
 .listPanel {
   --list-cols: minmax(8.5rem, 2fr) minmax(4.25rem, 0.6fr) minmax(7.5rem, 1.7fr)
-    minmax(5rem, 1fr) minmax(4rem, 0.7fr) minmax(7.5rem, 1.2fr) 7rem;
+    minmax(5rem, 1fr) minmax(4rem, 0.7fr) 7rem;
   position: relative;
   min-width: 0;
   overflow: hidden;
@@ -178,6 +178,14 @@
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/* Vertical column rules — every column but the last is divided by a hairline. */
+.listHead > span:not(:last-child),
+.row > .cell:not(:last-child),
+.skelCaseRow > .cell:not(:last-child) {
+  border-right: 1px solid color-mix(in oklch, var(--border) 65%, transparent);
+  padding-right: 0.75rem;
 }
 
 /* One case row: risk level paints the vertical accent only. */
@@ -321,7 +329,6 @@
 .cellSub svg {
   flex-shrink: 0;
 }
-
 .cellAction {
   justify-content: flex-end;
 }
@@ -338,11 +345,18 @@
     grid-template-areas:
       "person risk"
       "factors factors"
-      "status sessions"
-      "flagged action";
+      "status flagged"
+      "action action";
     row-gap: 0.5rem;
     align-items: center;
     padding: 0.625rem 0.75rem 0.6875rem;
+  }
+
+  /* Stacked rows drop the vertical rules — they only make sense in a column grid. */
+  .row > .cell:not(:last-child),
+  .skelCaseRow > .cell:not(:last-child) {
+    border-right: 0;
+    padding-right: 0;
   }
 
   .cellPerson {
@@ -364,17 +378,12 @@
     grid-area: status;
   }
 
-  .cellSessions {
-    grid-area: sessions;
-    align-items: flex-end;
-    text-align: right;
-  }
-
   .cellFlagged {
     grid-area: flagged;
     flex-direction: row;
     align-items: center;
     gap: 0.25rem;
+    justify-content: flex-end;
   }
 
   .cellAction {

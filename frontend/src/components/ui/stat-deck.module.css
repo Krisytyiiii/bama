@@ -70,6 +70,26 @@
   grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
+/* Five-figure decks wrap 3 + 2 — and the two tiles on the last row stretch to
+   fill the strip instead of leaving a blank grid cell. Flex-wrap does that for
+   free (last-row items grow), which a fixed grid can't. */
+.tilesThree {
+  display: flex;
+  flex-wrap: wrap;
+  grid-template-columns: none;
+}
+
+.tilesThree > * {
+  flex: 1 1 calc(33.333% - 1px);
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .tilesThree > * {
+    flex-basis: calc(50% - 1px);
+  }
+}
+
 .tile {
   position: relative;
   display: flex;

@@ -19,6 +19,11 @@ export interface StatDeckItem {
   /** Numbers count up; strings (e.g. "88.5", "—", "3/12") render as-is. */
   value: number | string;
   hint: string;
+  /**
+   * Custom middle content (a mini chart, breakdown…). When set it replaces the
+   * number/value block — the icon + label header and the hint still render.
+   */
+  body?: React.ReactNode;
   /** Makes the whole tile a link to the list the number came from. */
   href?: string;
   /** Makes the whole tile a button (filters/expands instead of navigating). */
@@ -63,8 +68,9 @@ export interface StatDeckProps {
   countDuration?: number;
   /** Render nothing at all (e.g. a board with no data yet). */
   hidden?: boolean;
-  /** Tiles per row on wide screens (default 4). Decks with 6 figures pass 6 to stay on one row. */
-  columns?: 4 | 6;
+  /** Tiles per row on wide screens (default 4). Decks with 5 figures pass 3 to
+   *  wrap 3 + 2; decks with 6 pass 6 to stay on one row. */
+  columns?: 3 | 4 | 6;
   className?: string;
 }
 
@@ -99,20 +105,26 @@ function StatTile({
           )
         ) : null}
       </span>
-      <span className={styles.tileValue}>
-        <span className={cn(styles.tileNumber, item.value === 0 && styles.tileNumberZero)}>
-          {numeric ? shown : item.value}
-        </span>
-        {item.unit ? <span className={styles.tileUnit}>{item.unit}</span> : null}
-      </span>
-      {item.meter !== undefined ? (
-        <span className={styles.tileMeter} aria-hidden>
-          <span
-            className={styles.tileMeterFill}
-            style={{ width: `${Math.max(0, Math.min(100, item.meter))}%` }}
-          />
-        </span>
-      ) : null}
+      {item.body ? (
+        item.body
+      ) : (
+        <>
+          <span className={styles.tileValue}>
+            <span className={cn(styles.tileNumber, item.value === 0 && styles.tileNumberZero)}>
+              {numeric ? shown : item.value}
+            </span>
+            {item.unit ? <span className={styles.tileUnit}>{item.unit}</span> : null}
+          </span>
+          {item.meter !== undefined ? (
+            <span className={styles.tileMeter} aria-hidden>
+              <span
+                className={styles.tileMeterFill}
+                style={{ width: `${Math.max(0, Math.min(100, item.meter))}%` }}
+              />
+            </span>
+          ) : null}
+        </>
+      )}
       <span className={styles.tileHint}>{item.hint}</span>
     </>
   );
@@ -187,7 +199,11 @@ export function StatDeck({
   if (hidden) return null;
 
   const skeletonTiles = items.length || columns;
-  const tilesClass = cn(styles.tiles, columns === 6 && styles.tilesSix);
+  const tilesClass = cn(
+    styles.tiles,
+    columns === 6 && styles.tilesSix,
+    columns === 3 && styles.tilesThree,
+  );
 
   return (
     <section

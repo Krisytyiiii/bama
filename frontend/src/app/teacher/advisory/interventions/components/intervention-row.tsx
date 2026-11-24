@@ -1,7 +1,7 @@
 "use client";
 
 import type { KeyboardEvent } from "react";
-import { ArrowUpRight, CalendarClock } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { formatElapsedShort, msSinceDate } from "@/lib/clock";
 import { StudentMascot } from "@/components/student-mascot/StudentMascot";
 import { Button } from "@/components/ui/button";
@@ -105,13 +105,6 @@ export function InterventionRowCard({
 }) {
   const status = advisoryPipelineStatus(row);
   const activeFactors = FACTORS.filter((factor) => row.factors[factor.key]);
-  const sessions = row.intervention?.sessions ?? [];
-  const doneCount = sessions.filter((session) => session.status === "completed").length;
-  const nextSession = sessions.find(
-    (session) =>
-      session.status === "scheduled" &&
-      new Date(session.scheduledAt).getTime() >= now,
-  );
   const detectedMs = row.detectedAt ? msSinceDate(row.detectedAt, now) : null;
   const detectedElapsed =
     detectedMs === null
@@ -187,22 +180,6 @@ export function InterventionRowCard({
       <div className={`${styles.cell} ${styles.cellMetaRow} ${styles.cellFlagged}`}>
         <span className={styles.cellLabel}>Flagged</span>
         <span className={styles.cellValue}>{detectedElapsed}</span>
-      </div>
-
-      <div className={`${styles.cell} ${styles.cellMetaRow} ${styles.cellSessions}`}>
-        <span className={styles.cellValue}>
-          {doneCount} session{doneCount === 1 ? "" : "s"} done
-        </span>
-        <span className={styles.cellSub} title={nextSession ? formatDateTime(nextSession.scheduledAt) : undefined}>
-          {nextSession ? (
-            <>
-              <CalendarClock size={11} aria-hidden />
-              {formatDateTime(nextSession.scheduledAt)}
-            </>
-          ) : (
-            "No session booked"
-          )}
-        </span>
       </div>
 
       <div className={`${styles.cell} ${styles.cellAction}`}>

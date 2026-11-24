@@ -98,39 +98,55 @@ export function ReferralsSkeleton() {
 
 /**
  * Tracking-rail loading state — the same sticky aside the loaded page shows on
- * the right, with the identity strip, status pills, progress bar and a run of
- * step rows, so the split layout keeps its footprint while the first page lands.
+ * the right: eyebrow, glass identity card, status pills, the "with desk" line,
+ * the segmented progress bar, pipeline steps (with their update-count chips)
+ * and the expanded stage's desk activity, so the split layout keeps its
+ * footprint while the first page lands.
  */
 export function ReferralRailSkeleton() {
   return (
     <ShimmerGroup>
       <aside className={refStyles.trackRail} aria-busy="true" aria-label="Loading referral tracking">
         <div className={refStyles.trackHead}>
-          <Skeleton className="h-3 w-28" />
-          <div className="flex min-w-0 items-center gap-2.5">
-            <Skeleton className="size-9 shrink-0 rounded-full" />
-            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-              <Skeleton className="h-3.5 w-32" />
-              <Skeleton className="h-5 w-24 rounded-md" />
+          <Skeleton className="h-3 w-32" />
+          <div className="rounded-xl border border-border bg-muted/40 p-2.5">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <Skeleton className="size-9 shrink-0 rounded-full" />
+              <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                <Skeleton className="h-3.5 w-40" />
+                <Skeleton className="h-5 w-24 rounded-md" />
+              </div>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
-            <Skeleton className="h-6 w-16 rounded-full" />
             <Skeleton className="h-6 w-20 rounded-full" />
+            <Skeleton className="h-6 w-24 rounded-full" />
           </div>
-          <Skeleton className="h-3 w-40" />
-          <Skeleton className="h-1.5 w-full rounded-full" />
+          <Skeleton className="h-3 w-44" />
+          <div className="flex gap-0.5" aria-hidden>
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Skeleton key={i} className="h-1 flex-1 rounded-full" />
+            ))}
+          </div>
         </div>
-        <div className="flex min-w-0 flex-col gap-2 p-3.5" aria-hidden>
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex min-w-0 items-start gap-2">
-              <Skeleton className="size-4 shrink-0 rounded-full" />
+
+        <div className="flex min-w-0 flex-col gap-1 p-1.5" aria-hidden>
+          {Array.from({ length: 7 }).map((_, i) => (
+            <div key={i} className="flex min-w-0 items-start gap-2 px-2 py-1.5">
+              <Skeleton className="mt-0.5 size-4 shrink-0 rounded-full" />
               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-                <Skeleton className="h-3 w-32" />
+                <Skeleton className="h-3 w-40 max-w-full" />
                 <Skeleton className="h-3 w-24" />
               </div>
+              {i < 2 ? <Skeleton className="size-4 shrink-0 rounded-full" /> : null}
             </div>
           ))}
+          <div className="ml-6 mr-2 flex min-w-0 flex-col gap-2 rounded-md border-l-2 border-amber-500/40 bg-muted/40 p-2.5">
+            <Skeleton className="h-3 w-28" />
+            <Skeleton className="mx-0 h-px w-full" />
+            <Skeleton className="h-3 w-40" />
+            <Skeleton className="h-3 w-48 max-w-full" />
+          </div>
         </div>
       </aside>
     </ShimmerGroup>

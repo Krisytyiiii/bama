@@ -54,7 +54,14 @@ function toTrackable(r: ReferralRow): TrackableReferral {
   };
 }
 
-function TeacherAdvisoryReferralsView({ highlightId }: { highlightId: string | null }) {
+function TeacherAdvisoryReferralsView({
+  highlightId,
+  autoOpen,
+}: {
+  highlightId: string | null;
+  /** `?new=adm` from the ADM desk — opens the form with the ADM type picked. */
+  autoOpen?: string | null;
+}) {
   const {
     query,
     setQuery,
@@ -80,7 +87,9 @@ function TeacherAdvisoryReferralsView({ highlightId }: { highlightId: string | n
     requestCancel,
     confirmCancel,
   } = useReferralCancel();
-  const [referralSeed, setReferralSeed] = React.useState<ReferFormSeed | null>(null);
+  const [referralSeed, setReferralSeed] = React.useState<ReferFormSeed | null>(() =>
+    autoOpen ? { typeKey: autoOpen === "adm" ? "adm" : undefined } : null,
+  );
   // Bottom-right submit dock lives at root level (survives page navigation).
   const submitDock = useReferralSubmitDock();
 
@@ -164,7 +173,12 @@ function TeacherAdvisoryReferralsView({ highlightId }: { highlightId: string | n
 }
 function TeacherAdvisoryReferralsPageWithHighlight() {
   const params = useSearchParams();
-  return <TeacherAdvisoryReferralsView highlightId={params.get("highlight")} />;
+  return (
+    <TeacherAdvisoryReferralsView
+      highlightId={params.get("highlight")}
+      autoOpen={params.get("new")}
+    />
+  );
 }
 export default function TeacherAdvisoryReferralsPage() {
   return (

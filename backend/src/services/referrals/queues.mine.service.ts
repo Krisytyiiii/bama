@@ -303,10 +303,16 @@ export async function listMine(ctx: ReferralContext, query: MineQuery) {
     };
   });
 
+  /* Newest referral first. `Referral` carries no createdAt column — the filing
+     moment the board shows (`referredAt`) is derived from the case's first
+     audit entry, so sort the built rows here, before the in-memory paging. */
+  formatted.sort((a, b) =>
+    a.referredAt === b.referredAt ? 0 : a.referredAt < b.referredAt ? 1 : -1
+  );
+
   if (!hasPaginationParams) {
     return formatted;
   }
-
   // Casebook counts are always over the whole term scope (never narrowed by
   // the search box), so the tabs stay stable while the user types.
   const caseGroup = (status: string): "open" | "resolved" | "closed" =>
