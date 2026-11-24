@@ -192,6 +192,22 @@
   box-shadow: 0 0 0 2px var(--bama-border, var(--primary));
 }
 
+/* Advisory ⇄ Workspace rail toggle: the same pill chrome as the Bama shortcut,
+   kept on the amber accent so it reads as a navigation control rather than a
+   second chat link. */
+.modePill {
+  composes: bamaPill;
+  cursor: pointer;
+}
+
+.modePillIcon {
+  composes: bamaMascot;
+}
+
+.modePillLabel {
+  composes: bamaLabel;
+}
+
 /* Rotating accent tones (cycled every 5s by TeacherBamaPill). */
 .bamaToneAmber {
   --bama-bg: #fef3c7;

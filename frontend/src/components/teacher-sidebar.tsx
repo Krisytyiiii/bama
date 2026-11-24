@@ -31,7 +31,20 @@ type NavGroup = {
 
 export type { NavGroup, NavItem };
 
-export function buildNav(isAdviser: boolean): NavGroup[] {
+/**
+ * Sidebar focus. `workspace` is the default the rail always lands on; the
+ * topbar pill switches it to `advisory`, and `all` keeps both groups (the
+ * global-search palette calls `buildNav` without a mode to list every page).
+ */
+export type TeacherNavMode = "all" | "advisory" | "workspace";
+
+export function buildNav(
+  isAdviser: boolean,
+  mode: TeacherNavMode = "all",
+): NavGroup[] {
+  // Non-advisers have no advisory desk to show, so they always get the class
+  // workspace links regardless of the (hidden) pill state.
+  const focus: TeacherNavMode = isAdviser ? mode : "workspace";
   const workspaceItems = [
     { title: "Class", href: "/teacher/classes", icon: NAV_ICONS.class },
     { title: "Gradebook", href: "/teacher/grading", icon: NAV_ICONS.gradebook },
@@ -45,7 +58,9 @@ export function buildNav(isAdviser: boolean): NavGroup[] {
       { title: "Reports", href: "/teacher/overview/reports", icon: NAV_ICONS.reports },
     ] },
   ];
-  if (isAdviser) {
+  const showAdvisory = isAdviser && focus !== "workspace";
+  const showWorkspace = focus !== "advisory";
+  if (showAdvisory) {
     groups.push(
       { label: "Advisory", items: [
         { title: "Advisory List", href: "/teacher/advisory/list", icon: NAV_ICONS.advisoryList },
@@ -60,8 +75,10 @@ export function buildNav(isAdviser: boolean): NavGroup[] {
       ]},
     );
   }
+  if (showWorkspace) {
+    groups.push({ label: "Workspace", items: workspaceItems });
+  }
   groups.push(
-    { label: "Workspace", items: workspaceItems },
     { label: "Settings", items: [{ title: "General Settings", href: "/teacher/settings", icon: NAV_ICONS.settings }] },
   );
   return groups;
@@ -97,7 +114,7 @@ function withDots(groups: NavGroup[], dots?: TeacherNavDots): NavGroup[] {
  * renders it as the left glass dock (`nav/TeacherGlassDock`). Builds the
  * same groups the global search palette reads via `buildNav`.
  */
-export function TeacherSidebar() {
+export function TeacherSidebar({ mode = "workspace" }: { mode?: TeacherNavMode }) {
   const pathname = usePathname();
   const session = useSession();
   const overview = useTeacherOverview();
@@ -107,8 +124,8 @@ export function TeacherSidebar() {
   const dots = useTeacherNavDots();
   useTeacherNavDotInvalidation(dots);
   const nav = React.useMemo(
-    () => withDots(buildNav(isAdviser), dots),
-    [isAdviser, dots],
+    () => withDots(buildNav(isAdviser, mode), dots),
+    [isAdviser, mode, dots],
   );
 
   return <TeacherGlassDock groups={nav} pathname={pathname ?? ""} />;

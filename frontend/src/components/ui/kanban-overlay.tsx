@@ -164,7 +164,7 @@ export function KanbanOverlay({
         >
           {scrollBody ? (
             <div
-              className={`max-h-[65vh] overflow-y-auto px-0.5 [scrollbar-gutter:stable_both-edges] ${styles.scrollBody}`}
+              className={`max-h-[72vh] overflow-y-auto px-0.5 [scrollbar-gutter:stable_both-edges] ${styles.scrollBody}`}
             >
               {children}
             </div>

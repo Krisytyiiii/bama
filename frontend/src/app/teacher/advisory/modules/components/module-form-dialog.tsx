@@ -4,8 +4,9 @@ import * as React from "react";
 import { format } from "date-fns";
 import {
   BookOpen,
+  CalendarDays,
   CalendarIcon,
-  CheckCircle2,
+  Check,
   FileText,
   Link2,
   Loader2,
@@ -14,9 +15,11 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { FilterTabs } from "@/components/ui/filter-tabs";
 import { Input } from "@/components/ui/input";
 import { KanbanOverlay } from "@/components/ui/kanban-overlay";
 import { Label } from "@/components/ui/label";
+import { Pill } from "@/components/ui/pill";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -44,6 +47,11 @@ const MAX_FILE_BYTES = 10 * 1024 * 1024;
 const ACCEPTED_EXTENSIONS = ["pdf", "doc", "docx"];
 
 type AttachmentMode = "upload" | "link";
+
+const ATTACHMENT_OPTIONS = [
+  { value: "upload" as const, label: "Upload file" },
+  { value: "link" as const, label: "Paste link" },
+];
 
 interface PickedFile {
   url: string;
@@ -158,7 +166,19 @@ export function ModuleFormDialog({
       dismissable={!pending}
       title={editing ? "Edit module" : "Release a module"}
       ariaLabel={editing ? "Edit module" : "Release a module"}
-      icon={<BookOpen size={16} aria-hidden />}
+      icon={
+        <span
+          className="flex size-6 items-center justify-center rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400"
+          aria-hidden
+        >
+          <BookOpen size={14} />
+        </span>
+      }
+      headerActions={
+        <Pill tone={kind === "adm" ? "violet" : "blue"} label="Module type">
+          {kind === "adm" ? "ADM module" : "General post"}
+        </Pill>
+      }
       description={
         editing
           ? "Update the module details and what your advisees receive."
@@ -166,147 +186,134 @@ export function ModuleFormDialog({
       }
       width="lg"
       footer={
-        <div className="flex flex-wrap items-center justify-between gap-2 px-1 pb-1">
+        <div className="flex w-full flex-wrap items-center justify-between gap-2 px-0.5 pb-0.5">
           <p className="m-0 text-[12px] text-muted-foreground">
-            {mode === "upload" && attachment
-              ? "Saving releases the module today."
+            {editing
+              ? "Changes apply to every advisee in this section."
               : "The release date is set when you save."}
           </p>
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              className="h-7 px-2.5 text-xs"
-              onClick={onClose}
-              disabled={pending}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              className="h-7 px-3 text-xs"
-              onClick={handleSubmit}
-              disabled={!canSubmit}
-              aria-busy={pending || uploading || undefined}
-            >
-              {pending ? <Loader2 size={13} className="animate-spin" aria-hidden /> : null}
-              {editing ? "Save changes" : "Release module"}
-            </Button>
-          </div>
+          <Button
+            type="button"
+            className="ml-auto gap-1.5"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            aria-busy={pending || uploading || undefined}
+          >
+            {pending ? (
+              <Loader2 size={14} className="animate-spin" aria-hidden />
+            ) : (
+              <Check size={14} aria-hidden />
+            )}
+            {editing ? "Save changes" : "Release module"}
+          </Button>
         </div>
       }
     >
-      <div className="flex flex-col gap-4">
-        {/* Module type — fixed after release. */}
-        <div className="flex flex-col gap-2">
-          <Label>Module type</Label>
-          <div role="radiogroup" aria-label="Module type" className="grid gap-2 sm:grid-cols-2">
-            {(
-              [
-                {
-                  value: "general" as const,
-                  label: "General post",
-                  hint: "Post only — no submissions tracked. Use for references and announcements.",
-                },
-                {
-                  value: "adm" as const,
-                  label: "ADM module",
-                  hint: "Released to every ADM learner in your section; submissions are tracked.",
-                },
-              ]
-            ).map((option) => {
-              const active = kind === option.value;
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  role="radio"
-                  aria-checked={active}
-                  disabled={pending || editing}
-                  onClick={() => setKind(option.value)}
-                  className={cn(
-                    "relative flex flex-col items-start gap-1 rounded-lg border px-3 py-2.5 text-left transition-colors",
-                    active
-                      ? "border-amber-500/50 bg-amber-500/10 text-foreground"
-                      : "border-border bg-card text-muted-foreground hover:bg-muted/60 hover:text-foreground",
-                    editing && !active ? "opacity-60" : "",
-                  )}
-                >
-                  <span className="flex w-full items-center justify-between gap-2">
-                    <span className="text-[12px] font-semibold">{option.label}</span>
-                    {active ? (
-                      <CheckCircle2 size={14} className="shrink-0 text-amber-600" aria-hidden />
-                    ) : null}
-                  </span>
-                  <span className="text-[12px] leading-tight">{option.hint}</span>
-                </button>
-              );
-            })}
+      <div className="flex flex-col gap-3">
+        {/* Identity */}
+        <section
+          className="flex flex-col gap-2 rounded-md border bg-background/60 p-3"
+          aria-label="Module details"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <Label htmlFor="module-name">Module name</Label>
+            <span className="text-[12px] tabular-nums text-muted-foreground">
+              {moduleName.length}/120
+            </span>
           </div>
-          {editing ? (
-            <p className="m-0 text-[12px] text-muted-foreground">
-              Type is fixed after release.
-            </p>
-          ) : null}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="module-name">Module name</Label>
-          <Input
-            id="module-name"
-            value={moduleName}
-            onChange={(e) => setModuleName(e.target.value)}
-            placeholder="e.g. Module 1 · Reading Comprehension"
-            maxLength={120}
-            autoFocus
-          />
-          <p className="m-0 text-[12px] text-muted-foreground">
+          <div className="relative">
+            <BookOpen
+              size={14}
+              className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+              aria-hidden
+            />
+            <Input
+              id="module-name"
+              className="pl-8"
+              value={moduleName}
+              onChange={(e) => setModuleName(e.target.value)}
+              placeholder="e.g. Module 1 · Reading Comprehension"
+              maxLength={120}
+              autoFocus
+            />
+          </div>
+          <p className="m-0 flex items-center gap-1.5 text-[12px] text-muted-foreground">
+            <CalendarDays size={11} className="shrink-0" aria-hidden />
             {releasedOn
               ? `Released ${format(releasedOn, "MMM d, yyyy")} — set automatically on release.`
               : "Release date is set automatically when the module is released."}
           </p>
-        </div>
+        </section>
 
-        {/* Attachment — uploaded file or pasted link. */}
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <Label>Module handout</Label>
-            <div
-              role="tablist"
-              aria-label="Attachment method"
-              className="inline-flex items-center gap-0.5 rounded-full border border-border bg-muted/50 p-0.5"
-            >
+        {/* Type — pickable only while releasing; fixed after release. */}
+        {editing ? null : (
+          <section
+            className="flex flex-col gap-2 rounded-md border bg-background/60 p-3"
+            aria-label="Module type"
+          >
+            <Label>Module type</Label>
+            <div role="radiogroup" aria-label="Module type" className="grid gap-2 sm:grid-cols-2">
               {(
                 [
-                  { value: "upload" as const, label: "Upload file", icon: UploadCloud },
-                  { value: "link" as const, label: "Paste link", icon: Link2 },
+                  {
+                    value: "general" as const,
+                    label: "General post",
+                    hint: "Post only — no submissions tracked.",
+                  },
+                  {
+                    value: "adm" as const,
+                    label: "ADM module",
+                    hint: "Released to ADM learners; submissions tracked.",
+                  },
                 ]
-              ).map((tab) => {
-                const Icon = tab.icon;
-                const active = mode === tab.value;
+              ).map((option) => {
+                const active = kind === option.value;
                 return (
                   <button
-                    key={tab.value}
+                    key={option.value}
                     type="button"
-                    role="tab"
-                    aria-selected={active}
-                    onClick={() => {
-                      setMode(tab.value);
-                      setUploadError(null);
-                    }}
+                    role="radio"
+                    aria-checked={active}
+                    disabled={pending}
+                    onClick={() => setKind(option.value)}
                     className={cn(
-                      "inline-flex h-6 items-center gap-1 rounded-full px-2.5 text-[12px] font-medium transition-colors",
+                      "relative flex flex-col items-start gap-1 rounded-md border px-2.5 py-2 text-left transition-colors duration-150",
                       active
-                        ? "bg-background text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground",
+                        ? "border-amber-500/50 bg-amber-500/[0.08] text-foreground"
+                        : "bg-background/60 text-muted-foreground hover:border-foreground/20 hover:text-foreground",
                     )}
                   >
-                    <Icon size={12} aria-hidden />
-                    {tab.label}
+                    <span className="flex w-full items-center justify-between gap-2">
+                      <span className="text-[12px] font-semibold">{option.label}</span>
+                      {active ? (
+                        <Check size={13} className="shrink-0 text-amber-600" aria-hidden />
+                      ) : null}
+                    </span>
+                    <span className="text-[12px] leading-snug">{option.hint}</span>
                   </button>
                 );
               })}
             </div>
+          </section>
+        )}
+
+        {/* Handout — uploaded file or pasted link. */}
+        <section
+          className="flex flex-col gap-2 rounded-md border bg-background/60 p-3"
+          aria-label="Module handout"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <Label>Module handout</Label>
+            <FilterTabs
+              label="Attachment method"
+              variant="tags"
+              options={ATTACHMENT_OPTIONS}
+              value={mode}
+              onChange={(next) => {
+                setMode(next);
+                setUploadError(null);
+              }}
+            />
           </div>
 
           {mode === "upload" ? (
@@ -322,9 +329,9 @@ export function ModuleFormDialog({
                 }}
               />
               {attachment ? (
-                <div className="flex min-w-0 items-center gap-2.5 rounded-lg border border-border bg-card px-3 py-2.5">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400">
-                    <FileText size={16} aria-hidden />
+                <div className="flex min-w-0 items-center gap-2.5 rounded-md border border-border/70 bg-background/70 px-2.5 py-2">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400">
+                    <FileText size={15} aria-hidden />
                   </span>
                   <div className="flex min-w-0 flex-1 flex-col">
                     <span
@@ -341,7 +348,7 @@ export function ModuleFormDialog({
                   <Button
                     type="button"
                     variant="outline"
-                    className="h-6 shrink-0 px-2 text-[12px]"
+                    className="h-7 shrink-0 px-2 text-[12px]"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploading}
                   >
@@ -350,7 +357,7 @@ export function ModuleFormDialog({
                   <Button
                     type="button"
                     variant="ghost"
-                    className="h-6 w-6 shrink-0 px-0 text-muted-foreground hover:text-destructive"
+                    className="h-7 w-7 shrink-0 px-0 text-muted-foreground hover:text-red-600 dark:hover:text-red-400"
                     aria-label="Remove attached file"
                     onClick={() => setAttachment(null)}
                     disabled={uploading}
@@ -385,18 +392,18 @@ export function ModuleFormDialog({
                   aria-label="Upload a module file"
                   aria-busy={uploading || undefined}
                   className={cn(
-                    "flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed px-4 py-5 text-center transition-colors",
+                    "flex cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed px-3 py-4 text-center transition-colors",
                     dragging
-                      ? "border-amber-500/60 bg-amber-500/10"
-                      : "border-border bg-muted/20 hover:border-amber-500/50 hover:bg-muted/40",
+                      ? "border-amber-500/60 bg-amber-500/[0.08]"
+                      : "border-border/80 bg-background/50 hover:border-amber-500/50 hover:bg-muted/30",
                     uploading ? "cursor-progress opacity-80" : "",
                   )}
                 >
-                  <span className="flex size-9 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                  <span className="flex size-8 items-center justify-center rounded-full bg-muted text-muted-foreground">
                     {uploading ? (
-                      <Loader2 size={16} className="animate-spin" aria-hidden />
+                      <Loader2 size={15} className="animate-spin" aria-hidden />
                     ) : (
-                      <UploadCloud size={16} aria-hidden />
+                      <UploadCloud size={15} aria-hidden />
                     )}
                   </span>
                   <span className="text-[13px] font-semibold text-foreground">
@@ -408,7 +415,7 @@ export function ModuleFormDialog({
                 </div>
               )}
               {uploadError ? (
-                <p className="m-0 text-[12px] font-medium text-destructive" role="alert">
+                <p className="m-0 text-[12px] font-medium text-red-600 dark:text-red-400" role="alert">
                   {uploadError}
                 </p>
               ) : (
@@ -419,22 +426,34 @@ export function ModuleFormDialog({
             </div>
           ) : (
             <div className="flex flex-col gap-1.5">
-              <Input
-                id="module-url"
-                type="url"
-                inputMode="url"
-                value={linkUrl}
-                onChange={(e) => setLinkUrl(e.target.value)}
-                placeholder="https://drive.google.com/…"
-              />
+              <div className="relative">
+                <Link2
+                  size={14}
+                  className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  aria-hidden
+                />
+                <Input
+                  id="module-url"
+                  className="pl-8"
+                  type="url"
+                  inputMode="url"
+                  value={linkUrl}
+                  onChange={(e) => setLinkUrl(e.target.value)}
+                  placeholder="https://drive.google.com/…"
+                />
+              </div>
               <p className="m-0 text-[12px] text-muted-foreground">
                 Google Drive, Docs, or any https link. Saving the link releases the module today.
               </p>
             </div>
           )}
-        </div>
+        </section>
 
-        <div className="grid gap-3 sm:grid-cols-2">
+        {/* Schedule & instructions */}
+        <section
+          className="grid gap-3 rounded-md border bg-background/60 p-3 sm:grid-cols-2"
+          aria-label="Schedule and instructions"
+        >
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="module-due">Due date (optional)</Label>
             <Popover open={dueOpen} onOpenChange={setDueOpen}>
@@ -445,7 +464,7 @@ export function ModuleFormDialog({
                   variant="outline"
                   aria-label="Module due date"
                   className={cn(
-                    "w-full justify-start text-left font-normal",
+                    "w-full justify-start gap-2 text-left font-normal",
                     !dueDate && "text-muted-foreground",
                   )}
                 >
@@ -494,11 +513,11 @@ export function ModuleFormDialog({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What the learner must do"
               maxLength={1000}
-              rows={3}
-              className="min-h-[76px] resize-y"
+              rows={4}
+              className="min-h-[88px] resize-y"
             />
           </div>
-        </div>
+        </section>
       </div>
     </KanbanOverlay>
   );

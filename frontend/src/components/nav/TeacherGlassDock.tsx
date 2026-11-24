@@ -48,6 +48,7 @@ function usePrefersReducedMotion(): boolean {
 
 function DockTile({
   item,
+  index,
   active,
   mouseY,
   reduce,
@@ -55,6 +56,7 @@ function DockTile({
   onLeave,
 }: {
   item: TeacherDockItem;
+  index: number;
   active: boolean;
   mouseY: MotionValue<number>;
   reduce: boolean;
@@ -88,6 +90,7 @@ function DockTile({
     <li
       ref={ref}
       className={styles.slot}
+      style={{ "--tile-index": index } as React.CSSProperties}
       onPointerEnter={(event) => onEnter(item.title, event.currentTarget)}
       onPointerLeave={onLeave}
       onFocus={(event) => onEnter(item.title, event.currentTarget)}
@@ -160,6 +163,26 @@ export function TeacherGlassDock({
     [pathname],
   );
 
+  // Flattened render list: hairline separators between groups, then tiles.
+  const entries = React.useMemo(() => {
+    const out: Array<
+      { kind: "sep"; key: string } | { kind: "item"; key: string; item: TeacherDockItem }
+    > = [];
+    groups.forEach((group, groupIndex) => {
+      if (groupIndex > 0) out.push({ kind: "sep", key: `sep-${groupIndex}` });
+      group.items.forEach((item) => out.push({ kind: "item", key: item.href, item }));
+    });
+    return out;
+  }, [groups]);
+
+  // Stable signature of the links themselves (dots are ignored). The dock
+  // remounts its list only when the advisory/workspace focus swaps the links,
+  // which replays the staggered entrance instead of a hard pop-in.
+  const navKey = React.useMemo(
+    () => groups.map((group) => `${group.label}:${group.items.map((i) => i.href).join(",")}`).join("|"),
+    [groups],
+  );
+
   return (
     <div className={styles.anchor}>
       <motion.nav
@@ -178,25 +201,28 @@ export function TeacherGlassDock({
         transition={{ type: "spring", stiffness: 260, damping: 28, mass: 0.6 }}
       >
         <div className={styles.row}>
-          <ul className={styles.list}>
-            {groups.map((group, groupIndex) => (
-              <React.Fragment key={group.label}>
-                {groupIndex > 0 ? (
-                  <li className={styles.sepItem} aria-hidden />
-                ) : null}
-                {group.items.map((item) => (
-                  <DockTile
-                    key={item.href}
-                    item={item}
-                    active={isActive(item.href)}
-                    mouseY={mouseY}
-                    reduce={reduce}
-                    onEnter={showTip}
-                    onLeave={hideTip}
-                  />
-                ))}
-              </React.Fragment>
-            ))}
+          <ul className={styles.list} key={navKey}>
+            {entries.map((entry, index) =>
+              entry.kind === "sep" ? (
+                <li
+                  key={entry.key}
+                  className={styles.sepItem}
+                  style={{ "--tile-index": index } as React.CSSProperties}
+                  aria-hidden
+                />
+              ) : (
+                <DockTile
+                  key={entry.key}
+                  item={entry.item}
+                  index={index}
+                  active={isActive(entry.item.href)}
+                  mouseY={mouseY}
+                  reduce={reduce}
+                  onEnter={showTip}
+                  onLeave={hideTip}
+                />
+              ),
+            )}
           </ul>
         </div>
         {tip ? (
