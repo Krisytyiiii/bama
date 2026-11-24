@@ -22,7 +22,10 @@
   /* Height of the pinned TermScopeBanner strip: page rails that stick below
      the fixed chrome add this so they pin just under the strip. */
   --term-banner-offset: 1.8125rem;
-  padding-left: 5rem;
+  /* Left clearance for the floating glass dock. The term banner breaks out
+     of this gutter to span the full width (see TermScopeBanner.module.css). */
+  --shell-rail: 5rem;
+  padding-left: var(--shell-rail);
 }
 
 /* Standalone mode (no left rail and no tab navbar, e.g. the Bama chat
@@ -86,18 +89,14 @@
      16px off the navbar edge. */
   padding-inline: 1rem;
   border-bottom: 1px solid var(--border);
-  /* Glass bar: the page canvas runs behind the fixed topbar instead of
-     stopping at a solid strip. */
-  background-color: color-mix(in oklch, var(--background) 72%, transparent);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  /* Solid bar: scrolling content stops cleanly at the fixed topbar instead
+     of reading through it. */
+  background-color: var(--background);
 }
 
-/* Same translucent bar as the landing nav so the hero glow reads through. */
+/* Solid bar so the page canvas never reads through the fixed topbar. */
 :global(.dark) .topbar {
-  background-color: rgba(5, 8, 7, 0.4);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  background-color: #050807;
 }
 
 .brand {
@@ -394,7 +393,8 @@
   }
 
   .shellWithDock {
-    padding-left: 4.25rem;
+    --shell-rail: 4.25rem;
+    padding-left: var(--shell-rail);
   }
 
   .main {

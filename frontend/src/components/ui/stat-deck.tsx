@@ -28,8 +28,9 @@ export interface StatDeckItem {
   href?: string;
   /** Makes the whole tile a button (filters/expands instead of navigating). */
   onClick?: () => void;
-  /** Attention tint — amber for work still queued, red for a flagged figure. */
-  tone?: "amber" | "red";
+  /** Attention tint — amber for work still queued, red for a flagged figure,
+   *  green for a cleared/positive one. */
+  tone?: "amber" | "red" | "green";
   /** Thin share bar under the number (0–100). */
   meter?: number;
   /** Pressed/selected state for button tiles. */
@@ -68,9 +69,9 @@ export interface StatDeckProps {
   countDuration?: number;
   /** Render nothing at all (e.g. a board with no data yet). */
   hidden?: boolean;
-  /** Tiles per row on wide screens (default 4). Decks with 5 figures pass 3 to
-   *  wrap 3 + 2; decks with 6 pass 6 to stay on one row. */
-  columns?: 3 | 4 | 6;
+  /** Tiles per row on wide screens (default 4). Decks with 5 figures pass 5 to
+   * stay on one row; decks with 6 pass 6; 3 wraps a deck 3 + 2. */
+  columns?: 3 | 4 | 5 | 6;
   className?: string;
 }
 
@@ -133,6 +134,7 @@ function StatTile({
     styles.tile,
     item.tone === "amber" && styles.tileAmber,
     item.tone === "red" && styles.tileRed,
+    item.tone === "green" && styles.tileGreen,
     item.active && styles.tileActive,
   );
 
@@ -202,6 +204,7 @@ export function StatDeck({
   const tilesClass = cn(
     styles.tiles,
     columns === 6 && styles.tilesSix,
+    columns === 5 && styles.tilesFive,
     columns === 3 && styles.tilesThree,
   );
 

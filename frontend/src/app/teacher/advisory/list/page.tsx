@@ -1639,7 +1639,12 @@ export default function TeacherAdvisoryListPage() {
                             aria-label={`Select ${entry.name} for restoring`}
                           />
                         </span>
-                        <StudentMascot name={entry.name} seed={entry.lrn} size={32} />
+                        <StudentMascot
+                          name={entry.name}
+                          seed={entry.lrn}
+                          character={entry.mascot ?? undefined}
+                          size={32}
+                        />
                         <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
                           <p
                             className={listStyles.archiveCardName}

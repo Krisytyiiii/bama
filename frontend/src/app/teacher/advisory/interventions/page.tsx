@@ -26,7 +26,7 @@ import { InterventionDetailOverlay } from "./components/intervention-detail-over
 import {
   DetectionFlowPanel,
   type DetectionLaneId,
-} from "./components/detection-flow-panel";
+} from "@/components/risk-dashboard/detection-flow-panel";
 import styles from "./components/interventions.module.css";
 
 type LevelFilter = "all" | AdvisoryInterventionLevel;
@@ -381,8 +381,10 @@ function AdviserInterventionsPageInner() {
             <div className={styles.listHead} aria-hidden="true">
               <span>Advisee</span>
               <span>Risk</span>
+              <span className={styles.headSection}>Section</span>
               <span>Factors</span>
               <span>Pipeline</span>
+              <span className={styles.headSessions}>Sessions</span>
               <span>Flagged</span>
               <span />
             </div>

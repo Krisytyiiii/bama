@@ -4,7 +4,7 @@ import * as React from "react";
 import { usePathname } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 
-import { TeacherGlassDock } from "./nav/TeacherGlassDock";
+import { GlassDock } from "./nav/GlassDock";
 import { NAV_ICONS } from "./nav/sidebar-icons";
 import { useCachedAdviser } from "@/services/teacher/flagCache";
 import { useTeacherOverview } from "@/services/teacher/overview.service";
@@ -111,8 +111,8 @@ function withDots(groups: NavGroup[], dots?: TeacherNavDots): NavGroup[] {
 
 /**
  * Teacher desk navigation host: resolves the adviser/subject-teacher nav and
- * renders it as the left glass dock (`nav/TeacherGlassDock`). Builds the
- * same groups the global search palette reads via `buildNav`.
+ * renders it as the left glass dock (`nav/GlassDock`). Builds the same groups
+ * the global search palette reads via `buildNav`.
  */
 export function TeacherSidebar({ mode = "workspace" }: { mode?: TeacherNavMode }) {
   const pathname = usePathname();
@@ -128,5 +128,5 @@ export function TeacherSidebar({ mode = "workspace" }: { mode?: TeacherNavMode }
     [isAdviser, mode, dots],
   );
 
-  return <TeacherGlassDock groups={nav} pathname={pathname ?? ""} />;
+  return <GlassDock groups={nav} pathname={pathname ?? ""} ariaLabel="Teacher sections" />;
 }

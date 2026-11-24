@@ -131,8 +131,10 @@
 
 /* ── Case list: one glass panel, one row per case (no card grid) ───────────── */
 .listPanel {
-  --list-cols: minmax(8.5rem, 2fr) minmax(4.25rem, 0.6fr) minmax(7.5rem, 1.7fr)
-    minmax(5rem, 1fr) minmax(4rem, 0.7fr) 7rem;
+  --list-cols:
+    minmax(8rem, 1.7fr) minmax(4.25rem, 0.55fr) minmax(5.25rem, 0.9fr)
+    minmax(6.5rem, 1.5fr) minmax(5rem, 1fr) minmax(4.5rem, 0.65fr)
+    minmax(4rem, 0.7fr) 6.5rem;
   position: relative;
   min-width: 0;
   overflow: hidden;
@@ -178,6 +180,15 @@
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.listHead > span {
+  min-width: 0;
+}
+
+.headSection,
+.headSessions {
+  min-width: 0;
 }
 
 /* Vertical column rules — every column but the last is divided by a hairline. */
@@ -333,7 +344,22 @@
   justify-content: flex-end;
 }
 
-/* Narrow boards stack each case into two short lines instead of scrolling. */
+/* The board's own column budget: drop the section column first, since the
+   advisee cell still names the learner and the pipeline carries the state. */
+@media (max-width: 1280px) {
+  .listPanel {
+    --list-cols:
+      minmax(8rem, 1.7fr) minmax(4.25rem, 0.55fr) minmax(6.5rem, 1.5fr)
+      minmax(5rem, 1fr) minmax(4.5rem, 0.65fr) minmax(4rem, 0.7fr) 6.5rem;
+  }
+
+  .headSection,
+  .cellSection {
+    display: none !important;
+  }
+}
+
+/* Narrow boards stack each case into short labelled lines instead of scrolling. */
 @media (max-width: 860px) {
   .listHead {
     display: none;
@@ -344,8 +370,10 @@
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
       "person risk"
+      "section section"
       "factors factors"
-      "status flagged"
+      "status sessions"
+      "flagged flagged"
       "action action";
     row-gap: 0.5rem;
     align-items: center;
@@ -368,6 +396,14 @@
     justify-content: flex-end;
   }
 
+  .cellSection {
+    grid-area: section;
+    display: flex !important;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
   .cellFactors {
     grid-area: factors;
     flex-wrap: wrap;
@@ -376,6 +412,11 @@
 
   .cellStatus {
     grid-area: status;
+  }
+
+  .cellSessions {
+    grid-area: sessions;
+    align-items: flex-end;
   }
 
   .cellFlagged {

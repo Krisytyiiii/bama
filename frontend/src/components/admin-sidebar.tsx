@@ -1,15 +1,11 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 
-import styles from "./admin-sidebar.module.css";
-import BranchedMenu from "./nav/BranchedMenu";
+import { GlassDock } from "./nav/GlassDock";
 import { NAV_ICONS } from "./nav/sidebar-icons";
-import { SidebarIconRail } from "./nav/SidebarIconRail";
-import { ScrollDownHint } from "@/components/ui/scroll-down-hint";
 import { usePendingApprovalCounts } from "@/components/registry/account-approvals/api";
 
 type NavItem = {
@@ -24,12 +20,10 @@ type NavGroup = {
   items: NavItem[];
 };
 
-const ROOT = "/admin/overview";
-
 export const NAV: NavGroup[] = [
   {
     label: "Overview",
-    items: [{ title: "Overview", href: ROOT, icon: NAV_ICONS.overview }],
+    items: [{ title: "Overview", href: "/admin/overview", icon: NAV_ICONS.overview }],
   },
   {
     label: "Academics",
@@ -87,125 +81,20 @@ function withPendingBadge(groups: NavGroup[], total: number): NavGroup[] {
   }));
 }
 
-
-function matches(href: string, pathname: string) {
-  if (href === ROOT) return pathname === href || pathname === "/admin";
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
-
-function findActiveHref(tabs: NavItem[], pathname: string) {
-  let best: string | null = null;
-  for (const t of tabs) {
-    if (!matches(t.href, pathname)) continue;
-    if (best === null || t.href.length > best.length) best = t.href;
-  }
-  return best ?? ROOT;
-}
-
-function useIsActive() {
+/**
+ * Administrator desk navigation host: the shared floating glass dock, with
+ * the live pending-approvals count on its approvals tile.
+ */
+export function AdminSidebar() {
   const pathname = usePathname();
-  return React.useCallback((href: string) => matches(href, pathname), [pathname]);
-}
-
-function AdminNavbar({ tabs }: { tabs: NavItem[] }) {
-  const isActive = useIsActive();
-
-  return (
-    <nav className={styles.navbar} aria-label="Administrator sections">
-      <ul className={styles.tabs}>
-        {tabs.map((item) => {
-          const active = isActive(item.href);
-          return (
-            <li key={item.href} className={styles.tabItem}>
-              <Link
-                href={item.href}
-                className={`${styles.tab} ${active ? styles.tabActive : ""}`}
-                aria-current={active ? "page" : undefined}
-              >
-                <item.icon className={styles.tabIcon} aria-hidden="true" />
-                <span className={styles.tabLabel}>{item.title}</span>
-                {item.badge ? <span className={styles.badge}>{item.badge}</span> : null}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
-  );
-}
-
-function AdminRail({ groups }: { groups: NavGroup[] }) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const tabs = groups.flatMap((group) => group.items);
-  const activeHref = findActiveHref(tabs, pathname);
-  const defaultOpen = groups.map((_, i) => i);
-
-  return (
-    <BranchedMenu
-      items={groups.map((group) => ({
-        label: group.label,
-        children: group.items.map((t) => ({
-          value: t.href,
-          label: t.title,
-          href: t.href,
-          icon: <t.icon size={16} strokeWidth={1.8} aria-hidden="true" />,
-        })),
-      }))}
-      defaultOpen={defaultOpen.length > 0 ? defaultOpen : [0]}
-      defaultActive={activeHref}
-      activeValue={activeHref}
-      onSelect={(_value, item) => {
-        if ("href" in item && item.href) router.push(item.href);
-      }}
-      width={208}
-    />
-  );
-}
-
-export function AdminSidebar({
-  collapsed = true,
-}: {
-  collapsed?: boolean;
-} = {}) {
-  const pathname = usePathname();
-  const railScrollRef = React.useRef<HTMLDivElement | null>(null);
   const { total: pendingTotal } = usePendingApprovalCounts();
   const nav = React.useMemo(() => withPendingBadge(NAV, pendingTotal), [pendingTotal]);
-  const tabs = React.useMemo(() => nav.flatMap((group) => group.items), [nav]);
-  const activeHref = findActiveHref(tabs, pathname);
 
   return (
-    <>
-      <aside
-        className={`${styles.rail} ${styles.railDesktop} ${collapsed ? styles.railCollapsed : ""}`}
-        aria-label="Administrator sections"
-      >
-        {collapsed ? (
-          <SidebarIconRail
-            groups={nav}
-            ariaLabel="Administrator sections, icon only"
-            activeHref={activeHref}
-          />
-        ) : (
-          <>
-            <div ref={railScrollRef} className={styles.railScroll}>
-              <AdminRail groups={nav} />
-            </div>
-            <div className={styles.railHintWrap}>
-              <ScrollDownHint
-                scrollRef={railScrollRef}
-                watchKey="admin-nav"
-                label="Scroll for more"
-                className="pointer-events-auto rounded-full border border-border bg-card px-3 py-1 shadow-sm"
-              />
-            </div>
-          </>
-        )}
-      </aside>
-      <div className={styles.tabsMobile}>
-        <AdminNavbar tabs={tabs} />
-      </div>
-    </>
+    <GlassDock
+      groups={nav}
+      pathname={pathname ?? ""}
+      ariaLabel="Administrator sections"
+    />
   );
 }

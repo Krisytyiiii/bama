@@ -13,7 +13,7 @@ const TAGS = [7, 9.5, 10.5, 8];
 /**
  * Loading state for the adviser's intervention desk — one shimmer sweep over a
  * pixel-for-pixel copy of the live layout: header + count pill, the glass-tag
- * toolbar with search, the glass case list (head row, seven columns, pager)
+ * toolbar with search, the glass case list (head row, eight columns, pager)
  * and the detection-flow rail on the right, so nothing shifts when data lands.
  */
 export function InterventionsSkeleton() {
@@ -49,8 +49,16 @@ export function InterventionsSkeleton() {
             <div className={styles.listHead} aria-hidden>
               <Skeleton className={styles.skelHeadLabel} />
               <Skeleton className={styles.skelHeadLabel} style={{ width: "2.5rem" }} />
+              <Skeleton
+                className={`${styles.skelHeadLabel} ${styles.headSection}`}
+                style={{ width: "4rem" }}
+              />
               <Skeleton className={styles.skelHeadLabel} style={{ width: "4.25rem" }} />
               <Skeleton className={styles.skelHeadLabel} style={{ width: "4rem" }} />
+              <Skeleton
+                className={`${styles.skelHeadLabel} ${styles.headSessions}`}
+                style={{ width: "3.5rem" }}
+              />
               <Skeleton className={styles.skelHeadLabel} style={{ width: "3.25rem" }} />
               <span />
             </div>
@@ -69,6 +77,11 @@ export function InterventionsSkeleton() {
                     <Skeleton className={styles.skelPill} style={{ width: "3.75rem" }} />
                   </div>
 
+                  <div className={`${styles.cell} ${styles.cellMetaRow} ${styles.cellSection}`}>
+                    <Skeleton className={styles.skelMeta} style={{ width: "3.75rem" }} />
+                    <Skeleton className={styles.skelMeta} style={{ width: "3rem" }} />
+                  </div>
+
                   <div className={`${styles.cell} ${styles.cellFactors}`}>
                     <Skeleton className={styles.skelFactor} />
                     <Skeleton className={styles.skelFactor} />
@@ -77,6 +90,11 @@ export function InterventionsSkeleton() {
 
                   <div className={`${styles.cell} ${styles.cellStatus}`}>
                     <Skeleton className={styles.skelPill} style={{ width: "5.5rem" }} />
+                  </div>
+
+                  <div className={`${styles.cell} ${styles.cellMetaRow} ${styles.cellSessions}`}>
+                    <Skeleton className={styles.skelMeta} style={{ width: "3rem" }} />
+                    <Skeleton className={styles.skelMeta} style={{ width: "2.5rem" }} />
                   </div>
 
                   <div className={`${styles.cell} ${styles.cellMetaRow} ${styles.cellFlagged}`}>

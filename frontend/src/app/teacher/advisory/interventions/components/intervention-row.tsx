@@ -105,6 +105,9 @@ export function InterventionRowCard({
 }) {
   const status = advisoryPipelineStatus(row);
   const activeFactors = FACTORS.filter((factor) => row.factors[factor.key]);
+  const sessions = row.intervention?.sessions ?? [];
+  const doneCount = sessions.filter((session) => session.status === "completed").length;
+  const bookedCount = sessions.filter((session) => session.status === "scheduled").length;
   const detectedMs = row.detectedAt ? msSinceDate(row.detectedAt, now) : null;
   const detectedElapsed =
     detectedMs === null
@@ -152,6 +155,11 @@ export function InterventionRowCard({
         </Pill>
       </div>
 
+      <div className={`${styles.cell} ${styles.cellMetaRow} ${styles.cellSection}`}>
+        <span className={styles.cellValue}>{row.gradeLevel}</span>
+        <span className={styles.cellMuted}>{row.section}</span>
+      </div>
+
       <div className={`${styles.cell} ${styles.cellFactors}`}>
         {activeFactors.length > 0 ? (
           activeFactors.map((factor) => (
@@ -175,6 +183,11 @@ export function InterventionRowCard({
         <Pill tone={status.tone} label="Pipeline status">
           {status.label}
         </Pill>
+      </div>
+
+      <div className={`${styles.cell} ${styles.cellMetaRow} ${styles.cellSessions}`}>
+        <span className={styles.cellValue}>{doneCount} done</span>
+        <span className={styles.cellMuted}>{bookedCount} booked</span>
       </div>
 
       <div className={`${styles.cell} ${styles.cellMetaRow} ${styles.cellFlagged}`}>

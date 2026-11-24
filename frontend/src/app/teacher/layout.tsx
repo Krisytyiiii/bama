@@ -10,7 +10,7 @@ import type { TeacherNavMode } from "@/components/teacher-sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { StudentMascot } from "@/components/student-mascot/StudentMascot";
 import { CalendarClock, ClipboardCheck, UserRound } from "lucide-react";
-import { KanbanAccountMenu } from "@/components/account/kanban-account-menu";
+import { GlassUserMenu } from "@/components/account/glass-user-menu";
 import { ActiveTermBadge } from "@/components/term/ActiveTermBadge";
 import { TermScopeBanner } from "@/components/term/TermScopeBanner";
 import { RosterCarryOverOverlay } from "@/components/term/RosterCarryOverOverlay";
@@ -152,7 +152,7 @@ function TeacherChrome({
 
         <TeacherNotificationsBell />
 
-        <KanbanAccountMenu
+        <GlassUserMenu
           settingsHref="/teacher/settings"
           onLogout={handleLogout}
         >
@@ -180,7 +180,7 @@ function TeacherChrome({
               </Avatar>
             )}
           </button>
-        </KanbanAccountMenu>
+        </GlassUserMenu>
       </header>
       {standalone ? null : <TeacherSidebar mode={navMode} />}
       <div
