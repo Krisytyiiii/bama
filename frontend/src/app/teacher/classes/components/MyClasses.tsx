@@ -17,10 +17,8 @@ import {
   Loader2,
   MapPin,
   NotebookPen,
-  Search,
   UserRound,
   Utensils,
-  X,
 } from "lucide-react";
 import { apiClient } from "@/lib/api/client";
 import { toast } from "@/components/ui/sonner";
@@ -28,12 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FilterTabs } from "@/components/ui/filter-tabs";
 import { StatDeck } from "@/components/ui/stat-deck";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "@/components/ui/input-group";
+import { TeacherSearchField, searchEmptyMessage } from "@/app/teacher/components/TeacherSearchField";
 import { cn } from "@/lib/utils";
 import { KanbanOverlay } from "@/components/ui/kanban-overlay";
 import { useTerm } from "@/lib/term/TermContext";
@@ -671,29 +664,13 @@ export function MyClasses() {
                         value={grade ?? "all"}
                         onChange={(next) => setGrade(next === "all" ? null : next)}
                       />
-                      <InputGroup className="w-56 max-w-full shrink-0 rounded-[16px]">
-                        <InputGroupAddon>
-                          <Search />
-                        </InputGroupAddon>
-                        <InputGroupInput
-                          placeholder="Find a subject or section…"
-                          value={query}
-                          onChange={(event) => setQuery(event.target.value)}
-                          aria-label="Find a class"
-                        />
-                        {query ? (
-                          <InputGroupAddon align="inline-end">
-                            <InputGroupButton
-                              size="icon-xs"
-                              aria-label="Clear search"
-                              title="Clear search"
-                              onClick={() => setQuery("")}
-                            >
-                              <X aria-hidden />
-                            </InputGroupButton>
-                          </InputGroupAddon>
-                        ) : null}
-                      </InputGroup>
+                      <TeacherSearchField
+                        className="w-56 max-w-full"
+                        placeholder="Find a subject or section…"
+                        value={query}
+                        onChange={setQuery}
+                        aria-label="Find a class"
+                      />
                     </div>
                   </div>
 
@@ -859,8 +836,7 @@ export function MyClasses() {
 
                   {filtersActive && matchingSlotCount === 0 ? (
                     <p className="border-t border-border px-3.5 py-3 text-center text-[12px] text-muted-foreground">
-                      No published timeslot matches this filter. Try another grade or search
-                      term.
+                      {searchEmptyMessage(query, "classes", "Try another grade or search term.")}
                     </p>
                   ) : null}
 

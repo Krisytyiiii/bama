@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, SearchIcon } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { InputGroup, InputGroupInput, InputGroupAddon } from "@/components/ui/input-group";
+import { TeacherSearchField, searchEmptyMessage } from "@/app/teacher/components/TeacherSearchField";
 import assign from "@/app/principal/academics/assign/components/section-assignments.module.css";
 import ovStyles from "@/app/teacher/overview/components/teacher-overview-advisory.module.css";
 import { Pagination } from "@/components/shared/pagination";
@@ -115,17 +115,14 @@ export function AdmCasesTable({
               </p>
             </div>
             <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-2">
-              <InputGroup className="max-w-40 shrink-0 rounded-[16px]">
-                <InputGroupInput
-                  placeholder="Filter ADM cases..."
-                  value={query}
-                  onChange={(event) => onQueryChange(event.target.value)}
-                  aria-label="Filter ADM cases"
-                />
-                <InputGroupAddon>
-                  <SearchIcon />
-                </InputGroupAddon>
-              </InputGroup>
+              <TeacherSearchField
+                className="max-w-40"
+                placeholder="Search ADM cases…"
+                value={query}
+                onChange={onQueryChange}
+                loading={casesQuery.isFetching}
+                aria-label="Filter ADM cases"
+              />
             </div>
           </div>
           {isPageLoading ? (
@@ -198,7 +195,7 @@ export function AdmCasesTable({
             </ul>
           ) : (
             <p className="relative py-8 text-center text-sm text-muted-foreground">
-              No ADM cases match your search.
+              {searchEmptyMessage(query, "ADM cases")}
             </p>
           )}
           <Pagination

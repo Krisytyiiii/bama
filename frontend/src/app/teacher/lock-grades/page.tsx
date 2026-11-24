@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { KeyRound, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { TeacherSearchField, searchEmptyMessage } from "@/app/teacher/components/TeacherSearchField";
 import { Pill } from "@/components/ui/pill";
 import { InsightCallout } from "@/components/ui/insight-callout";
 import { KanbanBoard } from "@/components/ui/kanban-board";
@@ -271,15 +271,15 @@ function AdviseesMode() {
             </SelectContent>
           </Select>
         ) : null}
-        <Input
+        <TeacherSearchField
+          className="w-60 max-w-full"
           value={search}
-          onChange={(event) => {
-            setSearch(event.target.value);
+          onChange={(next) => {
+            setSearch(next);
             setPage(1);
           }}
           placeholder="Search advisee or LRN…"
           aria-label="Search advisee or LRN"
-          className="h-8 w-60 max-w-full rounded-[16px] text-xs"
         />
         <span className="text-xs text-muted-foreground">
           {filtered.length} advisee{filtered.length === 1 ? "" : "s"}
@@ -288,14 +288,20 @@ function AdviseesMode() {
 
       {filtered.length === 0 ? (
         <EmptyCallout>
-          <strong>
-            {needle || sectionId !== "all"
-              ? "No matching advisees."
-              : "No advisees yet."}
-          </strong>{" "}
-          {needle || sectionId !== "all"
-            ? "No advisees match your filters."
-            : "Learners from your advisory section will appear here once they are enrolled."}
+          {needle || sectionId !== "all" ? (
+            searchEmptyMessage(
+              needle ? search : "",
+              "advisees",
+              needle
+                ? "Clear the search or pick another section to see every advisee."
+                : "Pick another section to see every advisee.",
+            )
+          ) : (
+            <>
+              <strong>No advisees yet.</strong> Learners from your advisory section will
+              appear here once they are enrolled.
+            </>
+          )}
         </EmptyCallout>
       ) : (
         <>

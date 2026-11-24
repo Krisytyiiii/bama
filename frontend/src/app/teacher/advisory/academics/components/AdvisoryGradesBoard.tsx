@@ -1,6 +1,7 @@
 "use client";
 
 import { BookOpen, KanbanSquare } from "lucide-react";
+import { GlassCard } from "@/components/ui/glass-card";
 import { Pill } from "@/components/ui/pill";
 import boardStyles from "../../list/components/advisory-insight-board.module.css";
 import type { AdviseeRow } from "@/services/teacher/advisory.types";
@@ -78,9 +79,7 @@ export function AdvisoryGradesBoard({
     );
   }
 
-  const average = generalAverageOf(student, subjects);
   const risk = academicRiskOf(student, subjects);
-  const gradedCount = subjects.filter((s) => gradeOf(student, s.name) !== null).length;
 
   return (
     <div
@@ -93,21 +92,26 @@ export function AdvisoryGradesBoard({
         </span>
         <div className="min-w-0 flex-1">
           <h2 className={boardStyles.boardTitle}>Student grades</h2>
-          <span className="mt-1 flex max-w-full flex-wrap items-center gap-1">
-            <Pill tone="amber" label="General average">
-              {average === null ? "No grades yet" : `Gen avg ${average.toFixed(1)}`}
-            </Pill>
-            <Pill tone="amber" label="Subjects graded">
-              {`${gradedCount} of ${subjects.length} graded`}
-            </Pill>
-            <Pill
-              tone={risk === null ? "neutral" : risk === "Low" ? "green" : "amber"}
-              label="Academic risk"
+          <p className={boardStyles.boardSub}>
+            General average and live grades per subject
+          </p>
+        </div>
+        <GlassCard className="shrink-0" intensity={4}>
+          <div className={boardStyles.statusCard}>
+            <span className={boardStyles.statusLabel}>Academic risk</span>
+            <span
+              className={`${boardStyles.statusValue} ${
+                risk === null
+                  ? "text-muted-foreground"
+                  : risk === "Low"
+                    ? "text-green-600 dark:text-green-500"
+                    : "text-amber-600 dark:text-amber-500"
+              }`}
             >
               {risk === null ? "No data" : `${risk} risk`}
-            </Pill>
-          </span>
-        </div>
+            </span>
+          </div>
+        </GlassCard>
       </header>
 
       <section className={boardStyles.plainSection} aria-label="Live average per subject">

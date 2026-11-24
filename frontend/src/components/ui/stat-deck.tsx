@@ -42,8 +42,8 @@ export interface StatDeckItem {
 }
 
 export interface StatDeckProps {
-  /** Header rail copy. */
-  title: string;
+  /** Header rail copy. Omit (with `headerExtra`) for a headerless strip. */
+  title?: string;
   /** Header rail glyph. */
   icon?: LucideIcon;
   items: StatDeckItem[];
@@ -63,6 +63,8 @@ export interface StatDeckProps {
   countDuration?: number;
   /** Render nothing at all (e.g. a board with no data yet). */
   hidden?: boolean;
+  /** Tiles per row on wide screens (default 4). Decks with 6 figures pass 6 to stay on one row. */
+  columns?: 4 | 6;
   className?: string;
 }
 
@@ -179,34 +181,38 @@ export function StatDeck({
   ariaLabel,
   countDuration = 900,
   hidden = false,
+  columns = 4,
   className,
 }: StatDeckProps) {
   if (hidden) return null;
 
-  const skeletonTiles = items.length || 4;
+  const skeletonTiles = items.length || columns;
+  const tilesClass = cn(styles.tiles, columns === 6 && styles.tilesSix);
 
   return (
     <section
       className={cn(styles.deck, className)}
-      aria-label={ariaLabel ?? title}
+      aria-label={ariaLabel ?? title ?? "Statistics"}
       aria-busy={loading || undefined}
     >
-      <div className={styles.deckHead}>
-        <span className={styles.deckTitle}>
-          {loading ? (
-            <Skeleton className="h-3.5 w-32" />
-          ) : (
-            <>
-              {HeaderIcon ? <HeaderIcon aria-hidden /> : null}
-              {title}
-            </>
-          )}
-        </span>
-        {headerExtra ? <span className={styles.deckExtra}>{headerExtra}</span> : null}
-      </div>
+      {title || headerExtra ? (
+        <div className={styles.deckHead}>
+          <span className={styles.deckTitle}>
+            {loading ? (
+              <Skeleton className="h-3.5 w-32" />
+            ) : (
+              <>
+                {HeaderIcon ? <HeaderIcon aria-hidden /> : null}
+                {title}
+              </>
+            )}
+          </span>
+          {headerExtra ? <span className={styles.deckExtra}>{headerExtra}</span> : null}
+        </div>
+      ) : null}
 
       {loading ? (
-        <div className={styles.tiles}>
+        <div className={tilesClass}>
           {Array.from({ length: skeletonTiles }).map((_, index) => (
             <div key={index} className={styles.tile} aria-hidden="true">
               <span className={styles.tileTop}>
@@ -221,7 +227,7 @@ export function StatDeck({
       ) : error ? (
         <p className={styles.empty}>{errorMessage}</p>
       ) : (
-        <div className={styles.tiles}>
+        <div className={tilesClass}>
           {items.map((item) => (
             <StatTile key={item.key} item={item} duration={countDuration} />
           ))}

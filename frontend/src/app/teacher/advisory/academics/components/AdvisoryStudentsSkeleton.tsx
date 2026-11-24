@@ -2,6 +2,7 @@
 
 import { BookOpen } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ShimmerGroup } from "@/components/ui/shimmer-skeleton";
 import listStyles from "../../list/components/advisory-list.module.css";
 import boardStyles from "../../list/components/advisory-insight-board.module.css";
 
@@ -11,21 +12,21 @@ const SUBJECT_LANES = 4;
 function ListRowSkeleton() {
   return (
     <div className="flex items-center border-t px-4 py-3">
-      <div className="flex min-w-0 items-center gap-2" style={{ width: 170 }}>
+      <div className="flex min-w-0 flex-1 items-center gap-2">
         <Skeleton className="size-8 shrink-0 rounded-full" />
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <Skeleton className="h-3.5 w-4/5" />
-          <Skeleton className="h-5 w-24 rounded-md" />
+          <div className="flex items-center justify-between gap-2">
+            <Skeleton className="h-5 w-28 rounded-md" />
+            <Skeleton className="h-5 w-12 rounded-md" />
+          </div>
         </div>
-      </div>
-      <div className="pl-2" style={{ width: 100 }}>
-        <Skeleton className="h-3.5 w-10" />
       </div>
     </div>
   );
 }
 
-/** Right pane: the Student grades board (header pills + subject lanes). */
+/** Right pane: the Student grades board (status card + subject lanes). */
 function GradesBoardSkeleton() {
   return (
     <div className={boardStyles.board} aria-hidden>
@@ -35,11 +36,11 @@ function GradesBoardSkeleton() {
         </span>
         <div className="min-w-0 flex-1">
           <Skeleton className="h-4 w-32" />
-          <div className="mt-1 flex flex-wrap gap-1">
-            <Skeleton className="h-5 w-28 rounded-full" />
-            <Skeleton className="h-5 w-24 rounded-full" />
-            <Skeleton className="h-5 w-20 rounded-full" />
-          </div>
+          <Skeleton className="mt-1 h-3 w-52" />
+        </div>
+        <div className={boardStyles.statusCard}>
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="mt-1 h-4 w-20" />
         </div>
       </header>
 
@@ -77,17 +78,18 @@ function GradesBoardSkeleton() {
 }
 
 /**
- * Advisory students loading state — mirrors the loaded page: one panel split
+ * Advisory academics loading state — mirrors the loaded page: one panel split
  * into the roster lane (head, filter/select, Student/Average table,
  * pagination) and the Student grades board with its per-subject lanes.
  */
 export function AdvisoryStudentsSkeleton() {
   return (
-    <section
-      className={`${listStyles.pageLock} flex min-w-0 flex-col gap-3`}
-      aria-busy="true"
-      aria-label="Loading advisory students"
-    >
+    <ShimmerGroup>
+      <section
+        className={`${listStyles.pageLock} flex min-w-0 flex-col gap-3`}
+        aria-busy="true"
+        aria-label="Loading advisory academics"
+      >
       <div className={listStyles.panel} aria-hidden>
         <header className={listStyles.boardHead}>
           <span className={listStyles.boardIcon} aria-hidden>
@@ -95,7 +97,6 @@ export function AdvisoryStudentsSkeleton() {
           </span>
           <div className="min-w-0 flex-1">
             <Skeleton className="h-4 w-36" />
-            <Skeleton className="mt-1 h-3 w-60" />
           </div>
         </header>
 
@@ -137,6 +138,7 @@ export function AdvisoryStudentsSkeleton() {
           </div>
         </div>
       </div>
-    </section>
+      </section>
+    </ShimmerGroup>
   );
 }

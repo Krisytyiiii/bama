@@ -1,13 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { BookOpen, CalendarDays, Layers, Search } from "lucide-react";
+import { BookOpen, CalendarDays, Layers } from "lucide-react";
 import { FilterTabs } from "@/components/ui/filter-tabs";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
+import { TeacherSearchField, searchEmptyMessage } from "@/app/teacher/components/TeacherSearchField";
 import { Pill } from "@/components/ui/pill";
 import { ScrollList } from "@/components/ui/scroll-list";
 import { SheetDatePicker } from "./sheet-date-picker";
@@ -102,23 +98,18 @@ export function AttendanceRail({
         </div>
         <p className={styles.railHint}>Pick a subject to open its attendance sheet.</p>
 
-        <InputGroup className="h-8 rounded-[16px] text-xs">
-          <InputGroupInput
-            placeholder="Search subjects…"
-            value={slotQuery}
-            onChange={(event) => onSlotQueryChange(event.target.value)}
-            aria-label="Search subjects"
-            className="h-8 rounded-[16px] text-xs"
-          />
-          <InputGroupAddon>
-            <Search size={13} aria-hidden />
-          </InputGroupAddon>
-        </InputGroup>
+        <TeacherSearchField
+          className="w-full min-w-0"
+          placeholder="Search subjects…"
+          value={slotQuery}
+          onChange={onSlotQueryChange}
+          aria-label="Search subjects"
+        />
 
         {slotCards.length === 0 ? (
           <p className={styles.railEmpty}>
             {hasSubjects
-              ? "No subjects match your search. Clear the search to see them all."
+              ? searchEmptyMessage(slotQuery, "subjects", "Clear the search to see them all.")
               : "No scheduled subjects yet."}
           </p>
         ) : (

@@ -241,6 +241,8 @@ export function useMyReferrals(highlightId: string | null) {
   return {
     query: queryInput,
     setQuery,
+    /** Search text the current server slice was fetched for. */
+    appliedQuery: debounced,
     status,
     setStatus,
     counts,

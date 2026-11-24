@@ -1,4 +1,10 @@
 .banner {
+  /* Pinned directly under the fixed chrome so the term scope never scrolls
+     away: mobile keeps it below the 3rem topbar + 3rem tab navbar, desktop
+     below the 3rem topbar only. */
+  position: sticky;
+  top: 6rem;
+  z-index: 36;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -9,6 +15,12 @@
   color: var(--muted-foreground);
   font-size: 0.75rem;
   line-height: 1.35;
+}
+
+@media (min-width: 1024px) {
+  .banner {
+    top: 3rem;
+  }
 }
 
 .scope {

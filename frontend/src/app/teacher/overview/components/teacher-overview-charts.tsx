@@ -29,9 +29,12 @@ import {
 import { KanbanBoard, KanbanBoardEmpty } from "@/components/ui/kanban-board";
 import { InsightCallout } from "@/components/ui/insight-callout";
 import { Pill } from "@/components/ui/pill";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ShimmerGroup } from "@/components/ui/shimmer-skeleton";
 import { useTeacherOverviewGradebook, useTeacherOverviewInsights } from "@/services/teacher/overview.service";
 import type { TeacherOverviewCritical } from "@/services/teacher/overview.types";
 import styles from "./teacher-overview-charts.module.css";
+import skeleton from "./teacher-overview-skeleton.module.css";
 
 /* Amber ramp — the teacher shell accent. Same shade steps as the guidance and
    nurse overview charts so every role's boards read as one system. */
@@ -78,6 +81,52 @@ function Interpretation({ children }: { children: React.ReactNode }) {
         <span className={styles.interpretationLabel}>What it means · </span>
         {children}
       </InsightCallout>
+    </div>
+  );
+}
+
+/** Shimmer placeholder for a board whose chart data is still loading. */
+function ChartSkeleton({ variant }: { variant: "mix" | "donut" | "trend" | "pipeline" }) {
+  if (variant === "mix") {
+    return (
+      <div className={styles.chartBody} aria-busy="true">
+        <ShimmerGroup>
+          <div className={skeleton.donutRow}>
+            <Skeleton className={skeleton.donut} />
+            <div className={skeleton.legendCol}>
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className={skeleton.legendRow} />
+              ))}
+            </div>
+          </div>
+        </ShimmerGroup>
+      </div>
+    );
+  }
+  if (variant === "donut") {
+    return (
+      <div className={styles.chartBody} aria-busy="true">
+        <ShimmerGroup>
+          <div className={skeleton.donutCenter}>
+            <Skeleton className={skeleton.donutLarge} />
+          </div>
+        </ShimmerGroup>
+      </div>
+    );
+  }
+  return (
+    <div className={styles.chartBody} aria-busy="true">
+      <ShimmerGroup>
+        <Skeleton
+          className={skeleton.chartPlate}
+          style={variant === "pipeline" ? { height: "176px" } : undefined}
+        />
+        <div className={skeleton.legendInline}>
+          {Array.from({ length: variant === "pipeline" ? 3 : 2 }).map((_, i) => (
+            <Skeleton key={i} className={skeleton.legendChip} />
+          ))}
+        </div>
+      </ShimmerGroup>
     </div>
   );
 }
@@ -312,7 +361,7 @@ export function TeacherOverviewCharts({
           className="flex-1"
         >
           {insightsPending ? (
-            <KanbanBoardEmpty>Loading risk mix…</KanbanBoardEmpty>
+            <ChartSkeleton variant="mix" />
           ) : mix.length === 0 ? (
             <KanbanBoardEmpty>No risk snapshots yet.</KanbanBoardEmpty>
           ) : (
@@ -433,7 +482,7 @@ export function TeacherOverviewCharts({
           className="flex-1"
         >
           {gradebookPending ? (
-            <KanbanBoardEmpty>Loading averages…</KanbanBoardEmpty>
+            <ChartSkeleton variant="donut" />
           ) : subjectRows.length === 0 ? (
             <KanbanBoardEmpty>No graded classes yet.</KanbanBoardEmpty>
           ) : (
@@ -492,7 +541,7 @@ export function TeacherOverviewCharts({
           className="flex-1"
         >
           {insightsPending ? (
-            <KanbanBoardEmpty>Loading detection trend…</KanbanBoardEmpty>
+            <ChartSkeleton variant="trend" />
           ) : trendPoints.length === 0 ? (
             <KanbanBoardEmpty>No school days in range yet.</KanbanBoardEmpty>
           ) : (
@@ -580,7 +629,7 @@ export function TeacherOverviewCharts({
           className="flex-1"
         >
           {insightsPending ? (
-            <KanbanBoardEmpty>Loading attendance trend…</KanbanBoardEmpty>
+            <ChartSkeleton variant="trend" />
           ) : attendancePoints.length === 0 ? (
             <KanbanBoardEmpty>No school days in range yet.</KanbanBoardEmpty>
           ) : (
@@ -680,7 +729,7 @@ export function TeacherOverviewCharts({
         className="flex-1"
       >
         {gradebookPending ? (
-          <KanbanBoardEmpty>Loading assessments…</KanbanBoardEmpty>
+          <ChartSkeleton variant="pipeline" />
         ) : pipelineRows.length === 0 ? (
           <KanbanBoardEmpty>No assessments yet this term.</KanbanBoardEmpty>
         ) : (

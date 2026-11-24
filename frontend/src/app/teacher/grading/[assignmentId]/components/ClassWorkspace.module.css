@@ -58,7 +58,7 @@
   gap: 0.375rem;
   min-width: 0;
   position: sticky;
-  top: 4rem;
+  top: calc(4rem + var(--term-banner-offset, 0rem));
   /* The rail only switches the right column's tool panel — nothing floats,
      so no scroll container is needed here. */
   overflow: visible;
@@ -80,7 +80,7 @@
    instead of pushing the page. */
 .rail {
   position: sticky;
-  top: 4rem;
+  top: calc(4rem + var(--term-banner-offset, 0rem));
   align-self: start;
   min-width: 0;
   max-height: calc(100dvh - 5rem);

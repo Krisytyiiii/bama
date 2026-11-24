@@ -63,9 +63,9 @@
   flex-direction: column;
   gap: 0.625rem;
   min-width: 0;
-  max-height: calc(100dvh - 5rem);
+  max-height: calc(100dvh - 5rem - var(--term-banner-offset, 0rem));
   position: sticky;
-  top: 4rem;
+  top: calc(4rem + var(--term-banner-offset, 0rem));
   overflow: hidden;
 }
 
@@ -341,8 +341,8 @@
   min-height: 0;
   position: sticky;
   /* Level with the left data-table card: 3rem navbar + 1rem main padding. */
-  top: 4rem;
-  max-height: calc(100dvh - 5rem);
+  top: calc(4rem + var(--term-banner-offset, 0rem));
+  max-height: calc(100dvh - 5rem - var(--term-banner-offset, 0rem));
   overflow: hidden;
 }
 

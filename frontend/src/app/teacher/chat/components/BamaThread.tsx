@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { StudentMascot } from "@/components/student-mascot/StudentMascot";
 import { Button } from "@/components/ui/button";
+import { TeacherSearchField, searchEmptyMessage } from "@/app/teacher/components/TeacherSearchField";
 import { Calendar } from "@/components/ui/calendar";
 import { FolderCard } from "@/components/ui/FolderCard";
 import { Pill } from "@/components/ui/pill";
@@ -547,13 +548,12 @@ export function BamaThread({
             <p className="m-0 px-1 text-xs leading-snug text-muted-foreground">
               Who is this anecdotal report for?
             </p>
-            <input
-              type="search"
+            <TeacherSearchField
+              className="w-full"
               value={flow.studentQ}
-              onChange={(e) => flow.setStudentQ(e.target.value)}
+              onChange={flow.setStudentQ}
               placeholder="Search name, LRN, or section…"
               aria-label="Search students"
-              className={dialogStyles.pickerSearch}
             />
             <div
               className={dialogStyles.kanbanList}
@@ -574,7 +574,9 @@ export function BamaThread({
                   ))}
                 </div>
               ) : flow.studentRows.length === 0 ? (
-                <p className={dialogStyles.pickerEmpty}>No students match.</p>
+                <p className={dialogStyles.pickerEmpty}>
+                  {searchEmptyMessage(flow.studentQ, "students")}
+                </p>
               ) : (
                 flow.studentRows.map((s) => (
                   <button
@@ -815,13 +817,12 @@ export function BamaThread({
                 Select all
               </Button>
             </div>
-            <input
-              type="search"
+            <TeacherSearchField
+              className="w-full"
               value={sf10Flow.studentQ}
-              onChange={(e) => sf10Flow.setStudentQ(e.target.value)}
+              onChange={sf10Flow.setStudentQ}
               placeholder="Search name or LRN…"
               aria-label="Search students"
-              className={dialogStyles.pickerSearch}
             />
             <div
               className={dialogStyles.kanbanList}
@@ -843,7 +844,9 @@ export function BamaThread({
                   ))}
                 </div>
               ) : sf10Flow.studentRows.length === 0 ? (
-                <p className={dialogStyles.pickerEmpty}>No students match.</p>
+                <p className={dialogStyles.pickerEmpty}>
+                  {searchEmptyMessage(sf10Flow.studentQ, "students")}
+                </p>
               ) : (
                 sf10Flow.studentRows.map((s) => {
                   const picked = sf10Flow.pickedLrns.includes(s.lrn);
@@ -952,13 +955,12 @@ export function BamaThread({
                 Clear
               </Button>
             </div>
-            <input
-              type="search"
+            <TeacherSearchField
+              className="w-full"
               value={autofillFlow.studentQ}
-              onChange={(e) => autofillFlow.setStudentQ(e.target.value)}
+              onChange={autofillFlow.setStudentQ}
               placeholder="Search name or LRN…"
               aria-label="Search students"
-              className={dialogStyles.pickerSearch}
             />
             <div
               className={dialogStyles.kanbanList}
@@ -982,7 +984,9 @@ export function BamaThread({
               ) : autofillFlow.candidatesError ? (
                 <p className={dialogStyles.pickerEmpty}>Could not load advisees. Try again.</p>
               ) : autofillFlow.candidateRows.length === 0 ? (
-                <p className={dialogStyles.pickerEmpty}>No students match.</p>
+                <p className={dialogStyles.pickerEmpty}>
+                  {searchEmptyMessage(autofillFlow.studentQ, "students")}
+                </p>
               ) : (
                 autofillFlow.candidateRows.map((s) => {
                   const picked = autofillFlow.pickedLrns.includes(s.lrn);

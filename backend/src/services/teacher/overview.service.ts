@@ -165,26 +165,43 @@ export async function getOverview(
   const sectionIds = Array.from(
     new Set([...assignments.map((a) => a.section.id), ...linkedPairs.map((s) => s.sectionId)]),
   );
+  // Class-wide learners only feed the critical payload (risk mix + roster).
+  // Advisers get their roster from the advisory block below, and the
+  // secondary/gradebook scopes need only the section→student mapping — so the
+  // full class roster query is skipped on the adviser overview request.
+  const needsClassLearners = scope !== "critical" || !isAdviser;
+  // Live class-wide risk is only serialized by the critical/full payload for
+  // non-advisers; secondary/gradebook never return those flags.
+  const needsClassRisk = scope === "full" || (isCriticalOnly && !isAdviser);
   const [sectionCounts, sectionStudents, openFlags, classRoster] = await Promise.all([
     prisma.studentProfile.groupBy({
       by: ["sectionId"],
       where: { sectionId: { in: handledSectionIds }, ...excludeArchivedProfiles(archivedLearners) },
       _count: { _all: true },
     }),
-    prisma.studentProfile.findMany({
-      where: { sectionId: { in: handledSectionIds }, ...excludeArchivedProfiles(archivedLearners) },
-      select: {
-        userId: true,
-        lrn: true,
-        mascot: true,
-        sectionId: true,
-        user: { select: { fullName: true } },
-        section: { select: { name: true } },
-      },
-    }),
+    needsClassLearners
+      ? prisma.studentProfile.findMany({
+          where: { sectionId: { in: handledSectionIds }, ...excludeArchivedProfiles(archivedLearners) },
+          select: {
+            userId: true,
+            lrn: true,
+            mascot: true,
+            sectionId: true,
+            user: { select: { fullName: true } },
+            section: { select: { name: true } },
+          },
+        })
+      : Promise.resolve([] as {
+          userId: string;
+          lrn: string;
+          mascot: string | null;
+          sectionId: string | null;
+          user: { fullName: string };
+          section: { name: string } | null;
+        }[]),
     prisma.anecdotalRecord.count({ where: { observerId: teacherId, termId, deletedAt: null } }),
 
-    handledSectionIds.length > 0
+    needsClassLearners && handledSectionIds.length > 0
       ? prisma.studentRoster.findMany({
           where: {
             sectionId: { in: handledSectionIds },
@@ -322,7 +339,7 @@ export async function getOverview(
 
   const classRiskByKey = new Map<string, { riskLevel: "Low" | "Moderate" | "High"; flags: ("academic" | "attendance")[] }>();
 
-  if (!isGradebookOnly && classStudentBases.length > 0 && handledSubjectIds.length > 0) {
+  if (needsClassRisk && classStudentBases.length > 0 && handledSubjectIds.length > 0) {
     const profileIds = sectionStudents.map((p) => p.userId);
     const rosterIds = classRoster.map((r) => r.id);
     const orClauses = [

@@ -1,7 +1,7 @@
 "use client";
 
 import type { KeyboardEvent } from "react";
-import { ArrowUpRight, CalendarClock, CheckCircle2, Clock } from "lucide-react";
+import { ArrowUpRight, CalendarClock } from "lucide-react";
 import { formatElapsedShort, msSinceDate } from "@/lib/clock";
 import { StudentMascot } from "@/components/student-mascot/StudentMascot";
 import { Button } from "@/components/ui/button";
@@ -21,11 +21,12 @@ const dateFmt = new Intl.DateTimeFormat(undefined, {
   year: "numeric",
 });
 
-/** Active risk factors shown on the card — same labels/tones as the detail overlay. */
+/** Active risk factors shown on the row — compact codes only, full names in
+ *  the tooltip, so the factors column never wraps into a second line. */
 const FACTORS = [
-  { key: "academic", label: "Academic", tone: "amber" },
-  { key: "attendance", label: "Attendance", tone: "sky" },
-  { key: "behavioral", label: "Anecdotal", tone: "rose" },
+  { key: "academic", label: "Academic", code: "ACA", tone: "amber" },
+  { key: "attendance", label: "Attendance", code: "ATT", tone: "sky" },
+  { key: "behavioral", label: "Anecdotal", code: "ANE", tone: "rose" },
 ] as const;
 
 export function formatDate(iso: string | null): string {
@@ -130,83 +131,81 @@ export function InterventionRowCard({
   return (
     <li
       style={{ animationDelay: `${Math.min(index, 11) * 35}ms` }}
-      className={`${styles.card} ${row.riskLevel === "High" ? styles.cardHigh : ""}`}
+      className={`${styles.row} ${styles[riskAccentClass(row.riskLevel)]}`}
       onClick={() => onOpen(row)}
       onKeyDown={handleKeyDown}
       tabIndex={0}
+      role="button"
       aria-label={`${row.name}'s intervention case`}
     >
-      <header className={styles.cardHead}>
+      <div className={`${styles.cell} ${styles.cellPerson}`}>
         <StudentMascot
           name={row.name}
           seed={row.lrn}
           character={row.mascot ?? undefined}
-          size={36}
+          size={30}
         />
-        <div className={styles.cardId}>
-          <p className={styles.cardName} title={row.name}>
+        <div className={styles.personText}>
+          <p className={styles.personName} title={row.name}>
             {row.name}
           </p>
-          <div className={styles.cardMeta}>
-            <Pill label="LRN" className="tabular-nums">
-              {row.lrn || "—"}
-            </Pill>
-          </div>
+          <span className={styles.personLrn}>{row.lrn || "—"}</span>
         </div>
-        <Pill tone={riskTone(row.riskLevel)} label="Risk level" className={styles.gradePill}>
+      </div>
+
+      <div className={`${styles.cell} ${styles.cellRisk}`}>
+        <Pill tone={riskTone(row.riskLevel)} label="Risk level">
           {row.riskLevel}
         </Pill>
-      </header>
+      </div>
 
-      <div className={styles.metaRow}>
+      <div className={`${styles.cell} ${styles.cellFactors}`}>
         {activeFactors.length > 0 ? (
           activeFactors.map((factor) => (
-            <Pill key={factor.key} tone={factor.tone} label={`${factor.label} risk factor`}>
-              {factor.label}
+            <Pill
+              key={factor.key}
+              tone={factor.tone}
+              label={`${factor.label} risk factor`}
+              className={styles.factorPill}
+            >
+              {factor.code}
             </Pill>
           ))
         ) : (
-          <Pill tone="neutral" label="Risk factor">
-            No active factor
-          </Pill>
+          <span className={styles.cellMuted} title="No active risk factor">
+            None
+          </span>
         )}
-        <Pill tone={status.tone} label="Status">
+      </div>
+
+      <div className={`${styles.cell} ${styles.cellStatus}`}>
+        <Pill tone={status.tone} label="Pipeline status">
           {status.label}
         </Pill>
       </div>
 
-      <div className={styles.linksRow}>
-        <span className={styles.linkStat}>
-          <Clock size={11} aria-hidden />
-          Flagged {detectedElapsed}
-        </span>
-        <span className={styles.linkStat}>
-          <CheckCircle2 size={11} aria-hidden />
+      <div className={`${styles.cell} ${styles.cellMetaRow} ${styles.cellFlagged}`}>
+        <span className={styles.cellLabel}>Flagged</span>
+        <span className={styles.cellValue}>{detectedElapsed}</span>
+      </div>
+
+      <div className={`${styles.cell} ${styles.cellMetaRow} ${styles.cellSessions}`}>
+        <span className={styles.cellValue}>
           {doneCount} session{doneCount === 1 ? "" : "s"} done
+        </span>
+        <span className={styles.cellSub} title={nextSession ? formatDateTime(nextSession.scheduledAt) : undefined}>
+          {nextSession ? (
+            <>
+              <CalendarClock size={11} aria-hidden />
+              {formatDateTime(nextSession.scheduledAt)}
+            </>
+          ) : (
+            "No session booked"
+          )}
         </span>
       </div>
 
-      {!row.intervention ? (
-        <p className={styles.notice}>
-          <Clock size={11} aria-hidden />
-          <span>No guidance plan yet — the counselling desk has not opened this case.</span>
-        </p>
-      ) : nextSession ? (
-        <p className={`${styles.notice} ${styles.noticeGreen}`}>
-          <CalendarClock size={11} aria-hidden />
-          <span>
-            Session booked · <strong>{formatDateTime(nextSession.scheduledAt)}</strong>
-          </span>
-        </p>
-      ) : null}
-
-      <div className={styles.cardActions}>
-        <span className={styles.footHint}>
-          <CalendarClock size={11} aria-hidden />
-          <span className="min-w-0 truncate">
-            {nextSession ? sessionTypeLabel(nextSession.sessionType) : "No session booked"}
-          </span>
-        </span>
+      <div className={`${styles.cell} ${styles.cellAction}`}>
         <Button
           variant="outline"
           className="h-6 gap-1 bg-card px-2 text-[12px] text-foreground"
@@ -222,6 +221,13 @@ export function InterventionRowCard({
       </div>
     </li>
   );
+}
+
+/** Left risk accent painted on the row — High red, Moderate amber, Low neutral. */
+function riskAccentClass(level: string): "rowHigh" | "rowModerate" | "rowLow" {
+  if (level === "High") return "rowHigh";
+  if (level === "Moderate") return "rowModerate";
+  return "rowLow";
 }
 
 export function approvalTone(status: string) {

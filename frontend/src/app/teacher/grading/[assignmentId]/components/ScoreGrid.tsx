@@ -1,10 +1,10 @@
 "use client";
 import * as React from "react";
 import { useSession } from "@/lib/auth/useSession";
-import { ClipboardList, FileText, Loader2, PenLine, SearchIcon } from "lucide-react";
+import { ClipboardList, FileText, Loader2, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { InputGroup, InputGroupInput, InputGroupAddon } from "@/components/ui/input-group";
 import { KanbanBoard, KanbanBoardEmpty } from "@/components/ui/kanban-board";
+import { TeacherSearchField } from "@/app/teacher/components/TeacherSearchField";
 import { Pill } from "@/components/ui/pill";
 import { formatSurnameFirst } from "@/lib/names";
 import { CardModal } from "@/components/ui/CardModal";
@@ -339,17 +339,13 @@ export function ScoreGrid({ queryKeyId, sectionName, students, components, categ
                 <span className="ml-1 text-muted-foreground/70">({scoredPct}%)</span>
               </span>
             </div>
-            <InputGroup className="w-full max-w-56 rounded-[16px]">
-              <InputGroupInput
-                placeholder="Search name or LRN…"
-                value={nameFilter}
-                onChange={(event) => setNameFilter(event.target.value)}
-                aria-label="Filter students"
-              />
-              <InputGroupAddon>
-                <SearchIcon />
-              </InputGroupAddon>
-            </InputGroup>
+            <TeacherSearchField
+              className="w-full max-w-56"
+              placeholder="Search name or LRN…"
+              value={nameFilter}
+              onChange={setNameFilter}
+              aria-label="Filter students"
+            />
           </div>
         ) : null
       }

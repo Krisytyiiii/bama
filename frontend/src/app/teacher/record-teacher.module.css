@@ -9,27 +9,20 @@
   overflow-x: clip;
 }
 
-.shell {
+/* Dock layout: the floating left glass dock replaces the old left rail and
+   top tab bar, so the shell only clears the 3rem topbar — plus left
+   clearance so the dock never covers the content column. */
+.shellWithDock {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-width: 0;
   margin-left: 0;
-  margin-top: 6rem;
-}
-
-/* Sidebar links layout: no top tab bar (3rem topbar only) and room for
-   the 16rem branched rail. Desktop only — small screens keep the tab
-   bar layout untouched. */
-@media (min-width: 1024px) {
-  .shellWithRail {
-    margin-top: 3rem;
-    margin-left: 16rem;
-    transition: margin-left 240ms ease-out;
-  }
-  .shellWithRailCollapsed {
-    margin-left: 4rem;
-  }
+  margin-top: 3rem;
+  /* Height of the pinned TermScopeBanner strip: page rails that stick below
+     the fixed chrome add this so they pin just under the strip. */
+  --term-banner-offset: 1.8125rem;
+  padding-left: 5rem;
 }
 
 /* Standalone mode (no left rail and no tab navbar, e.g. the Bama chat
@@ -42,6 +35,8 @@
   min-width: 0;
   margin-left: 0;
   margin-top: 3rem;
+  /* No TermScopeBanner in standalone mode. */
+  --term-banner-offset: 0rem;
 }
 
 .main {
@@ -380,6 +375,10 @@
   .shell {
     margin-left: 0;
     margin-top: 6rem;
+  }
+
+  .shellWithDock {
+    padding-left: 4.25rem;
   }
 
   .main {

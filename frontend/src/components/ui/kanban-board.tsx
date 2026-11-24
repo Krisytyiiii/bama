@@ -83,6 +83,8 @@ interface KanbanBoardProps {
   className?: string;
   /** Tint for the inner board (e.g. status-tinted reminder cards). */
   style?: React.CSSProperties;
+  /** Render the title/count header row. Defaults to true. */
+  showHeader?: boolean;
 }
 
 export function KanbanBoard({
@@ -100,6 +102,7 @@ export function KanbanBoard({
   boardLabel,
   className,
   style,
+  showHeader = true,
 }: KanbanBoardProps) {
   const sectionLabel = ariaLabel ?? (typeof title === "string" ? title : undefined);
   return (
@@ -109,19 +112,21 @@ export function KanbanBoard({
         aria-label={boardLabel}
         style={style}
       >
-        <KanbanBoardHeader
-          icon={icon}
-          title={title}
-          count={count}
-          actions={actions}
-          center={headerCenter}
-          toolbar={headerToolbar}
-          ariaLabel={
-            typeof title === "string" && count !== undefined
-              ? `${title}, ${String(count)}`
-              : undefined
-          }
-        />
+        {showHeader ? (
+          <KanbanBoardHeader
+            icon={icon}
+            title={title}
+            count={count}
+            actions={actions}
+            center={headerCenter}
+            toolbar={headerToolbar}
+            ariaLabel={
+              typeof title === "string" && count !== undefined
+                ? `${title}, ${String(count)}`
+                : undefined
+            }
+          />
+        ) : null}
         {description ? (
           <div className="px-1 text-xs text-muted-foreground whitespace-normal break-words">
             {description}

@@ -1,15 +1,11 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 
-import styles from "./teacher-sidebar.module.css";
-import BranchedMenu from "./nav/BranchedMenu";
+import { TeacherGlassDock } from "./nav/TeacherGlassDock";
 import { NAV_ICONS } from "./nav/sidebar-icons";
-import { SidebarIconRail } from "./nav/SidebarIconRail";
-import { ScrollDownHint } from "@/components/ui/scroll-down-hint";
 import { useCachedAdviser } from "@/services/teacher/flagCache";
 import { useTeacherOverview } from "@/services/teacher/overview.service";
 import {
@@ -54,7 +50,7 @@ export function buildNav(isAdviser: boolean): NavGroup[] {
       { label: "Advisory", items: [
         { title: "Advisory List", href: "/teacher/advisory/list", icon: NAV_ICONS.advisoryList },
         { title: "Attendance", href: "/teacher/advisory/attendance", icon: NAV_ICONS.attendance },
-        { title: "Academic", href: "/teacher/advisory/students", icon: NAV_ICONS.academic },
+        { title: "Academics", href: "/teacher/advisory/academics", icon: NAV_ICONS.academic },
         { title: "Anecdotal", href: "/teacher/anecdotal", icon: NAV_ICONS.anecdotal },
         { title: "Referrals", href: "/teacher/advisory/referrals", icon: NAV_ICONS.referrals },
         { title: "Interventions", href: "/teacher/advisory/interventions", icon: NAV_ICONS.interventions },
@@ -77,7 +73,7 @@ const QUEUE_FOR_HREF: Record<string, keyof TeacherNavDots> = {
   "/teacher/overview": "overview",
   "/teacher/advisory/list": "advisoryList",
   "/teacher/advisory/attendance": "adviseeAttendance",
-  "/teacher/advisory/students": "adviseeAcademic",
+  "/teacher/advisory/academics": "adviseeAcademic",
   "/teacher/anecdotal": "anecdotal",
   "/teacher/advisory/referrals": "referrals",
   "/teacher/advisory/interventions": "interventions",
@@ -96,11 +92,13 @@ function withDots(groups: NavGroup[], dots?: TeacherNavDots): NavGroup[] {
   }));
 }
 
-export function TeacherSidebar({
-  collapsed = true,
-}: {
-  collapsed?: boolean;
-} = {}) {
+/**
+ * Teacher desk navigation host: resolves the adviser/subject-teacher nav and
+ * renders it as the left glass dock (`nav/TeacherGlassDock`). Builds the
+ * same groups the global search palette reads via `buildNav`.
+ */
+export function TeacherSidebar() {
+  const pathname = usePathname();
   const session = useSession();
   const overview = useTeacherOverview();
 
@@ -112,128 +110,6 @@ export function TeacherSidebar({
     () => withDots(buildNav(isAdviser), dots),
     [isAdviser, dots],
   );
-  const tabs = React.useMemo(() => nav.flatMap((group) => group.items), [nav]);
 
-  const railScrollRef = React.useRef<HTMLDivElement | null>(null);
-
-  return (
-    <>
-      <aside
-        className={`${styles.rail} ${styles.railDesktop} ${collapsed ? styles.railCollapsed : ""}`}
-        aria-label="Teacher sections"
-      >
-        {collapsed ? (
-          <TeacherRailCollapsed groups={nav} />
-        ) : (
-          <>
-            <div ref={railScrollRef} className={styles.railScroll}>
-              <TeacherRail groups={nav} />
-            </div>
-            <div className={styles.railHintWrap}>
-              <ScrollDownHint
-                scrollRef={railScrollRef}
-                watchKey={`${isAdviser}`}
-                label="Scroll for more"
-                className="pointer-events-auto rounded-full border border-border bg-card px-3 py-1 shadow-sm"
-              />
-            </div>
-          </>
-        )}
-      </aside>
-      <div className={styles.tabsMobile}>
-        <TeacherNavbar tabs={tabs} />
-      </div>
-    </>
-  );
-}
-
-function TeacherRailCollapsed({ groups }: { groups: NavGroup[] }) {
-  const pathname = usePathname();
-  const activeHref =
-    groups
-      .flatMap((group) => group.items)
-      .find((t) =>
-        t.href === "/teacher/overview"
-          ? pathname === t.href
-          : pathname === t.href || pathname.startsWith(`${t.href}/`),
-      )?.href ?? "/teacher/overview";
-  return (
-    <SidebarIconRail
-      groups={groups}
-      ariaLabel="Teacher sections, icon only"
-      activeHref={activeHref}
-    />
-  );
-}
-
-function TeacherRail({ groups }: { groups: NavGroup[] }) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const isActive = React.useCallback(
-    (href: string) =>
-      href === "/teacher/overview"
-        ? pathname === href
-        : pathname === href || pathname.startsWith(`${href}/`),
-    [pathname],
-  );
-  const tabs = groups.flatMap((group) => group.items);
-  const activeHref = tabs.find((t) => isActive(t.href))?.href ?? "/teacher/overview";
-  const defaultOpen = groups.map((_, i) => i);
-  return (
-    <BranchedMenu
-      items={groups.map((group) => ({
-        label: group.label,
-        children: group.items.map((t) => ({
-          value: t.href,
-          label: t.title,
-          href: t.href,
-          dot: t.dot,
-          icon: <t.icon size={16} strokeWidth={1.8} aria-hidden="true" />,
-        })),
-      }))}
-      defaultOpen={defaultOpen.length > 0 ? defaultOpen : [0]}
-      defaultActive={activeHref}
-      activeValue={activeHref}
-      onSelect={(_value, item) => {
-        if ("href" in item && item.href) router.push(item.href);
-      }}
-      width={208}
-    />
-  );
-}
-
-function TeacherNavbar({ tabs }: { tabs: NavItem[] }) {
-  const pathname = usePathname();
-  const isActive = React.useCallback(
-    (href: string) =>
-      href === "/teacher/overview"
-        ? pathname === href
-        : pathname === href || pathname.startsWith(`${href}/`),
-    [pathname],
-  );
-
-  return (
-    <nav className={styles.navbar} aria-label="Teacher sections">
-      <ul className={styles.tabs}>
-        {tabs.map((item) => {
-          const active = isActive(item.href);
-          return (
-            <li key={item.href} className={styles.tabItem}>
-              <Link
-                href={item.href}
-                className={`${styles.tab} ${active ? styles.tabActive : ""}`}
-                aria-current={active ? "page" : undefined}
-              >
-                <item.icon className={styles.tabIcon} aria-hidden="true" />
-                <span className={styles.tabLabel}>{item.title}</span>
-                {item.dot ? <span className={styles.dot} aria-hidden="true" /> : null}
-                {item.dot ? <span className="sr-only">New activity</span> : null}
-                {item.badge ? <span className={styles.badge}>{item.badge}</span> : null}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </nav>
-  );
+  return <TeacherGlassDock groups={nav} pathname={pathname ?? ""} />;
 }

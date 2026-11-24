@@ -10,7 +10,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { StudentMascot } from "@/components/student-mascot/StudentMascot";
 import { CalendarClock, ClipboardCheck, UserRound } from "lucide-react";
 import { KanbanAccountMenu } from "@/components/account/kanban-account-menu";
-import { useCollapsibleSidebar } from "@/components/nav/use-collapsible-sidebar";
 import { ActiveTermBadge } from "@/components/term/ActiveTermBadge";
 import { TermScopeBanner } from "@/components/term/TermScopeBanner";
 import { RosterCarryOverOverlay } from "@/components/term/RosterCarryOverOverlay";
@@ -83,11 +82,7 @@ function TeacherChrome({
     return () => window.clearInterval(id);
   }, []);
 
-  const { collapsed: sidebarCollapsed } =
-    useCollapsibleSidebar("zentra.teacher.sidebar.collapsed");
-
   const handleLogout = () => {
-
     void logout();
     Object.keys(window.localStorage)
       .filter((key) => key.startsWith("zentra."))
@@ -173,14 +168,10 @@ function TeacherChrome({
           </button>
         </KanbanAccountMenu>
       </header>
-      {standalone ? null : (
-        <TeacherSidebar collapsed={sidebarCollapsed} />
-      )}
+      {standalone ? null : <TeacherSidebar />}
       <div
         className={
-          standalone
-            ? styles.shellStandalone
-            : `${styles.shell} ${styles.shellWithRail} ${sidebarCollapsed ? styles.shellWithRailCollapsed : ""}`
+          standalone ? styles.shellStandalone : styles.shellWithDock
         }
       >
         {standalone ? null : <TermScopeBanner />}
