@@ -1,3 +1,4 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 
 // One public origin: /api/* proxies to the Express app. Set API_ORIGIN in
@@ -5,6 +6,11 @@ import type { NextConfig } from "next";
 const apiOrigin = process.env.API_ORIGIN?.replace(/\/+$/, "");
 
 const nextConfig: NextConfig = {
+  // Turbopack only resolves files under its root; shared packages live two
+  // levels up in the monorepo, so the root has to be the repo, not apps/web.
+  turbopack: {
+    root: path.resolve(__dirname, "../.."),
+  },
   images: {
     remotePatterns: [
       {

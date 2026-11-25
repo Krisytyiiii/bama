@@ -1,10 +1,32 @@
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
+import fs from "node:fs";
 import path from "node:path";
 
 // Runs the whole product from one command: api on 4000, web on 3000.
 // No dependency: plain child processes, prefixed output, one Ctrl+C teardown.
 
 const ROOT = path.resolve(import.meta.dirname, "..");
+const PACKAGES = ["domain", "contracts", "api-client"];
+
+// Apps import built package output, so a fresh clone must build them once.
+function ensurePackagesBuilt() {
+  const npm = process.platform === "win32" ? "npm.cmd" : "npm";
+  const missing = PACKAGES.filter(
+    (pkg) => !fs.existsSync(path.join(ROOT, "packages", pkg, "dist", "index.js")),
+  );
+  if (!missing.length) return;
+  console.log(`building shared packages: ${missing.join(", ")}`);
+  for (const pkg of missing) {
+    const result = spawnSync(npm, ["run", "build"], {
+      cwd: path.join(ROOT, "packages", pkg),
+      stdio: "inherit",
+      shell: process.platform === "win32",
+    });
+    if (result.status !== 0) process.exit(result.status ?? 1);
+  }
+}
+
+ensurePackagesBuilt();
 const targets = [
   { name: "api", color: "\u001b[36m", cwd: path.join(ROOT, "apps", "api"), args: ["run", "dev"] },
   { name: "web", color: "\u001b[35m", cwd: path.join(ROOT, "apps", "web"), args: ["run", "dev"] },

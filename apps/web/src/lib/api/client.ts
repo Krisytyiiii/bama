@@ -1,84 +1,7 @@
-import axios, { type AxiosInstance } from "axios";
+import { createApiClient } from "@zentra/api-client";
 import { decodeTokenIdentity, canSteerTermRole } from "@/lib/auth/roles";
 import { clearTermStorage, readStoredTerm, type StoredTerm } from "@/lib/term/termStorage";
 import { isRealtimeFresh } from "@/lib/api/fresh";
-
-export const apiClient: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
-  headers: { "Content-Type": "application/json" },
-
-  withCredentials: true,
-});
-
-apiClient.interceptors.request.use((config) => {
-  const token = getAccessToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  // Only term-steering roles (teachers + principal) carry a term. Every other
-  // desk is scoped server-side, so its requests must never send term headers.
-  const identity = decodeTokenIdentity(token);
-  if (identity && canSteerTermRole(identity.role)) {
-    const scope = getActiveTermScope();
-    if (scope?.schoolYearId) {
-      (config.headers as Record<string, string>)["x-school-year-id"] = scope.schoolYearId;
-    }
-    if (scope?.termId) {
-      (config.headers as Record<string, string>)["x-term-id"] = scope.termId;
-    }
-  }
-  // Realtime just told us the data changed: make the follow-up GET skip the
-  // API's Redis cache read so the screen updates in the same tick as the alert
-  // instead of racing the write's (fire-and-forget) tag invalidation.
-  if (isRealtimeFresh()) {
-    (config.headers as Record<string, string>)["x-zentra-fresh"] = "1";
-  }
-  return config;
-});
-
-let refreshPromise: Promise<string | null> | null = null;
-
-apiClient.interceptors.response.use(
-  (res) => res,
-  async (error) => {
-    const original = error.config;
-    if (error.response?.status === 401 && !original._retry) {
-      original._retry = true;
-      try {
-        const token = await (refreshPromise ?? (refreshPromise = refreshAccessToken()));
-        refreshPromise = null;
-        if (token) {
-          original.headers.Authorization = `Bearer ${token}`;
-          return apiClient(original);
-        }
-        redirectToUnauthorized();
-      } catch {
-        refreshPromise = null;
-        redirectToUnauthorized();
-      }
-    }
-    return Promise.reject(error);
-  },
-);
-
-function redirectToUnauthorized() {
-  if (typeof window === "undefined") return;
-  const identity = decodeTokenIdentity(getAccessToken());
-  setAccessToken(null);
-  clearTermStorage(identity?.sub ?? null);
-  if (window.location.pathname !== "/errors/403") {
-    window.location.href = "/errors/403";
-  }
-}
-
-export type ActiveTermScope = StoredTerm;
-
-export function getActiveTermScope(): ActiveTermScope | null {
-  if (typeof window === "undefined") return null;
-  const identity = decodeTokenIdentity(getAccessToken());
-  if (!identity || !canSteerTermRole(identity.role)) return null;
-  return readStoredTerm(identity.sub);
-}
 
 const ACCESS_KEY = "zentra.access";
 
@@ -93,40 +16,55 @@ export function setAccessToken(token: string | null) {
   else window.localStorage.removeItem(ACCESS_KEY);
 }
 
-async function refreshAccessToken(): Promise<string | null> {
-  try {
-    const { data } = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/refresh`,
-      {},
-      { withCredentials: true },
-    );
-    setAccessToken(data.accessToken);
-    return data.accessToken as string;
-  } catch {
-    setAccessToken(null);
-    return null;
+export type ActiveTermScope = StoredTerm;
+
+export function getActiveTermScope(): ActiveTermScope | null {
+  if (typeof window === "undefined") return null;
+  const identity = decodeTokenIdentity(getAccessToken());
+  if (!identity || !canSteerTermRole(identity.role)) return null;
+  return readStoredTerm(identity.sub);
+}
+
+function redirectToUnauthorized() {
+  if (typeof window === "undefined") return;
+  const identity = decodeTokenIdentity(getAccessToken());
+  setAccessToken(null);
+  clearTermStorage(identity?.sub ?? null);
+  if (window.location.pathname !== "/errors/403") {
+    window.location.href = "/errors/403";
   }
 }
 
+function scopeHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {};
+  // Only term-steering roles (teachers + principal) carry a term. Every other
+  // desk is scoped server-side, so its requests must never send term headers.
+  const identity = decodeTokenIdentity(getAccessToken());
+  if (identity && canSteerTermRole(identity.role)) {
+    const scope = getActiveTermScope();
+    if (scope?.schoolYearId) headers["x-school-year-id"] = scope.schoolYearId;
+    if (scope?.termId) headers["x-term-id"] = scope.termId;
+  }
+  // Realtime just told us the data changed: make the follow-up GET skip the
+  // API's Redis cache read so the screen updates in the same tick as the alert.
+  if (isRealtimeFresh()) headers["x-zentra-fresh"] = "1";
+  return headers;
+}
+
+const handle = createApiClient({
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  getToken: getAccessToken,
+  setToken: setAccessToken,
+  extraHeaders: scopeHeaders,
+  onSessionExpired: redirectToUnauthorized,
+});
+
+export const apiClient = handle.client;
+
 export async function logout(): Promise<void> {
   const identity = decodeTokenIdentity(getAccessToken());
-  const token = getAccessToken();
-  try {
-    await axios.post(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/logout`,
-      {},
-      {
-        withCredentials: true,
-        // Lets the API drop this user from the admin presence board instantly.
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-      },
-    );
-  } catch {
-
-  }
-  setAccessToken(null);
+  await handle.logout();
   if (typeof window !== "undefined") {
-
     window.localStorage.removeItem("zentra.refresh");
   }
   clearTermStorage(identity?.sub ?? null);

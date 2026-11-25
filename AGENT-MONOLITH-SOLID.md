@@ -639,7 +639,17 @@ diff reported, and a commit series using the phase prefix.
   file moved alongside it. Domain must not import Prisma types — map to plain DTOs.
 - `packages/api-client`: Axios instance + interceptors + refresh single-flight +
   `AppError` mapping + `x-zentra-fresh` behaviour; web's `lib/api/client.ts`
-  becomes a thin wrapper adding term headers.
+  becomes a thin wrapper adding term headers. Shipped as `createApiClient(ports)`
+  — token storage, desk headers, session-expired redirect and logout cleanup are
+  injected by the app, so the package holds no `window`/localStorage assumptions
+  and mobile can reuse it. Done: `apps/web/src/lib/api/client.ts` is now the
+  browser adapter (localStorage token, term + fresh headers, `/errors/403`) and
+  keeps its old exports, so all ~90 importing modules were untouched.
+- **Turbopack root (P2, required):** Turbopack refuses to resolve files outside
+  its detected root, and packages live two levels up. `apps/web/next.config.ts`
+  sets `turbopack.root` to the repo root; without it `next build` fails with
+  `Module not found: Can't resolve '@zentra/contracts/mascot'` while `tsc`
+  passes (tsc follows the junction, Turbopack does not).
 - `packages/ui-tokens`: colour/spacing/radius/motion/type-scale constants consumed
   by Tailwind config, CSS modules and (later) React Native StyleSheet. Web design
   rules (32px buttons, 12px min type, Inter, one accent) become token values, not
