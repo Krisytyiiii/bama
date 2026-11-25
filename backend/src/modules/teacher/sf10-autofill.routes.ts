@@ -7,7 +7,7 @@ import { etag } from "../../lib/etag.js";
 import { CACHE_TAGS, CACHE_TTLS } from "../../lib/cacheTags.js";
 import { TEACHER_ROLES } from "./advisory.repository.js";
 import {
-  generateJhsTemplateFile,
+  generateTemplateFile,
   getPreview,
   listCandidates,
   runAutofill,
@@ -111,7 +111,7 @@ router.get(
       }
       const format = req.query.format === "pdf" ? "pdf" : "xlsx";
       const lrn = String(req.params.lrn ?? "").trim();
-      const file = await generateJhsTemplateFile(
+      const file = await generateTemplateFile(
         { userId: req.user!.id, role: req.user!.role },
         sectionId,
         lrn,

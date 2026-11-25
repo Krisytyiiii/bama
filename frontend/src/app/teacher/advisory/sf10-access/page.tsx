@@ -91,16 +91,16 @@ export default function TeacherSf10AccessPage() {
   const foldersError = !!activeRequest && verification.isError;
   const [query, setQuery] = React.useState("");
 
-  // SF10-JHS template: the adviser builds a fresh form from the school template for
-  // any advisee whose adviser-approved finals are locked, even before the
-  // registry desk has filed a record. The tab only covers G7–G10 (the SHS band
-  // keeps the upload flow).
+  // SF10 template: the adviser builds a fresh form from the school template
+  // (JHS book for Grades 7–10, Strengthened SHS book for 11–12) for any advisee
+  // whose adviser-approved finals are locked, even before the registry desk has
+  // filed a record.
   const primarySectionId = sectionsQuery.data?.advisorySections[0]?.id ?? null;
   const candidatesQuery = useAutofillCandidates(primarySectionId);
   const templateRows = React.useMemo(
     () =>
       (candidatesQuery.data ?? []).filter((c) =>
-        ["G7", "G8", "G9", "G10"].includes(c.gradeLevel),
+        ["G7", "G8", "G9", "G10", "G11", "G12"].includes(c.gradeLevel),
       ),
     [candidatesQuery.data],
   );

@@ -85,11 +85,23 @@ const TEMPLATE_PATH = path.join(
   "sf10-template.xlsx",
 );
 
+const SHS_TEMPLATE_PATH = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "assets",
+  "sf10-template-sshs.xlsx",
+);
+
 let cachedTemplate: Buffer | null = null;
+let cachedShsTemplate: Buffer | null = null;
 
 async function loadTemplate(): Promise<Buffer> {
   if (!cachedTemplate) cachedTemplate = await readFile(TEMPLATE_PATH);
   return cachedTemplate;
+}
+
+async function loadShsTemplate(): Promise<Buffer> {
+  if (!cachedShsTemplate) cachedShsTemplate = await readFile(SHS_TEMPLATE_PATH);
+  return cachedShsTemplate;
 }
 
 /* ------------------------------ row mapping ------------------------------- */
@@ -335,6 +347,252 @@ export async function fillSf10Template(input: Sf10TemplateInput): Promise<Buffer
   // Applied last so the print area and scale cover the filled content.
   applyPrintSetup(wb.worksheets);
 
+  return Buffer.from(await wb.xlsx.writeBuffer());
+}
+
+/* ------------------------------- SHS fill --------------------------------- */
+
+/**
+ * The Strengthened SHS form (SF10-SHS v2026) is a different book from the JHS
+ * one: it has no per-grade "block" section, but one FRONT sheet for Grade 11
+ * and one BACK sheet for Grade 12, each carrying a FIRST and a SECOND semester
+ * table plus a final-grades summary. Every semester table only has two quarter
+ * columns (Q1/Q2 on the first, Q3/Q4 on the second), which fits Zentra's
+ * trimester: terms 1–2 land in the first semester and term 3 in the second,
+ * Q4 stays blank.
+ *
+ * The template ships with sample subjects, tags and formulas. The fill rewrites
+ * the touched rows with plain values (formulas flattened first so a shared
+ * formula master is never overwritten), clears the grade sheet that does not
+ * belong to this learner, and leaves the printed page setup exactly as DepEd
+ * shipped it.
+ */
+interface ShsSemBlock {
+  headerRow: number;
+  trackRow: number;
+  subjectStart: number;
+  subjectRows: number;
+  /** Rows whose REMARK cells sit under the form's printed computation note. */
+  noteRows?: [number, number];
+}
+
+interface ShsGradeSheet {
+  sheet: string;
+  blocks: [ShsSemBlock, ShsSemBlock];
+  summaryStart: number;
+  summaryRows: number;
+  generalAverageRow: number;
+}
+
+const SHS_GRADE_SHEETS: Record<string, ShsGradeSheet> = {
+  G11: {
+    sheet: "FRONT",
+    blocks: [
+      { headerRow: 22, trackRow: 23, subjectStart: 28, subjectRows: 14, noteRows: [28, 34] },
+      { headerRow: 61, trackRow: 62, subjectStart: 67, subjectRows: 14, noteRows: [67, 73] },
+    ],
+    summaryStart: 104,
+    summaryRows: 18,
+    generalAverageRow: 123,
+  },
+  G12: {
+    sheet: "BACK",
+    blocks: [
+      { headerRow: 3, trackRow: 4, subjectStart: 9, subjectRows: 10 },
+      { headerRow: 38, trackRow: 39, subjectStart: 44, subjectRows: 10 },
+    ],
+    summaryStart: 77,
+    summaryRows: 12,
+    generalAverageRow: 89,
+  },
+};
+
+/** R = Q1/Q3, S = Q2/Q4, T = semestral grade, U = action taken, W = remark. */
+const SHS_QUARTER_COLS = [18, 19] as const;
+const SHS_SEMESTRAL_COL = 20;
+const SHS_ACTION_COL = 21;
+const SHS_REMARK_COL = 23;
+/** Summary table: Q..T quarters, U/V semestral grades, W average, X action. */
+const SHS_SUMMARY_COLS = { q: 17, q2: 18, q3: 19, q4: 20, sem1: 21, sem2: 22, ave: 23, action: 24 };
+const SHS_HEADER_COLS = {
+  school: 3,
+  schoolId: 14,
+  gradeLevel: 19,
+  section: 23,
+  track: 3,
+  schoolYear: 19,
+};
+
+function meanOf(values: Array<number | null | undefined>): number | null {
+  const clean = values.filter((v): v is number => typeof v === "number" && Number.isFinite(v));
+  if (clean.length === 0) return null;
+  return Math.round(clean.reduce((total, v) => total + v, 0) / clean.length);
+}
+
+function inNoteRows(block: ShsSemBlock, row: number): boolean {
+  return !!block.noteRows && row >= block.noteRows[0] && row <= block.noteRows[1];
+}
+
+/** Every row the fill rewrites, so shared formulas can be flattened first. */
+
+function clearShsSheet(ws: Worksheet, sheet: ShsGradeSheet): void {
+  for (const block of sheet.blocks) {
+    for (const col of [SHS_HEADER_COLS.school, SHS_HEADER_COLS.schoolId, SHS_HEADER_COLS.gradeLevel, SHS_HEADER_COLS.section]) {
+      writeCell(ws, block.headerRow, col, null);
+    }
+    for (const col of [SHS_HEADER_COLS.track, SHS_HEADER_COLS.schoolYear]) {
+      writeCell(ws, block.trackRow, col, null);
+    }
+    for (let i = 0; i < block.subjectRows; i += 1) {
+      const row = block.subjectStart + i;
+      writeCell(ws, row, 1, null);
+      writeCell(ws, row, 2, null);
+      writeCell(ws, row, 4, null);
+      writeCell(ws, row, SHS_QUARTER_COLS[0], null);
+      writeCell(ws, row, SHS_QUARTER_COLS[1], null);
+      writeCell(ws, row, SHS_SEMESTRAL_COL, null);
+      writeCell(ws, row, SHS_ACTION_COL, null);
+      if (!inNoteRows(block, row)) writeCell(ws, row, SHS_REMARK_COL, null);
+    }
+  }
+  for (let i = 0; i < sheet.summaryRows; i += 1) {
+    const row = sheet.summaryStart + i;
+    writeCell(ws, row, 1, null);
+    writeCell(ws, row, 2, null);
+    writeCell(ws, row, 4, null);
+    for (const col of Object.values(SHS_SUMMARY_COLS)) writeCell(ws, row, col, null);
+  }
+  writeCell(ws, sheet.generalAverageRow, SHS_SUMMARY_COLS.ave, null);
+  writeCell(ws, sheet.generalAverageRow, SHS_SUMMARY_COLS.action, null);
+}
+
+function writeShsHeaders(ws: Worksheet, sheet: ShsGradeSheet, gradeNumber: string, learner: Sf10TemplateLearner): void {
+  for (const block of sheet.blocks) {
+    writeCell(ws, block.headerRow, SHS_HEADER_COLS.school, SCHOOL_NAME);
+    writeCell(ws, block.headerRow, SHS_HEADER_COLS.schoolId, SCHOOL_ID);
+    writeCell(ws, block.headerRow, SHS_HEADER_COLS.gradeLevel, gradeNumber);
+    writeCell(ws, block.headerRow, SHS_HEADER_COLS.section, learner.section);
+    writeCell(ws, block.trackRow, SHS_HEADER_COLS.track, null);
+    writeCell(ws, block.trackRow, SHS_HEADER_COLS.schoolYear, learner.schoolYear);
+  }
+}
+
+function writeShsSemester(
+  ws: Worksheet,
+  block: ShsSemBlock,
+  rows: Sf10TemplateSubjectRow[],
+  quarterOffset: 0 | 2,
+): void {
+  for (let i = 0; i < block.subjectRows; i += 1) {
+    const row = block.subjectStart + i;
+    const filled = rows[i];
+    if (!filled) {
+      writeCell(ws, row, 1, null);
+      writeCell(ws, row, 2, null);
+      writeCell(ws, row, 4, null);
+      writeCell(ws, row, SHS_QUARTER_COLS[0], null);
+      writeCell(ws, row, SHS_QUARTER_COLS[1], null);
+      writeCell(ws, row, SHS_SEMESTRAL_COL, null);
+      writeCell(ws, row, SHS_ACTION_COL, null);
+      if (!inNoteRows(block, row)) writeCell(ws, row, SHS_REMARK_COL, null);
+      continue;
+    }
+    const quarterValues = [filled.quarters[quarterOffset], filled.quarters[quarterOffset + 1]];
+    writeCell(ws, row, 1, i + 1);
+    writeCell(ws, row, 4, filled.subject);
+    writeCell(ws, row, SHS_QUARTER_COLS[0], quarterValues[0] ?? null);
+    writeCell(ws, row, SHS_QUARTER_COLS[1], quarterValues[1] ?? null);
+    writeCell(ws, row, SHS_SEMESTRAL_COL, meanOf(quarterValues));
+    writeCell(ws, row, SHS_ACTION_COL, filled.remarks);
+    if (!inNoteRows(block, row)) writeCell(ws, row, SHS_REMARK_COL, filled.remarks);
+  }
+}
+
+function writeShsSummary(ws: Worksheet, sheet: ShsGradeSheet, rows: Sf10TemplateSubjectRow[]): void {
+  for (let i = 0; i < sheet.summaryRows; i += 1) {
+    const row = sheet.summaryStart + i;
+    const filled = rows[i];
+    if (!filled) {
+      writeCell(ws, row, 1, null);
+      writeCell(ws, row, 2, null);
+      writeCell(ws, row, 4, null);
+      for (const col of Object.values(SHS_SUMMARY_COLS)) writeCell(ws, row, col, null);
+      continue;
+    }
+    writeCell(ws, row, 1, i + 1);
+    writeCell(ws, row, 4, filled.subject);
+    writeCell(ws, row, SHS_SUMMARY_COLS.q, filled.quarters[0] ?? null);
+    writeCell(ws, row, SHS_SUMMARY_COLS.q2, filled.quarters[1] ?? null);
+    writeCell(ws, row, SHS_SUMMARY_COLS.q3, filled.quarters[2] ?? null);
+    writeCell(ws, row, SHS_SUMMARY_COLS.q4, filled.quarters[3] ?? null);
+    writeCell(ws, row, SHS_SUMMARY_COLS.sem1, meanOf([filled.quarters[0], filled.quarters[1]]));
+    writeCell(ws, row, SHS_SUMMARY_COLS.sem2, meanOf([filled.quarters[2], filled.quarters[3]]));
+    writeCell(ws, row, SHS_SUMMARY_COLS.ave, filled.rating);
+    writeCell(ws, row, SHS_SUMMARY_COLS.action, filled.remarks);
+  }
+
+  const average = meanOf(rows.map((r) => r.rating));
+  writeCell(ws, sheet.generalAverageRow, SHS_SUMMARY_COLS.ave, average);
+  writeCell(
+    ws,
+    sheet.generalAverageRow,
+    SHS_SUMMARY_COLS.action,
+    average === null ? null : average >= 75 ? "PASSED" : "FAILED",
+  );
+}
+
+export async function fillShsSf10Template(input: Sf10TemplateInput): Promise<Buffer> {
+  const ExcelJS = await excelJs();
+  const wb = new ExcelJS.Workbook();
+  await wb.xlsx.load((await loadShsTemplate()) as unknown as ArrayBuffer);
+
+  const L = input.learner;
+  const gradeKey = L.gradeLevel.toUpperCase().replace(/^GRADE\s*/i, "G");
+  const sheetDef = SHS_GRADE_SHEETS[gradeKey];
+  if (!sheetDef) throw new Error(`SF10-SHS template has no grade block for ${L.gradeLevel}`);
+  const otherDef = SHS_GRADE_SHEETS[gradeKey === "G11" ? "G12" : "G11"];
+  const ws = wb.getWorksheet(sheetDef.sheet);
+  const otherWs = wb.getWorksheet(otherDef.sheet);
+  if (!ws || !otherWs) throw new Error("SF10-SHS template is missing its grade sheets");
+
+  // Learner identity lives on the FRONT sheet even when the grades are G12's.
+  const identity = wb.getWorksheet("FRONT") ?? ws;
+  writeCell(identity, 7, 3, L.lastName ?? "");
+  writeCell(identity, 7, 11, L.firstName ?? "");
+  writeCell(identity, 7, 19, L.middleName ?? "");
+  writeCell(identity, 7, 24, L.suffix ?? "");
+  writeCell(identity, 8, 3, L.lrn);
+  writeCell(identity, 8, 11, L.birthdate ?? "");
+  writeCell(identity, 8, 16, L.sex ?? "");
+
+  // Flatten every formula on both record sheets: the fill rewrites cells that
+  // sit inside shared-formula chains, and leaving an orphaned clone behind makes
+  // the workbook unserializable.
+  flattenRowsFormulas(
+    ws,
+    Array.from({ length: contentLastRow(ws) }, (_, i) => i + 1),
+    ws.columnCount,
+  );
+  flattenRowsFormulas(
+    otherWs,
+    Array.from({ length: contentLastRow(otherWs) }, (_, i) => i + 1),
+    otherWs.columnCount,
+  );
+  clearShsSheet(ws, sheetDef);
+  clearShsSheet(otherWs, otherDef);
+
+  writeShsHeaders(ws, sheetDef, gradeKey.replace(/^G/, ""), L);
+
+  // Zentra runs trimesters: terms 1–2 are the first semester, term 3 the
+  // second. Q4 is always blank on a trimestral record.
+  const firstSem = input.rows.filter((r) => r.quarters[0] != null || r.quarters[1] != null);
+  const secondSem = input.rows.filter((r) => r.quarters[2] != null || r.quarters[3] != null);
+  writeShsSemester(ws, sheetDef.blocks[0], firstSem, 0);
+  writeShsSemester(ws, sheetDef.blocks[1], secondSem, 2);
+  writeShsSummary(ws, sheetDef, input.rows);
+
+  // The workbook's own page setup (paper, scale, print areas) is already the
+  // official form's; unlike the JHS fill, nothing here needs to be re-applied.
   return Buffer.from(await wb.xlsx.writeBuffer());
 }
 

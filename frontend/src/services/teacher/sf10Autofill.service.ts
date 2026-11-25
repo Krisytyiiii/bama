@@ -97,9 +97,10 @@ export async function runAutofill(payload: {
 }
 
 /**
- * Download the SF10-JHS built from the school template for one advisee. The
- * request writes the rendered file onto the learner's SF10 record, so the
- * caller should refresh the records queries afterwards.
+ * Download the SF10 built from the school template for one advisee (JHS book
+ * for Grades 7–10, Strengthened SHS book for 11–12). The request writes the
+ * rendered file onto the learner's SF10 record, so the caller should refresh the
+ * records queries afterwards.
  */
 export async function downloadSf10Template(
   sectionId: string,

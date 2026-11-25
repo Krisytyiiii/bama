@@ -44,7 +44,7 @@ interface Sf10RepoFoldersProps {
   error: boolean;
   denied: boolean;
   onOpen: (fileUrl: string) => void;
-  /** Adviser's JHS advisees — the template can be generated for each. */
+  /** Adviser's advisees — the template can be generated for each. */
   templateRows: AutofillCandidate[];
   templatePending: boolean;
   onDownloadTemplate: (lrn: string, format: "xlsx" | "pdf") => void;
@@ -111,13 +111,13 @@ export function Sf10RepoFolders({
       ? "Original SF10 files"
       : source === "autofill"
         ? "Bama auto-fill files"
-        : "JHS template files";
+        : "SF10 template files";
   const description =
     source === "original"
       ? `Uploaded by the registrar or record keeper — ${originalRows.length} of ${totalCount} granted student(s).`
       : source === "autofill"
         ? `Rendered from locked grades — ${autoFillRows.length} student(s). The original upload stays in the other tab.`
-        : `Build a fresh SF10-JHS from the school template with this adviser's locked grades — ${templateRows.length} advisee(s). Download Excel or PDF; the file is also filed on the learner's record.`;
+        : `Build a fresh SF10 from the school template (JHS or SHS form) with this adviser's locked grades — ${templateRows.length} advisee(s). Download Excel or PDF; the file is also filed on the learner's record.`;
 
   return (
     <div className={`${styles.panel} flex flex-1 flex-col`}>
@@ -142,7 +142,7 @@ export function Sf10RepoFolders({
             },
             {
               value: "template",
-              label: "JHS template",
+              label: "School template",
               count: templateRows.length,
             },
           ]}
@@ -180,10 +180,9 @@ export function Sf10RepoFolders({
             ) : templatePageRows.length === 0 ? (
               <div className={styles.empty}>
                 <FolderOpen size={20} aria-hidden className="text-muted-foreground" />
-                <p className={styles.emptyTitle}>No JHS advisees to fill</p>
+                <p className={styles.emptyTitle}>No advisees to fill</p>
                 <p className={styles.emptyBody}>
-                  This advisory section has no Grades 7–10 learners yet. The template
-                  only covers the JHS form.
+                  This advisory section has no learners with locked grades yet.
                 </p>
               </div>
             ) : (
@@ -200,7 +199,7 @@ export function Sf10RepoFolders({
                       <span className="-mx-2.5 flex min-w-0 items-center gap-1.5 border-b border-border px-3.5 pb-2">
                         <Pill tone={canGenerate ? "blue" : "neutral"} className="gap-1.5">
                           <FileSpreadsheet size={12} aria-hidden />
-                          <span className="truncate">SF10-JHS template</span>
+                          <span className="truncate">SF10 template</span>
                         </Pill>
                         <Pill tone="neutral">
                           <span className="truncate">{student.subjectsReady} subject(s)</span>

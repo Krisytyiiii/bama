@@ -16,7 +16,7 @@ import {
   createAutoPopulatedRecord,
   type OcrSubjectPayload,
 } from "../sf10/records.service.js";
-import { fillSf10Template, renderSf10Pdf } from "../sf10/template-file.service.js";
+import { fillSf10Template, fillShsSf10Template, renderSf10Pdf } from "../sf10/template-file.service.js";
 import type { Sf10Context } from "../sf10/sf10.types.js";
 
 export interface GradeFact {
@@ -571,9 +571,9 @@ export async function runAutofill(
   };
 }
 
-/* -------------------------- JHS template generation ------------------------ */
+/* --------------------------- template generation --------------------------- */
 
-const JHS_TEMPLATE_GRADES = new Set(["G7", "G8", "G9", "G10"]);
+const TEMPLATE_GRADES = new Set(["G7", "G8", "G9", "G10", "G11", "G12"]);
 
 export type Sf10TemplateFormat = "xlsx" | "pdf";
 
@@ -593,12 +593,13 @@ function mmDdYyyy(date: Date): string {
 }
 
 /**
- * Build a downloadable SF10-JHS from the school's own template for one advisee:
- * locked finals of every subject are written into the grade's rows,
- * then the file is filed on the learner's SF10 record (creating one when the
- * registry desk has not uploaded a form yet) and handed back for download.
+ * Build a downloadable SF10 from the school's own template for one advisee:
+ * locked finals of every subject are written into the grade's rows (the JHS
+ * book for Grades 7–10, the Strengthened SHS book for Grades 11–12), then the
+ * file is filed on the learner's SF10 record (creating one when the registry
+ * desk has not uploaded a form yet) and handed back for download.
  */
-export async function generateJhsTemplateFile(
+export async function generateTemplateFile(
   ctx: { userId: string; role: string },
   sectionId: string,
   lrn: string,
@@ -611,14 +612,13 @@ export async function generateJhsTemplateFile(
   const learner = section.learners[0];
   if (!learner) throw new AppError(404, "NOT_FOUND", "Learner is not on this advisory section");
 
-  // The template is the SF10-JHS form (Grades 7-10) — SHS keeps the uploaded
-  // registrar flow.
+  // Grades 7–10 use the SF10-JHS form, Grades 11–12 the SF10-SHS (v2026) form.
   const grade = String(section.section.gradeLevel);
-  if (!JHS_TEMPLATE_GRADES.has(grade)) {
+  if (!TEMPLATE_GRADES.has(grade)) {
     throw new AppError(
       409,
-      "NOT_JHS",
-      "The SF10 template can only be generated for Grades 7-10.",
+      "NOT_SUPPORTED",
+      "The SF10 template can only be generated for Grades 7-12.",
     );
   }
   if (!hasGrant(section.grants, wanted, sectionId)) {
@@ -639,7 +639,8 @@ export async function generateJhsTemplateFile(
     select: { fullName: true },
   });
 
-  const filledWorkbook = await fillSf10Template({
+  const fill = (GRADE_BAND_7_10 as string[]).includes(grade) ? fillSf10Template : fillShsSf10Template;
+  const filledWorkbook = await fill({
     learner: {
       ...parseFullName(learner.name),
       lrn: learner.lrn,
