@@ -181,34 +181,91 @@ function flattenRowsFormulas(ws: Worksheet, rows: number[], width: number): void
 }
 
 /**
- * Print setup for every page of the form. The template ships without a usable
- * page setup (Sheet1 has no paper size, both sheets have fit-to-page off), so a
- * plain "convert to PDF" spilled each sheet over four Letter/A3 pages. Every
- * sheet is one printed page of the form: A3 portrait (the size Sheet2 already
- * declared), fit to exactly one page, with the printable margins the form is
- * laid out for.
+ * One page per sheet, both pages printed at the same size and centred.
+ *
+ * Fit-to-page scales each sheet independently, so the taller second page came
+ * out visibly narrower than the first. Instead the tightest fit across both
+ * sheets is used as a fixed scale for both, the single column whose width
+ * differs between the sheets is equalised, and the print area is trimmed to the
+ * form itself (B..BC, no empty column A) so both pages share one width and sit
+ * centred on the paper.
  */
 const PRINT_PAPER_A3 = 8 as PaperSize;
+const A3_WIDTH_PT = 841.89; // 297mm
+const A3_HEIGHT_PT = 1190.55; // 420mm
+// Symmetric on all four sides: the sheets are centred inside the margins, so
+// unequal top/bottom margins would make the form sit visibly below centre.
+const PRINT_MARGINS_PT = { left: 18, right: 18, top: 18, bottom: 18 };
+const PRINT_FIRST_COL = 2; // B
+const PRINT_LAST_COL = 55; // BC
 
-function applyPrintSetup(worksheet: Worksheet): void {
-  const setup = worksheet.pageSetup;
-  setup.paperSize = PRINT_PAPER_A3;
-  setup.orientation = "portrait";
-  setup.fitToPage = true;
-  setup.fitToWidth = 1;
-  setup.fitToHeight = 1;
-  setup.scale = 100;
-  setup.horizontalDpi = 600;
-  setup.verticalDpi = 600;
-  setup.margins = { left: 0.25, right: 0.25, top: 0.1, bottom: 0.75, header: 0, footer: 0 };
+/** Excel column width (characters) → points at 96 dpi (print-geometry copy). */
+function printColumnPt(width: number | undefined): number {
+  const w = width && width > 0 ? width : 8.43;
+  const px = Math.round(((256 * w + Math.round(128 / 7)) / 256) * 7);
+  return px * 0.75;
+}
+
+function contentLastRow(ws: Worksheet): number {
+  let lastRow = 0;
+  ws.eachRow({ includeEmpty: false }, (_row, rowNumber) => {
+    lastRow = Math.max(lastRow, rowNumber);
+  });
+  return Math.max(lastRow, 1);
+}
+
+function rowHeightPt(ws: Worksheet, row: number): number {
+  const height = ws.getRow(row).height;
+  if (height && height > 0) return height;
+  return ws.properties.defaultRowHeight ?? 15;
+}
+
+function applyPrintSetup(sheets: Worksheet[]): void {
+  if (sheets.length === 0) return;
+
+  // Both pages print the same column span, so a column that differs between
+  // them would print each page at a different width.
+  for (let c = PRINT_FIRST_COL; c <= PRINT_LAST_COL; c += 1) {
+    const widest = Math.max(...sheets.map((s) => s.getColumn(c).width ?? 0));
+    for (const sheet of sheets) sheet.getColumn(c).width = widest;
+  }
+
+  const availW = A3_WIDTH_PT - PRINT_MARGINS_PT.left - PRINT_MARGINS_PT.right;
+  const availH = A3_HEIGHT_PT - PRINT_MARGINS_PT.top - PRINT_MARGINS_PT.bottom;
+  let scale = 1;
+  for (const sheet of sheets) {
+    const lastRow = contentLastRow(sheet);
+    let width = 0;
+    for (let c = PRINT_FIRST_COL; c <= PRINT_LAST_COL; c += 1) {
+      width += printColumnPt(sheet.getColumn(c).width);
+    }
+    let height = 0;
+    for (let r = 1; r <= lastRow; r += 1) height += rowHeightPt(sheet, r);
+    scale = Math.min(scale, availW / width, availH / height);
+  }
+  // Whole percent, rounded down with a point of slack so the printer never
+  // spills a sheet onto a second page for a fraction of a millimetre.
+  const percent = Math.max(10, Math.floor(scale * 100) - 1);
+
+  for (const sheet of sheets) {
+    const setup = sheet.pageSetup;
+    setup.paperSize = PRINT_PAPER_A3;
+    setup.orientation = "portrait";
+    setup.fitToPage = false;
+    setup.scale = percent;
+    setup.horizontalCentered = true;
+    setup.verticalCentered = true;
+    setup.horizontalDpi = 600;
+    setup.verticalDpi = 600;
+    setup.margins = { left: 0.25, right: 0.25, top: 0.25, bottom: 0.25, header: 0, footer: 0 };
+    setup.printArea = `B1:BC${contentLastRow(sheet)}`;
+  }
 }
 
 export async function fillSf10Template(input: Sf10TemplateInput): Promise<Buffer> {
   const ExcelJS = await excelJs();
   const wb = new ExcelJS.Workbook();
   await wb.xlsx.load((await loadTemplate()) as unknown as ArrayBuffer);
-
-  for (const sheet of wb.worksheets) applyPrintSetup(sheet);
 
   const L = input.learner;
   const gradeKey = L.gradeLevel.toUpperCase().replace(/^GRADE\s*/i, "G");
@@ -274,6 +331,9 @@ export async function fillSf10Template(input: Sf10TemplateInput): Promise<Buffer
     const sum = [...slots.values()].reduce((total, r) => total + r.rating, 0);
     writeCell(ws, block.generalAverageRow, FINAL_COL, Math.round(sum / slots.size));
   }
+
+  // Applied last so the print area and scale cover the filled content.
+  applyPrintSetup(wb.worksheets);
 
   return Buffer.from(await wb.xlsx.writeBuffer());
 }
