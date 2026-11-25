@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-25T04:47:27.929Z",
+  "generatedAt": "2026-11-25T04:56:45.706Z",
   "root": "C:\\Users\\Akiro\\OneDrive\\Desktop\\Capstone\\msat-zentra-copy",
   "caps": {
     "default": 250,
@@ -11,9 +11,9 @@
     "function": 45
   },
   "totals": {
-    "files": 2117,
-    "lines": 398715,
-    "violations": 3453
+    "files": 2121,
+    "lines": 398783,
+    "violations": 3452
   },
   "byKind": {
     "component": {
@@ -29,8 +29,8 @@
       "lines": 91256
     },
     "default": {
-      "files": 419,
-      "lines": 57444
+      "files": 423,
+      "lines": 57512
     },
     "routes": {
       "files": 90,
@@ -14589,11 +14589,6 @@
       "rule": "block-comment",
       "file": "apps/api/src/lib/etag.ts",
       "count": 8
-    },
-    {
-      "rule": "block-comment",
-      "file": "apps/api/src/lib/grades.ts",
-      "count": 5
     },
     {
       "rule": "comment-ratio",

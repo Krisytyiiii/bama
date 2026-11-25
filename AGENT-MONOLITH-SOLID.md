@@ -617,6 +617,12 @@ diff reported, and a commit series using the phase prefix.
   refresh after the access token expires.
 
 ### P2 — Shared packages (no behaviour change)
+- **Wiring decision (P2, proven on `@zentra/domain`):** each package compiles to
+  `dist` with its own `tsconfig`; apps consume it via a `file:` dependency
+  (`npm install ../../packages/domain` → junction in `node_modules`), so the
+  package must be built before the app typechecks. Root scripts encode the order
+  (`build:packages` → `build:api`/`build:web`), CI builds packages first. This is
+  ADR-0002's "no workspaces yet" applied per package; hoisting stays a P6 change.
 - `packages/contracts`: move every `*.schemas.ts` zod schema, DTO type and route
   path constant out of the API; API re-imports from the package (delete duplicates,
   do not copy).

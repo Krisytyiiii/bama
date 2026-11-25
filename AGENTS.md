@@ -11,7 +11,10 @@
 > moved: `frontend/` → `apps/web`, `backend/` → `apps/api`. Everything below that
 > says `cd frontend` / `cd backend` still works if you prefix it with `apps/`.
 > Root scripts: `npm run dev` (api + web), `dev:web`, `dev:api`, `typecheck`,
-> `build`, `test`, `metrics`, `check:routes`, `check:arch`. Read
+> `build`, `test`, `metrics`, `check:routes`, `check:arch`. `build`/`typecheck`
+> build `packages/*` first — app code imports built package output
+> (`@zentra/domain` is a `file:` dependency), so rebuild the package after
+> editing it. Read
 > `AGENT-MONOLITH-SOLID.md` before touching structure; ADRs live in
 > `docs/architecture/decisions/`. Route + size baselines:
 > `docs/architecture/{api-inventory,metrics}.json`. Styling target is Tailwind

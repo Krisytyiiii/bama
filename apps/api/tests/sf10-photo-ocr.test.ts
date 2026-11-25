@@ -10,7 +10,8 @@ import {
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const backendRoot = path.join(here, "..");
-const DIGITAL_PDF = "C:\\Users\\jalan\\Downloads\\Copy of JHS_145516065812_Brown.xlsx.pdf";
+const DIGITAL_PDF = process.env.SF10_DIGITAL_PDF ?? "C:\\Users\\jalan\\Downloads\\Copy of JHS_145516065812_Brown.xlsx.pdf";
+const hasDigitalPdf = fs.existsSync(DIGITAL_PDF);
 const LOGO_PNG = path.join(backendRoot, "src", "modules", "anecdotal", "assets", "msat-logo.png");
 
 /** Minimal PDF with one image XObject; data/pdims supplied by the test. */
@@ -31,7 +32,7 @@ function pdfWithImage(opts: {
 }
 
 describe("SF10 photo OCR plumbing (no model needed)", () => {
-  it("leaves digital PDFs alone", async () => {
+  it.skipIf(!hasDigitalPdf)("leaves digital PDFs alone", async () => {
     const buf = fs.readFileSync(DIGITAL_PDF);
     expect(pdfHasImages(buf)).toBe(false);
     await expect(extractPdfImages(buf)).resolves.toEqual([]);
