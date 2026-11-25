@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-25T05:05:40.630Z",
+  "generatedAt": "2026-11-25T05:14:58.615Z",
   "root": "C:\\Users\\Akiro\\OneDrive\\Desktop\\Capstone\\msat-zentra-copy",
   "caps": {
     "default": 250,
@@ -11,9 +11,9 @@
     "function": 45
   },
   "totals": {
-    "files": 2141,
-    "lines": 398800,
-    "violations": 3449
+    "files": 2146,
+    "lines": 398948,
+    "violations": 3450
   },
   "byKind": {
     "component": {
@@ -22,15 +22,15 @@
     },
     "service": {
       "files": 263,
-      "lines": 64080
+      "lines": 63967
     },
     "cssmodule": {
       "files": 394,
       "lines": 91256
     },
     "default": {
-      "files": 443,
-      "lines": 57644
+      "files": 448,
+      "lines": 57905
     },
     "routes": {
       "files": 90,
@@ -2698,12 +2698,6 @@
       "cap": 45
     },
     {
-      "rule": "file-size",
-      "file": "apps/api/src/services/grading.ts",
-      "lines": 351,
-      "cap": 220
-    },
-    {
       "rule": "css-module",
       "file": "apps/web/src/app/coordinator/referrals/components/coordinator-referrals-skeleton.module.css",
       "lines": 351
@@ -3708,6 +3702,12 @@
       "rule": "css-module",
       "file": "apps/web/src/app/teacher/grading/[assignmentId]/components/WorkspaceSidebar.module.css",
       "lines": 288
+    },
+    {
+      "rule": "file-size",
+      "file": "apps/api/src/services/grading.ts",
+      "lines": 287,
+      "cap": 220
     },
     {
       "rule": "file-size",
@@ -10257,7 +10257,7 @@
       "rule": "function-size",
       "file": "apps/api/src/services/grading.ts",
       "name": "computeSubjectGrade",
-      "line": 153,
+      "line": 89,
       "lines": 83,
       "cap": 45
     },
@@ -10756,7 +10756,7 @@
       "rule": "function-size",
       "file": "apps/web/src/services/teacher/grading.compute.ts",
       "name": "computeSubjectGrade",
-      "line": 118,
+      "line": 69,
       "lines": 78,
       "cap": 45
     },
@@ -15838,7 +15838,7 @@
     {
       "rule": "comment-ratio",
       "file": "apps/web/next.config.ts",
-      "ratio": 0.087
+      "ratio": 0.1379
     },
     {
       "rule": "block-comment",
@@ -20626,9 +20626,9 @@
       "count": 2
     },
     {
-      "rule": "comment-run",
+      "rule": "comment-ratio",
       "file": "apps/web/src/lib/api/client.ts",
-      "run": 3
+      "ratio": 0.0556
     },
     {
       "rule": "block-comment",
@@ -21339,6 +21339,11 @@
       "rule": "block-comment",
       "file": "packages/contracts/src/term-context.ts",
       "count": 7
+    },
+    {
+      "rule": "comment-run",
+      "file": "packages/domain/src/deped-grading.ts",
+      "run": 3
     },
     {
       "rule": "comment-run",

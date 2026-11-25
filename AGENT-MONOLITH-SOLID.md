@@ -637,6 +637,13 @@ diff reported, and a commit series using the phase prefix.
   I/O), term resolution math, attendance rate helpers, pagination envelope
   builder, LRN normalisation/match, slug ↔ case-name sync. Each gets a Vitest
   file moved alongside it. Domain must not import Prisma types — map to plain DTOs.
+  Done so far: grade levels + finals lock, and the DepEd transmutation table with
+  `transmuteGrade` / `transmutationBand` / `remarksFromTransmuted` /
+  `descriptorBand` / `meetsAcademicExcellenceAward` / `PASSING_GRADE` — the table
+  had drifted into two copies (API service + web `grading.compute.ts`) and now has
+  one. Note the ESM rule: `export { x } from "@zentra/domain"` re-exports without
+  binding `x` locally, so a service that calls it needs a separate `import`.
+  Next: `computeSubjectGrade` / `computeFinalGrade`, then risk factors.
 - `packages/api-client`: Axios instance + interceptors + refresh single-flight +
   `AppError` mapping + `x-zentra-fresh` behaviour; web's `lib/api/client.ts`
   becomes a thin wrapper adding term headers. Shipped as `createApiClient(ports)`
