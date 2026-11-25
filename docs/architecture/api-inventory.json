@@ -1,0 +1,1911 @@
+{
+  "generatedAt": "2026-11-25T04:41:22.633Z",
+  "count": 381,
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/api/academics",
+      "file": "backend/src/modules/academics/academics-overview.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/academics/assign/assignments",
+      "file": "backend/src/modules/academics/academics-catalog.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/academics/assign/assignments/:id",
+      "file": "backend/src/modules/academics/academics-catalog.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/academics/assign/school-years",
+      "file": "backend/src/modules/academics/academics-catalog.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/academics/assign/sections",
+      "file": "backend/src/modules/academics/academics-catalog.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/academics/assign/sections",
+      "file": "backend/src/modules/academics/academics-sections.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/academics/assign/sections/:id",
+      "file": "backend/src/modules/academics/academics-sections.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/academics/assign/sections/:id/adviser",
+      "file": "backend/src/modules/academics/academics-advisers.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/academics/assign/sections/:id/adviser-code/regenerate",
+      "file": "backend/src/modules/academics/academics-advisers.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/academics/assign/sections/advisers",
+      "file": "backend/src/modules/academics/academics-advisers.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/academics/assign/subjects",
+      "file": "backend/src/modules/academics/academics-catalog.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/academics/assign/teachers",
+      "file": "backend/src/modules/academics/academics-catalog.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/academics/assign/terms",
+      "file": "backend/src/modules/academics/academics-catalog.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/academics/honor-roll-live",
+      "file": "backend/src/modules/academics/academics-overview.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/academics/schedule/sections",
+      "file": "backend/src/modules/academics/academics-schedule.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/academics/school-years",
+      "file": "backend/src/modules/academics/academics-overview.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/academics/students/:studentId/stats",
+      "file": "backend/src/modules/academics/academics-overview.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/adm/:id/certification",
+      "file": "backend/src/modules/adm/profiles.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/adm/:id/meetings",
+      "file": "backend/src/modules/adm/meetings.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/adm/:id/meetings",
+      "file": "backend/src/modules/adm/meetings.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/adm/:id/principal-approve",
+      "file": "backend/src/modules/adm/profiles.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/adm/:id/principal-return",
+      "file": "backend/src/modules/adm/profiles.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/adm/:id/stage",
+      "file": "backend/src/modules/adm/profiles.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/adm/approvals",
+      "file": "backend/src/modules/adm/queues.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/adm/case/:id",
+      "file": "backend/src/modules/adm/profiles.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/adm/cases/:caseId",
+      "file": "backend/src/modules/adm/monitoring.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/adm/dashboard",
+      "file": "backend/src/modules/adm/overview.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/adm/devices",
+      "file": "backend/src/modules/adm/devices.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/adm/devices/:id/return",
+      "file": "backend/src/modules/adm/devices.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/adm/devices/issue",
+      "file": "backend/src/modules/adm/devices.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/adm/history",
+      "file": "backend/src/modules/adm/queues.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/adm/meetings/:meetingId",
+      "file": "backend/src/modules/adm/meetings.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/adm/meetings/:meetingId/attachments",
+      "file": "backend/src/modules/adm/meetings.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/adm/meetings/:meetingId/attachments/:attachmentId",
+      "file": "backend/src/modules/adm/meetings.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/adm/meetings/:meetingId/reschedule",
+      "file": "backend/src/modules/adm/meetings.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/adm/my-cases",
+      "file": "backend/src/modules/adm/overview.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/adm/my-cases/:caseId",
+      "file": "backend/src/modules/adm/monitoring.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/adm/my-cases/:caseId/modules/:moduleId",
+      "file": "backend/src/modules/adm/monitoring.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/adm/nav-counts",
+      "file": "backend/src/modules/adm/navCounts.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/adm/pipeline",
+      "file": "backend/src/modules/adm/meta.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/adm/profiles",
+      "file": "backend/src/modules/adm/profiles.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/adm/referral/:referralId/meetings",
+      "file": "backend/src/modules/adm/meetings.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/adm/referrals",
+      "file": "backend/src/modules/adm/queues.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/adm/referrals/all",
+      "file": "backend/src/modules/adm/queues.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/adm/settings/photo",
+      "file": "backend/src/modules/adm/meta.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/adm/settings/profile",
+      "file": "backend/src/modules/adm/meta.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/adm/settings/profile",
+      "file": "backend/src/modules/adm/meta.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/adm/staff",
+      "file": "backend/src/modules/adm/meta.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/account-approvals",
+      "file": "backend/src/modules/admin/admin.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/account-approvals/:userId/approve",
+      "file": "backend/src/modules/admin/admin.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/account-approvals/:userId/reject",
+      "file": "backend/src/modules/admin/admin.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/account-approvals/lrn-match",
+      "file": "backend/src/modules/admin/admin.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/audit",
+      "file": "backend/src/modules/admin/admin.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/audit/summary",
+      "file": "backend/src/modules/admin/admin.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/login-activity",
+      "file": "backend/src/modules/admin/admin.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/overview",
+      "file": "backend/src/modules/admin/admin.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/presence",
+      "file": "backend/src/modules/admin/admin.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/schedule",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/schedule/config",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/admin/schedule/config",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/schedule/configs",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/schedule/configs/:id",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/admin/schedule/configs/:id",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/schedule/configs/:id/activate",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/schedule/conflicts",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/schedule/entries",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/schedule/entries",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/schedule/entries/all",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/schedule/entries/clear-all",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/schedule/publish",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/schedule/school-years",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/schedule/school-years",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/schedule/school-years/:id",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/admin/schedule/school-years/:schoolYearId/terms",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/schedule/sections",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/schedule/sections/:id",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/schedule/status",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/schedule/subjects",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/schedule/subjects",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/schedule/subjects/:id",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/schedule/teachers",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/schedule/teachers",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/schedule/teachers",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/admin/schedule/teachers/:id",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/admin/schedule/unlock",
+      "file": "backend/src/modules/admin/schedule.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/admin/users",
+      "file": "backend/src/modules/admin/admin.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/admin/users/:id/status",
+      "file": "backend/src/modules/admin/admin.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/anecdotal",
+      "file": "backend/src/modules/anecdotal/records.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/anecdotal/:id",
+      "file": "backend/src/modules/anecdotal/records.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/anecdotal/:id",
+      "file": "backend/src/modules/anecdotal/records.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/anecdotal/:id/apply-signature",
+      "file": "backend/src/modules/anecdotal/signatures.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/anecdotal/:id/detail",
+      "file": "backend/src/modules/anecdotal/records.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/anecdotal/:id/export",
+      "file": "backend/src/modules/anecdotal/records.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/anecdotal/:id/folder",
+      "file": "backend/src/modules/anecdotal/records.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/anecdotal/:id/followups",
+      "file": "backend/src/modules/anecdotal/records.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/anecdotal/:id/refer",
+      "file": "backend/src/modules/anecdotal/records.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/anecdotal/:id/restore",
+      "file": "backend/src/modules/anecdotal/records.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/anecdotal/:id/sign",
+      "file": "backend/src/modules/anecdotal/signatures.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/anecdotal/:id/sign",
+      "file": "backend/src/modules/anecdotal/signatures.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/anecdotal/deleted",
+      "file": "backend/src/modules/anecdotal/records.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/anecdotal/folders",
+      "file": "backend/src/modules/anecdotal/folders.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/anecdotal/folders",
+      "file": "backend/src/modules/anecdotal/folders.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/anecdotal/folders/:id",
+      "file": "backend/src/modules/anecdotal/folders.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/anecdotal/folders/:id",
+      "file": "backend/src/modules/anecdotal/folders.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/anecdotal/mine",
+      "file": "backend/src/modules/anecdotal/records.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/anecdotal/records",
+      "file": "backend/src/modules/anecdotal/records.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/anecdotal/referable",
+      "file": "backend/src/modules/anecdotal/records.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/anecdotal/signature",
+      "file": "backend/src/modules/anecdotal/signatures.routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/anecdotal/signature",
+      "file": "backend/src/modules/anecdotal/signatures.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/anecdotal/summary",
+      "file": "backend/src/modules/anecdotal/records.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/attendance/at-risk-students",
+      "file": "backend/src/modules/attendance/students.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/attendance/bulk",
+      "file": "backend/src/modules/attendance/taking.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/attendance/heatmap",
+      "file": "backend/src/modules/attendance/heatmaps.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/attendance/legacy/days",
+      "file": "backend/src/modules/attendance/legacy.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/attendance/section-heatmap",
+      "file": "backend/src/modules/attendance/heatmaps.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/attendance/section-roster",
+      "file": "backend/src/modules/attendance/sections.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/attendance/section-stats",
+      "file": "backend/src/modules/attendance/heatmaps.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/attendance/section-subject-heatmap",
+      "file": "backend/src/modules/attendance/heatmaps.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/attendance/section-subject-matrix",
+      "file": "backend/src/modules/attendance/sections.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/attendance/section-summary",
+      "file": "backend/src/modules/attendance/sections.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/attendance/sections",
+      "file": "backend/src/modules/attendance/sections.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/attendance/sections/:id/students",
+      "file": "backend/src/modules/attendance/sections.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/attendance/session-pattern",
+      "file": "backend/src/modules/attendance/heatmaps.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/attendance/students/:id/attendance-rate",
+      "file": "backend/src/modules/attendance/students.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/attendance/students/:id/subject-rate",
+      "file": "backend/src/modules/attendance/students.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/attendance/subject-days",
+      "file": "backend/src/modules/attendance/subjects.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/attendance/subject-pattern",
+      "file": "backend/src/modules/attendance/heatmaps.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/attendance/subjects",
+      "file": "backend/src/modules/attendance/subjects.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/attendance/summary",
+      "file": "backend/src/modules/attendance/heatmaps.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/attendance/sweep-absent",
+      "file": "backend/src/modules/attendance/taking.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/audit",
+      "file": "backend/src/modules/audit/audit.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/audit/:id/source",
+      "file": "backend/src/modules/audit/audit.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/audit/export",
+      "file": "backend/src/modules/audit/audit.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/change-password",
+      "file": "backend/src/modules/auth/auth.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/google/complete",
+      "file": "backend/src/modules/auth/auth.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/google/complete-staff",
+      "file": "backend/src/modules/auth/auth.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/google/exchange",
+      "file": "backend/src/modules/auth/auth.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "file": "backend/src/modules/auth/auth.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/logout",
+      "file": "backend/src/modules/auth/auth.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/realtime-token",
+      "file": "backend/src/modules/auth/auth.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/refresh",
+      "file": "backend/src/modules/auth/auth.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/register/:kind",
+      "file": "backend/src/modules/auth/auth.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/grades/assessments/:id/score",
+      "file": "backend/src/modules/grades/grades.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/grades/assessments/:id/scores",
+      "file": "backend/src/modules/grades/grades.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/grades/final-grades/:id/lock",
+      "file": "backend/src/modules/grades/grades.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/grades/final-grades/lock-batch",
+      "file": "backend/src/modules/grades/grades.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/grades/students/:id/final-grades",
+      "file": "backend/src/modules/grades/grades.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/guidance/adm",
+      "file": "backend/src/modules/guidance/adm.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/guidance/adm/referrals/:id/review",
+      "file": "backend/src/modules/guidance/adm.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/guidance/alerts",
+      "file": "backend/src/modules/guidance/alerts.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/guidance/alerts/cases",
+      "file": "backend/src/modules/guidance/alertCases.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/guidance/alerts/count",
+      "file": "backend/src/modules/guidance/alerts.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/guidance/anecdotal",
+      "file": "backend/src/modules/guidance/anecdotal.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/guidance/calendar",
+      "file": "backend/src/modules/guidance/schedule.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/guidance/intervention-insights",
+      "file": "backend/src/modules/guidance/insights.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/guidance/nav-counts",
+      "file": "backend/src/modules/guidance/navCounts.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/guidance/overview",
+      "file": "backend/src/modules/guidance/overview.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/guidance/referrals",
+      "file": "backend/src/modules/guidance/cases.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/guidance/schedule",
+      "file": "backend/src/modules/guidance/schedule.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/guidance/settings/photo",
+      "file": "backend/src/modules/guidance/settings.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/guidance/settings/profile",
+      "file": "backend/src/modules/guidance/settings.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/guidance/settings/profile",
+      "file": "backend/src/modules/guidance/settings.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/interventions",
+      "file": "backend/src/modules/interventions/queues.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/interventions/:id/assign",
+      "file": "backend/src/modules/interventions/cases.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/interventions/:id/outcome",
+      "file": "backend/src/modules/interventions/cases.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/interventions/:id/review",
+      "file": "backend/src/modules/interventions/cases.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/interventions/:id/sessions",
+      "file": "backend/src/modules/interventions/sessions.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/interventions/:id/sessions",
+      "file": "backend/src/modules/interventions/sessions.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/interventions/:id/sessions/:sessionId/attachments",
+      "file": "backend/src/modules/interventions/sessions.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/interventions/:id/sessions/:sessionId/attachments",
+      "file": "backend/src/modules/interventions/sessions.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/interventions/:id/sessions/:sessionId/attachments/:attachmentId",
+      "file": "backend/src/modules/interventions/sessions.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/interventions/:id/sessions/:sessionId/cancel",
+      "file": "backend/src/modules/interventions/sessions.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/interventions/:id/sessions/:sessionId/complete",
+      "file": "backend/src/modules/interventions/sessions.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/interventions/:id/sessions/:sessionId/reschedule",
+      "file": "backend/src/modules/interventions/sessions.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/interventions/engine",
+      "file": "backend/src/modules/interventions/queues.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/interventions/staff",
+      "file": "backend/src/modules/interventions/queues.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/interventions/start",
+      "file": "backend/src/modules/interventions/cases.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/my-sessions/upcoming",
+      "file": "backend/src/modules/sessions/sessions.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/notifications",
+      "file": "backend/src/modules/notifications/notifications.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/notifications/read-all",
+      "file": "backend/src/modules/notifications/notifications.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/notifications/read/:id",
+      "file": "backend/src/modules/notifications/notifications.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/notifications/unread-count",
+      "file": "backend/src/modules/notifications/notifications.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/nurse/calendar",
+      "file": "backend/src/modules/nurse/nurse.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/nurse/nav-counts",
+      "file": "backend/src/modules/nurse/navCounts.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/nurse/overview",
+      "file": "backend/src/modules/nurse/nurse.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/nurse/reports",
+      "file": "backend/src/modules/nurse/nurse.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/nurse/settings/photo",
+      "file": "backend/src/modules/nurse/nurse.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/nurse/settings/profile",
+      "file": "backend/src/modules/nurse/nurse.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/nurse/settings/profile",
+      "file": "backend/src/modules/nurse/nurse.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/overview",
+      "file": "backend/src/modules/overview/overview.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/principal/settings/photo",
+      "file": "backend/src/modules/principal/principal.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/principal/settings/profile",
+      "file": "backend/src/modules/principal/principal.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/principal/settings/profile",
+      "file": "backend/src/modules/principal/principal.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-keeper/academics/assignments",
+      "file": "backend/src/modules/record-keeper/academics.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/record-keeper/academics/assignments/:id",
+      "file": "backend/src/modules/record-keeper/academics.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-keeper/academics/overview",
+      "file": "backend/src/modules/record-keeper/academics.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-keeper/academics/school-years",
+      "file": "backend/src/modules/record-keeper/academics.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-keeper/academics/sections",
+      "file": "backend/src/modules/record-keeper/academics.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-keeper/academics/sections",
+      "file": "backend/src/modules/record-keeper/academics.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/record-keeper/academics/sections/:id",
+      "file": "backend/src/modules/record-keeper/academics.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-keeper/academics/subjects",
+      "file": "backend/src/modules/record-keeper/academics.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-keeper/academics/subjects",
+      "file": "backend/src/modules/record-keeper/academics.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/record-keeper/academics/subjects/:id",
+      "file": "backend/src/modules/record-keeper/academics.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-keeper/academics/subjects/:id/students",
+      "file": "backend/src/modules/record-keeper/academics.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-keeper/academics/teachers",
+      "file": "backend/src/modules/record-keeper/academics.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-keeper/academics/teachers/:id",
+      "file": "backend/src/modules/record-keeper/academics.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-keeper/academics/terms",
+      "file": "backend/src/modules/record-keeper/academics.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-keeper/account-breakdown",
+      "file": "backend/src/modules/record-keeper/record-keeper.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-keeper/accounts-audit",
+      "file": "backend/src/modules/record-keeper/record-keeper.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-keeper/adviser-access-requests",
+      "file": "backend/src/modules/record-keeper/record-keeper.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-keeper/adviser-access-requests/:id/approve",
+      "file": "backend/src/modules/record-keeper/record-keeper.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-keeper/adviser-access-requests/:id/approve-all",
+      "file": "backend/src/modules/record-keeper/record-keeper.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-keeper/adviser-access-requests/:id/approve-lrn",
+      "file": "backend/src/modules/record-keeper/record-keeper.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-keeper/adviser-access-requests/:id/check",
+      "file": "backend/src/modules/record-keeper/record-keeper.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-keeper/adviser-access-requests/:id/check-stream",
+      "file": "backend/src/modules/record-keeper/record-keeper.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-keeper/adviser-access-requests/:id/deny",
+      "file": "backend/src/modules/record-keeper/record-keeper.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-keeper/adviser-access-requests/:id/records",
+      "file": "backend/src/modules/record-keeper/record-keeper.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-keeper/adviser-access-requests/:id/report-missing",
+      "file": "backend/src/modules/record-keeper/record-keeper.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-keeper/final-grades",
+      "file": "backend/src/modules/record-keeper/record-keeper.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-keeper/nav-counts",
+      "file": "backend/src/modules/record-keeper/navCounts.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-keeper/overview",
+      "file": "backend/src/modules/record-keeper/record-keeper.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-keeper/settings/photo",
+      "file": "backend/src/modules/record-keeper/record-keeper.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-keeper/settings/profile",
+      "file": "backend/src/modules/record-keeper/record-keeper.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/record-keeper/settings/profile",
+      "file": "backend/src/modules/record-keeper/record-keeper.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-keeper/students",
+      "file": "backend/src/modules/record-keeper/record-keeper.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/referrals",
+      "file": "backend/src/modules/referrals/queues.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/referrals/:id",
+      "file": "backend/src/modules/referrals/pipeline.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/accept",
+      "file": "backend/src/modules/referrals/intake.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/adm",
+      "file": "backend/src/modules/referrals/intake.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/cancel",
+      "file": "backend/src/modules/referrals/pipeline.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/dismiss",
+      "file": "backend/src/modules/referrals/pipeline.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/escalate",
+      "file": "backend/src/modules/referrals/pipeline.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/follow-up",
+      "file": "backend/src/modules/referrals/pipeline.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/note",
+      "file": "backend/src/modules/referrals/pipeline.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/nurse-accept",
+      "file": "backend/src/modules/referrals/intake.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/nurse-adm-forward",
+      "file": "backend/src/modules/referrals/intake.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/nurse-adm-review",
+      "file": "backend/src/modules/referrals/intake.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/nurse-referral-form",
+      "file": "backend/src/modules/referrals/intake.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/reassign",
+      "file": "backend/src/modules/referrals/pipeline.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/reopen",
+      "file": "backend/src/modules/referrals/pipeline.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/referrals/:id/sessions",
+      "file": "backend/src/modules/referrals/sessions.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/sessions",
+      "file": "backend/src/modules/referrals/sessions.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/referrals/:id/sessions/:sessionId",
+      "file": "backend/src/modules/referrals/sessions.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/referrals/:id/sessions/:sessionId/attachments",
+      "file": "backend/src/modules/referrals/sessions.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/sessions/:sessionId/attachments",
+      "file": "backend/src/modules/referrals/sessions.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/referrals/:id/sessions/:sessionId/attachments/:attachmentId",
+      "file": "backend/src/modules/referrals/sessions.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/sessions/:sessionId/cancel",
+      "file": "backend/src/modules/referrals/sessions.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/sessions/:sessionId/complete",
+      "file": "backend/src/modules/referrals/sessions.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/sessions/:sessionId/reschedule",
+      "file": "backend/src/modules/referrals/sessions.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/specialist",
+      "file": "backend/src/modules/referrals/intake.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/referrals/:id/status",
+      "file": "backend/src/modules/referrals/pipeline.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/referrals/form-signers",
+      "file": "backend/src/modules/referrals/queues.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/referrals/mine",
+      "file": "backend/src/modules/referrals/queues.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/registrar/academics/assignments",
+      "file": "backend/src/modules/registrar/academics.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/registrar/academics/assignments/:id",
+      "file": "backend/src/modules/registrar/academics.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/registrar/academics/overview",
+      "file": "backend/src/modules/registrar/academics.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/registrar/academics/school-years",
+      "file": "backend/src/modules/registrar/academics.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/registrar/academics/sections",
+      "file": "backend/src/modules/registrar/academics.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/registrar/academics/sections",
+      "file": "backend/src/modules/registrar/academics.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/registrar/academics/sections/:id",
+      "file": "backend/src/modules/registrar/academics.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/registrar/academics/subjects",
+      "file": "backend/src/modules/registrar/academics.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/registrar/academics/subjects",
+      "file": "backend/src/modules/registrar/academics.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/registrar/academics/subjects/:id",
+      "file": "backend/src/modules/registrar/academics.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/registrar/academics/subjects/:id/students",
+      "file": "backend/src/modules/registrar/academics.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/registrar/academics/teachers",
+      "file": "backend/src/modules/registrar/academics.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/registrar/academics/teachers/:id",
+      "file": "backend/src/modules/registrar/academics.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/registrar/academics/terms",
+      "file": "backend/src/modules/registrar/academics.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/registrar/account-breakdown",
+      "file": "backend/src/modules/registrar/registrar.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/registrar/accounts-audit",
+      "file": "backend/src/modules/registrar/registrar.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/registrar/adviser-access-requests",
+      "file": "backend/src/modules/registrar/registrar.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/registrar/adviser-access-requests/:id/approve",
+      "file": "backend/src/modules/registrar/registrar.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/registrar/adviser-access-requests/:id/approve-all",
+      "file": "backend/src/modules/registrar/registrar.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/registrar/adviser-access-requests/:id/approve-lrn",
+      "file": "backend/src/modules/registrar/registrar.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/registrar/adviser-access-requests/:id/check",
+      "file": "backend/src/modules/registrar/registrar.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/registrar/adviser-access-requests/:id/check-stream",
+      "file": "backend/src/modules/registrar/registrar.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/registrar/adviser-access-requests/:id/deny",
+      "file": "backend/src/modules/registrar/registrar.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/registrar/adviser-access-requests/:id/records",
+      "file": "backend/src/modules/registrar/registrar.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/registrar/adviser-access-requests/:id/report-missing",
+      "file": "backend/src/modules/registrar/registrar.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/registrar/final-grades",
+      "file": "backend/src/modules/registrar/registrar.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/registrar/nav-counts",
+      "file": "backend/src/modules/registrar/navCounts.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/registrar/overview",
+      "file": "backend/src/modules/registrar/registrar.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/registrar/settings/photo",
+      "file": "backend/src/modules/registrar/registrar.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/registrar/settings/profile",
+      "file": "backend/src/modules/registrar/registrar.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/registrar/settings/profile",
+      "file": "backend/src/modules/registrar/registrar.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/registrar/students",
+      "file": "backend/src/modules/registrar/registrar.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/reports",
+      "file": "backend/src/modules/reports/reports.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk/board",
+      "file": "backend/src/modules/risk/risk.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk/heatmap",
+      "file": "backend/src/modules/risk/risk.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk/interventions",
+      "file": "backend/src/modules/risk/risk.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/risk/interventions/:studentId/alert",
+      "file": "backend/src/modules/risk/risk.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk/interventions/stats",
+      "file": "backend/src/modules/risk/risk.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk/low-risk-students",
+      "file": "backend/src/modules/risk/risk.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk/school-years",
+      "file": "backend/src/modules/risk/risk.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk/sections/:id/heatmap",
+      "file": "backend/src/modules/risk/risk.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk/sections/:id/students",
+      "file": "backend/src/modules/risk/risk.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk/staff",
+      "file": "backend/src/modules/risk/risk.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk/students",
+      "file": "backend/src/modules/risk/risk.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk/students/:id",
+      "file": "backend/src/modules/risk/risk.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk/students/batch",
+      "file": "backend/src/modules/risk/risk.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/risk/trend",
+      "file": "backend/src/modules/risk/risk.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/sf10/:id/detail",
+      "file": "backend/src/modules/sf10/lifecycle.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/sf10/:id/ocr",
+      "file": "backend/src/modules/sf10/lifecycle.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sf10/:id/release",
+      "file": "backend/src/modules/sf10/lifecycle.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/sf10/:id/subject-map",
+      "file": "backend/src/modules/sf10/lifecycle.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sf10/:id/validate",
+      "file": "backend/src/modules/sf10/lifecycle.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sf10/:id/verify",
+      "file": "backend/src/modules/sf10/lifecycle.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/sf10/:id/versions",
+      "file": "backend/src/modules/sf10/lifecycle.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sf10/analyze",
+      "file": "backend/src/modules/sf10/records.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/sf10/ocr/:jobId",
+      "file": "backend/src/modules/sf10/lifecycle.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/sf10/records",
+      "file": "backend/src/modules/sf10/records.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/sf10/summary",
+      "file": "backend/src/modules/sf10/records.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sf10/upload",
+      "file": "backend/src/modules/sf10/records.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/sf10/upload-auto",
+      "file": "backend/src/modules/sf10/records.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/student/modules",
+      "file": "backend/src/modules/student/modules.routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/student/modules/:moduleId/submission",
+      "file": "backend/src/modules/student/modules.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/student/modules/:moduleId/submission/physical",
+      "file": "backend/src/modules/student/modules.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/student/modules/:moduleId/submission/upload",
+      "file": "backend/src/modules/student/modules.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/advisory/archived",
+      "file": "backend/src/modules/teacher/roster.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/teacher/advisory/archived/:archiveId/restore",
+      "file": "backend/src/modules/teacher/roster.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/advisory/attendance",
+      "file": "backend/src/modules/teacher/roster.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/teacher/advisory/claim",
+      "file": "backend/src/modules/teacher/claim.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/teacher/advisory/claim",
+      "file": "backend/src/modules/teacher/claim.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/advisory/claim-status",
+      "file": "backend/src/modules/teacher/claim.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/advisory/interventions",
+      "file": "backend/src/modules/teacher/interventions.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/advisory/modules",
+      "file": "backend/src/modules/teacher/modules.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/teacher/advisory/modules",
+      "file": "backend/src/modules/teacher/modules.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/teacher/advisory/modules/:moduleId",
+      "file": "backend/src/modules/teacher/modules.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/teacher/advisory/modules/:moduleId",
+      "file": "backend/src/modules/teacher/modules.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/advisory/modules/:moduleId/submissions",
+      "file": "backend/src/modules/teacher/modules.routes.ts"
+    },
+    {
+      "method": "PUT",
+      "path": "/api/teacher/advisory/modules/:moduleId/submissions",
+      "file": "backend/src/modules/teacher/modules.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/teacher/advisory/modules/:moduleId/submissions/upload",
+      "file": "backend/src/modules/teacher/modules.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/teacher/advisory/modules/upload",
+      "file": "backend/src/modules/teacher/modules.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/teacher/advisory/roster",
+      "file": "backend/src/modules/teacher/roster.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/teacher/advisory/roster/:studentId",
+      "file": "backend/src/modules/teacher/roster.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/teacher/advisory/roster/:studentId",
+      "file": "backend/src/modules/teacher/roster.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/advisory/sections",
+      "file": "backend/src/modules/teacher/students.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/advisory/sf10-access-requests",
+      "file": "backend/src/modules/teacher/sf10-access.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/teacher/advisory/sf10-access-requests",
+      "file": "backend/src/modules/teacher/sf10-access.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/advisory/sf10-access-requests/:id/records",
+      "file": "backend/src/modules/teacher/sf10-access.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/teacher/advisory/sf10-autofill",
+      "file": "backend/src/modules/teacher/sf10-autofill.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/advisory/sf10-autofill/candidates",
+      "file": "backend/src/modules/teacher/sf10-autofill.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/advisory/sf10-autofill/preview",
+      "file": "backend/src/modules/teacher/sf10-autofill.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/advisory/sf10-template/:lrn",
+      "file": "backend/src/modules/teacher/sf10-autofill.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/advisory/students",
+      "file": "backend/src/modules/teacher/students.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/advisory/students/:id",
+      "file": "backend/src/modules/teacher/students.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/advisory/students/:id/academic",
+      "file": "backend/src/modules/teacher/students.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/advisory/students/:id/anecdotal",
+      "file": "backend/src/modules/teacher/students.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/advisory/students/:id/attendance",
+      "file": "backend/src/modules/teacher/students.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/advisory/students/:id/risk",
+      "file": "backend/src/modules/teacher/students.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/grade-flags",
+      "file": "backend/src/modules/teacher/grade-flags.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/teacher/grade-flags",
+      "file": "backend/src/modules/teacher/grade-flags.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/teacher/grade-flags/:id/resolve",
+      "file": "backend/src/modules/teacher/grade-flags.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/grade-flags/options",
+      "file": "backend/src/modules/teacher/grade-flags.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/teacher/grading/assessments/:id",
+      "file": "backend/src/modules/teacher/grading.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/teacher/grading/assessments/:id",
+      "file": "backend/src/modules/teacher/grading.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/grading/classes/:assignmentId",
+      "file": "backend/src/modules/teacher/grading.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/teacher/grading/classes/:assignmentId/assessments",
+      "file": "backend/src/modules/teacher/grading.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/teacher/grading/classes/:assignmentId/components",
+      "file": "backend/src/modules/teacher/grading.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/teacher/grading/classes/:assignmentId/components/batch",
+      "file": "backend/src/modules/teacher/grading.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/teacher/grading/classes/:assignmentId/components/preset",
+      "file": "backend/src/modules/teacher/grading.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/lock-grades",
+      "file": "backend/src/modules/teacher/lock-grades.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/my-load",
+      "file": "backend/src/modules/teacher/my-load.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/nav-counts",
+      "file": "backend/src/modules/teacher/navCounts.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/overview",
+      "file": "backend/src/modules/teacher/overview.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/overview/insights",
+      "file": "backend/src/modules/teacher/overview.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/overview/student-list",
+      "file": "backend/src/modules/teacher/overview.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/reports",
+      "file": "backend/src/modules/teacher/reports.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/teacher/schedule/teachers/claim",
+      "file": "backend/src/modules/teacher/directory.routes.ts"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/teacher/schedule/teachers/me",
+      "file": "backend/src/modules/teacher/directory.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/schedule/teachers/me",
+      "file": "backend/src/modules/teacher/directory.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/teacher/schedule/teachers/term-grant",
+      "file": "backend/src/modules/teacher/directory.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/teacher/schedule/teachers/verify-attendance",
+      "file": "backend/src/modules/teacher/directory.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/settings/adviser-sections",
+      "file": "backend/src/modules/teacher/settings.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/settings/data-sharing",
+      "file": "backend/src/modules/teacher/settings.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/teacher/settings/data-sharing",
+      "file": "backend/src/modules/teacher/settings.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/teacher/settings/photo",
+      "file": "backend/src/modules/teacher/settings.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/settings/profile",
+      "file": "backend/src/modules/teacher/settings.routes.ts"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/teacher/settings/profile",
+      "file": "backend/src/modules/teacher/settings.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/api/teacher/term-context",
+      "file": "backend/src/modules/teacher/term-context.routes.ts"
+    },
+    {
+      "method": "POST",
+      "path": "/api/teacher/term-context/confirm",
+      "file": "backend/src/modules/teacher/term-context.routes.ts"
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "file": "backend/src/app.ts"
+    }
+  ]
+}

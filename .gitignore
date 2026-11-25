@@ -5,4 +5,26 @@ qa-output/
 SEEDED_ACCOUNTS.md
 
 # Generated learner exports dropped into public assets by mistake (never commit)
-frontend/public/sounds/*.xlsx
+apps/web/public/sounds/*.xlsx
+
+# Dependencies and build output (workspace root; per-app .gitignore files also cover these)
+node_modules/
+.next/
+out/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Env files (examples stay)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Office lock files and local debug artifacts
+**/~$*
+tmp-*.png
+tmp-*.mjs
+tmp-*.cjs
+*.log
