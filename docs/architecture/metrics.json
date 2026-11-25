@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-25T05:14:58.615Z",
+  "generatedAt": "2026-11-25T05:20:44.125Z",
   "root": "C:\\Users\\Akiro\\OneDrive\\Desktop\\Capstone\\msat-zentra-copy",
   "caps": {
     "default": 250,
@@ -11,9 +11,9 @@
     "function": 45
   },
   "totals": {
-    "files": 2146,
-    "lines": 398948,
-    "violations": 3450
+    "files": 2151,
+    "lines": 398988,
+    "violations": 3446
   },
   "byKind": {
     "component": {
@@ -29,8 +29,8 @@
       "lines": 91256
     },
     "default": {
-      "files": 448,
-      "lines": 57905
+      "files": 453,
+      "lines": 57945
     },
     "routes": {
       "files": 90,
@@ -3071,12 +3071,6 @@
       "line": 78,
       "lines": 326,
       "cap": 45
-    },
-    {
-      "rule": "file-size",
-      "file": "apps/api/src/lib/notify.ts",
-      "lines": 325,
-      "cap": 250
     },
     {
       "rule": "file-size",
@@ -11647,14 +11641,6 @@
     },
     {
       "rule": "function-size",
-      "file": "apps/api/src/lib/notify.ts",
-      "name": "notifyInterventionDetected",
-      "line": 162,
-      "lines": 64,
-      "cap": 45
-    },
-    {
-      "rule": "function-size",
       "file": "apps/api/src/services/anecdotal/records.read.service.ts",
       "name": "getRecordsSummary",
       "line": 15,
@@ -14609,16 +14595,6 @@
       "rule": "block-comment",
       "file": "apps/api/src/lib/learnerVisibility.ts",
       "count": 37
-    },
-    {
-      "rule": "comment-run",
-      "file": "apps/api/src/lib/notify.ts",
-      "run": 5
-    },
-    {
-      "rule": "block-comment",
-      "file": "apps/api/src/lib/notify.ts",
-      "count": 3
     },
     {
       "rule": "comment-ratio",

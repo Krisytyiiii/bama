@@ -674,6 +674,17 @@ Order: `notify`/`audit`/`cache` kernel → `risk` → `grades` → `sf10` → `s
 → `referrals`/`interventions` → `registry` (record-keeper + registrar) →
 `teacher` → `adm` → remaining. For each domain:
 
+0. **Shim-first rule (proven on `lib/grades.ts`, `lib/pagination.ts`, `lib/notify.ts`):**
+   move the real code into a folder, leave the old module path as a one-line
+   `export *` shim, and leave every caller untouched. Zero-churn proofs
+   (`route-inventory --check`, full test suite) then mean something, and the
+   review diff is the moved code, not 90 import lines.
+   - Done: `lib/notify.ts` (324 lines, 3 responsibilities) → `lib/notify/`
+     `types.ts` (map + `deriveNotifType`), `fanout.ts` (dedupe-locked write,
+     role paging, bounded concurrency) and `domain-events.ts` (intervention
+     detect / academics self / SF10 access request). Behaviour preserved —
+     same advisory-lock key, same 60s window, same cache tags.
+
 1. Split files per §5.1; introduce repository + ports per §5.5.
 2. Replace chains per §5.2 with registries; add the table-driven tests.
 3. Route files ≤150 lines: parse (zod) → call service → map response. Nothing else.
