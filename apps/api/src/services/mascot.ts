@@ -8,65 +8,11 @@
  *
  * Canonical seed: `${fullName}:${lrn}`.
  */
-export const MASCOT_CHARACTERS = [
-  "afro",
-  "astronaut",
-  "bald",
-  "ballerina",
-  "bear",
-  "beard",
-  "builder",
-  "bunny",
-  "cap",
-  "cat",
-  "chef",
-  "clockwork",
-  "crt",
-  "cube",
-  "deer",
-  "dino",
-  "droid",
-  "drone",
-  "fox",
-  "frog",
-  "gearbot",
-  "glasses",
-  "grandpa",
-  "granny",
-  "hamster",
-  "hedgehog",
-  "hijabi",
-  "kamran",
-  "knight",
-  "koala",
-  "lantern",
-  "mouse",
-  "nurse",
-  "otter",
-  "owl",
-  "panda",
-  "penguin",
-  "pirate",
-  "postbot",
-  "pug",
-  "raccoon",
-  "radio",
-  "redpanda",
-  "robot",
-  "rocket",
-  "scientist",
-  "scout",
-  "sheep",
-  "sikh",
-  "skater",
-  "sloth",
-  "tiger",
-  "toaster",
-  "tv",
-  "wizard",
-] as const;
+import { MASCOT_CHARACTERS as CONTRACT_MASCOTS } from "@zentra/contracts/mascot";
+import type { MascotCharacter } from "@zentra/contracts/mascot";
 
-export type MascotCharacter = (typeof MASCOT_CHARACTERS)[number];
+export const MASCOT_CHARACTERS = CONTRACT_MASCOTS as readonly MascotCharacter[];
+export type { MascotCharacter };
 
 export function isMascotCharacter(value: string): value is MascotCharacter {
   return (MASCOT_CHARACTERS as readonly string[]).includes(value);

@@ -3,64 +3,9 @@
 import * as React from "react";
 import { MASCOT_BLINK_ANCHORS, MASCOT_DIRECTION_ANCHORS } from "./mascot-anchors";
 import { useMascotAim } from "./use-mascot-aim";
+import { MASCOT_CHARACTERS as CONTRACT_MASCOTS } from "@zentra/contracts/mascot";
 
-const CHARACTERS = [
-  "afro",
-  "astronaut",
-  "bald",
-  "ballerina",
-  "bear",
-  "beard",
-  "builder",
-  "bunny",
-  "cap",
-  "cat",
-  "chef",
-  "clockwork",
-  "crt",
-  "cube",
-  "deer",
-  "dino",
-  "droid",
-  "drone",
-  "fox",
-  "frog",
-  "gearbot",
-  "glasses",
-  "grandpa",
-  "granny",
-  "hamster",
-  "hedgehog",
-  "hijabi",
-  "kamran",
-  "knight",
-  "koala",
-  "lantern",
-  "mouse",
-  "nurse",
-  "otter",
-  "owl",
-  "panda",
-  "penguin",
-  "pirate",
-  "postbot",
-  "pug",
-  "raccoon",
-  "radio",
-  "redpanda",
-  "robot",
-  "rocket",
-  "scientist",
-  "scout",
-  "sheep",
-  "sikh",
-  "skater",
-  "sloth",
-  "tiger",
-  "toaster",
-  "tv",
-  "wizard",
-] as const;
+const CHARACTERS = CONTRACT_MASCOTS;
 
 function pickCharacter(seed: string): (typeof CHARACTERS)[number] {
   let hash = 0;
@@ -189,3 +134,4 @@ export function StudentMascot({
     </span>
   );
 }
+

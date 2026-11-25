@@ -26,8 +26,9 @@ jobs:
           cache-dependency-path: apps/api/package-lock.json
       - run: npm ci
       - name: Build shared packages
-        working-directory: packages/domain
-        run: npm ci && npm run build
+        run: |
+          (cd packages/domain && npm ci && npm run build)
+          (cd packages/contracts && npm ci && npm run build)
       - run: npx prisma generate
       # NOTE: `prisma migrate deploy` was removed here on 2026-11-18.
       #

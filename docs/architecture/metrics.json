@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-25T04:56:45.706Z",
+  "generatedAt": "2026-11-25T05:05:40.630Z",
   "root": "C:\\Users\\Akiro\\OneDrive\\Desktop\\Capstone\\msat-zentra-copy",
   "caps": {
     "default": 250,
@@ -11,26 +11,26 @@
     "function": 45
   },
   "totals": {
-    "files": 2121,
-    "lines": 398783,
-    "violations": 3452
+    "files": 2141,
+    "lines": 398800,
+    "violations": 3449
   },
   "byKind": {
     "component": {
       "files": 926,
-      "lines": 170074
+      "lines": 170020
     },
     "service": {
       "files": 263,
-      "lines": 64141
+      "lines": 64080
     },
     "cssmodule": {
       "files": 394,
       "lines": 91256
     },
     "default": {
-      "files": 423,
-      "lines": 57512
+      "files": 443,
+      "lines": 57644
     },
     "routes": {
       "files": 90,
@@ -9038,7 +9038,7 @@
       "rule": "function-size",
       "file": "apps/web/src/components/student-mascot/StudentMascot.tsx",
       "name": "StudentMascot",
-      "line": 91,
+      "line": 36,
       "lines": 101,
       "cap": 45
     },
@@ -14622,21 +14622,6 @@
     },
     {
       "rule": "comment-ratio",
-      "file": "apps/api/src/lib/pagination.ts",
-      "ratio": 0.0541
-    },
-    {
-      "rule": "comment-run",
-      "file": "apps/api/src/lib/pagination.ts",
-      "run": 3
-    },
-    {
-      "rule": "block-comment",
-      "file": "apps/api/src/lib/pagination.ts",
-      "count": 2
-    },
-    {
-      "rule": "comment-ratio",
       "file": "apps/api/src/lib/perf.ts",
       "ratio": 0.0976
     },
@@ -14732,11 +14717,6 @@
     },
     {
       "rule": "block-comment",
-      "file": "apps/api/src/modules/adm/adm.schemas.ts",
-      "count": 3
-    },
-    {
-      "rule": "block-comment",
       "file": "apps/api/src/modules/adm/monitoring.routes.ts",
       "count": 10
     },
@@ -14786,19 +14766,9 @@
       "count": 15
     },
     {
-      "rule": "comment-ratio",
-      "file": "apps/api/src/modules/attendance/attendance.schemas.ts",
-      "ratio": 0.0833
-    },
-    {
       "rule": "comment-run",
       "file": "apps/api/src/modules/auth/auth.routes.ts",
       "run": 3
-    },
-    {
-      "rule": "block-comment",
-      "file": "apps/api/src/modules/auth/auth.schemas.ts",
-      "count": 9
     },
     {
       "rule": "comment-ratio",
@@ -14818,11 +14788,6 @@
     {
       "rule": "block-comment",
       "file": "apps/api/src/modules/guidance/guidance.repository.ts",
-      "count": 2
-    },
-    {
-      "rule": "block-comment",
-      "file": "apps/api/src/modules/guidance/guidance.schemas.ts",
       "count": 2
     },
     {
@@ -14854,11 +14819,6 @@
       "rule": "block-comment",
       "file": "apps/api/src/modules/interventions/interventions.repository.ts",
       "count": 14
-    },
-    {
-      "rule": "block-comment",
-      "file": "apps/api/src/modules/interventions/interventions.schemas.ts",
-      "count": 3
     },
     {
       "rule": "comment-ratio",
@@ -14911,16 +14871,6 @@
       "count": 5
     },
     {
-      "rule": "comment-run",
-      "file": "apps/api/src/modules/referrals/referrals.schemas.ts",
-      "run": 3
-    },
-    {
-      "rule": "block-comment",
-      "file": "apps/api/src/modules/referrals/referrals.schemas.ts",
-      "count": 2
-    },
-    {
       "rule": "comment-ratio",
       "file": "apps/api/src/modules/registrar/navCounts.routes.ts",
       "ratio": 0.0698
@@ -14934,16 +14884,6 @@
       "rule": "block-comment",
       "file": "apps/api/src/modules/registrar/navCounts.routes.ts",
       "count": 5
-    },
-    {
-      "rule": "comment-ratio",
-      "file": "apps/api/src/modules/registry/registry.schemas.ts",
-      "ratio": 0.0526
-    },
-    {
-      "rule": "block-comment",
-      "file": "apps/api/src/modules/registry/registry.schemas.ts",
-      "count": 1
     },
     {
       "rule": "comment-ratio",
@@ -15036,31 +14976,6 @@
       "count": 7
     },
     {
-      "rule": "block-comment",
-      "file": "apps/api/src/modules/student/modules.schemas.ts",
-      "count": 3
-    },
-    {
-      "rule": "block-comment",
-      "file": "apps/api/src/modules/teacher/advisory-interventions.schemas.ts",
-      "count": 2
-    },
-    {
-      "rule": "block-comment",
-      "file": "apps/api/src/modules/teacher/advisory-modules.schemas.ts",
-      "count": 2
-    },
-    {
-      "rule": "comment-ratio",
-      "file": "apps/api/src/modules/teacher/advisory.schemas.ts",
-      "ratio": 0.0625
-    },
-    {
-      "rule": "block-comment",
-      "file": "apps/api/src/modules/teacher/advisory.schemas.ts",
-      "count": 1
-    },
-    {
       "rule": "comment-run",
       "file": "apps/api/src/modules/teacher/grade-flags.routes.ts",
       "run": 3
@@ -15074,16 +14989,6 @@
       "rule": "block-comment",
       "file": "apps/api/src/modules/teacher/grading.repository.ts",
       "count": 10
-    },
-    {
-      "rule": "comment-ratio",
-      "file": "apps/api/src/modules/teacher/grading.schemas.ts",
-      "ratio": 0.0714
-    },
-    {
-      "rule": "comment-run",
-      "file": "apps/api/src/modules/teacher/grading.schemas.ts",
-      "run": 3
     },
     {
       "rule": "block-comment",
@@ -15124,16 +15029,6 @@
       "rule": "block-comment",
       "file": "apps/api/src/modules/teacher/teacher.fanout.ts",
       "count": 1
-    },
-    {
-      "rule": "block-comment",
-      "file": "apps/api/src/modules/teacher/teacher.schemas.ts",
-      "count": 3
-    },
-    {
-      "rule": "block-comment",
-      "file": "apps/api/src/modules/teacher/term-context.schemas.ts",
-      "count": 7
     },
     {
       "rule": "block-comment",
@@ -21354,6 +21249,96 @@
       "rule": "block-comment",
       "file": "apps/web/src/services/teacher/studentList.types.ts",
       "count": 2
+    },
+    {
+      "rule": "block-comment",
+      "file": "packages/contracts/src/adm.ts",
+      "count": 3
+    },
+    {
+      "rule": "block-comment",
+      "file": "packages/contracts/src/advisory-interventions.ts",
+      "count": 2
+    },
+    {
+      "rule": "block-comment",
+      "file": "packages/contracts/src/advisory-modules.ts",
+      "count": 2
+    },
+    {
+      "rule": "comment-ratio",
+      "file": "packages/contracts/src/advisory.ts",
+      "ratio": 0.0625
+    },
+    {
+      "rule": "block-comment",
+      "file": "packages/contracts/src/advisory.ts",
+      "count": 1
+    },
+    {
+      "rule": "comment-ratio",
+      "file": "packages/contracts/src/attendance.ts",
+      "ratio": 0.0833
+    },
+    {
+      "rule": "block-comment",
+      "file": "packages/contracts/src/auth.ts",
+      "count": 9
+    },
+    {
+      "rule": "comment-ratio",
+      "file": "packages/contracts/src/grading.ts",
+      "ratio": 0.0714
+    },
+    {
+      "rule": "comment-run",
+      "file": "packages/contracts/src/grading.ts",
+      "run": 3
+    },
+    {
+      "rule": "block-comment",
+      "file": "packages/contracts/src/guidance.ts",
+      "count": 2
+    },
+    {
+      "rule": "block-comment",
+      "file": "packages/contracts/src/interventions.ts",
+      "count": 3
+    },
+    {
+      "rule": "comment-run",
+      "file": "packages/contracts/src/referrals.ts",
+      "run": 3
+    },
+    {
+      "rule": "block-comment",
+      "file": "packages/contracts/src/referrals.ts",
+      "count": 2
+    },
+    {
+      "rule": "comment-ratio",
+      "file": "packages/contracts/src/registry.ts",
+      "ratio": 0.0526
+    },
+    {
+      "rule": "block-comment",
+      "file": "packages/contracts/src/registry.ts",
+      "count": 1
+    },
+    {
+      "rule": "block-comment",
+      "file": "packages/contracts/src/student-modules.ts",
+      "count": 3
+    },
+    {
+      "rule": "block-comment",
+      "file": "packages/contracts/src/teacher.ts",
+      "count": 3
+    },
+    {
+      "rule": "block-comment",
+      "file": "packages/contracts/src/term-context.ts",
+      "count": 7
     },
     {
       "rule": "comment-run",

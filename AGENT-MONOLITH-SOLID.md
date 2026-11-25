@@ -625,7 +625,13 @@ diff reported, and a commit series using the phase prefix.
   ADR-0002's "no workspaces yet" applied per package; hoisting stays a P6 change.
 - `packages/contracts`: move every `*.schemas.ts` zod schema, DTO type and route
   path constant out of the API; API re-imports from the package (delete duplicates,
-  do not copy).
+  do not copy). Done in one slice: 16 schema modules + `pagination` +
+  `MASCOT_CHARACTERS` + `ADM_STAGES` live in `packages/contracts/src`, each
+  `apps/api/src/modules/**/*.schemas.ts` is a one-line `export * from
+  "@zentra/contracts/<name>"`, and `apps/web` imports the same mascot list. Subpath
+  exports (`./*.js` and `./*`) exist so both NodeNext and Turbopack resolve it.
+  Contracts keep zod 3 to match the API — bumping zod is a separate, app-wide
+  change.
 - `packages/domain`: extract pure functions with **teeth**: DepEd transmutation
   (`lib/grades.ts`), risk factor computation (`computeRiskFactors` core, minus
   I/O), term resolution math, attendance rate helpers, pagination envelope

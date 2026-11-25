@@ -10,16 +10,9 @@ export type AdmStage =
   | "enrollment_monitoring"
   | "completion";
 
-export const ADM_STAGES: AdmStage[] = [
-  "anecdotal",
-  "consultation",
-  "meeting_parents",
-  "home_visitation",
-  "certification",
-  "principal_approval",
-  "enrollment_monitoring",
-  "completion",
-];
+import { ADM_STAGES as CONTRACT_ADM_STAGES } from "@zentra/contracts/adm-stages";
+
+export const ADM_STAGES: readonly AdmStage[] = CONTRACT_ADM_STAGES;
 
 const TRANSITIONS: Record<AdmStage, AdmStage[]> = {
   anecdotal: ["consultation"],
