@@ -8,7 +8,7 @@ import zlib from "zlib";
 import { fileURLToPath } from "url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const dir = path.join(here, "..", "..", "frontend", "public", "mascots");
+const dir = path.join(here, "..", "..", "web", "public", "mascots");
 
 const CHARACTERS = [
   "afro", "astronaut", "bald", "ballerina", "bear", "beard", "builder",

@@ -7,6 +7,16 @@
 > `docs/zentra-progress-report.md` (2026-09-23 audit — partly outdated),
 > `docs/reports/` (dated audits).
 
+> **Workspace layout (2026-11-25, P1 of the monolith refactor).** The two apps
+> moved: `frontend/` → `apps/web`, `backend/` → `apps/api`. Everything below that
+> says `cd frontend` / `cd backend` still works if you prefix it with `apps/`.
+> Root scripts: `npm run dev` (api + web), `dev:web`, `dev:api`, `typecheck`,
+> `build`, `test`, `metrics`, `check:routes`, `check:arch`. Read
+> `AGENT-MONOLITH-SOLID.md` before touching structure; ADRs live in
+> `docs/architecture/decisions/`. Route + size baselines:
+> `docs/architecture/{api-inventory,metrics}.json`. Styling target is Tailwind
+> only — no new `.module.css`.
+
 ## 1. PROJECT OVERVIEW
 
 - Zentra = Student Information & Management System for **Mati School of Arts and Trades**, Grades 7–12, **trimester** (3 terms per school year).

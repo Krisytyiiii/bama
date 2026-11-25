@@ -1,0 +1,25 @@
+{
+  "name": "zentra",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Zentra monolith workspace: apps/web, apps/api, apps/mobile, shared packages",
+  "scripts": {
+    "dev": "node tools/dev.mjs",
+    "dev:web": "npm --prefix apps/web run dev",
+    "dev:api": "npm --prefix apps/api run dev",
+    "dev:mobile": "npm --prefix apps/mobile run start",
+    "build": "npm run build:api && npm run build:web",
+    "build:api": "npm --prefix apps/api run build",
+    "build:web": "npm --prefix apps/web run build",
+    "typecheck": "npm run typecheck:api && npm run typecheck:web",
+    "typecheck:api": "npm --prefix apps/api run typecheck",
+    "typecheck:web": "node apps/web/node_modules/typescript/bin/tsc --noEmit -p apps/web/tsconfig.json",
+    "lint": "npm --prefix apps/web run lint",
+    "test": "npm --prefix apps/api test",
+    "metrics": "node tools/repo-metrics.mjs",
+    "metrics:fail": "node tools/repo-metrics.mjs --fail",
+    "check:routes": "node tools/route-inventory.mjs --check",
+    "check:arch": "node tools/arch-check.mjs",
+    "check": "npm run check:routes && npm run check:arch && npm run metrics:fail"
+  }
+}

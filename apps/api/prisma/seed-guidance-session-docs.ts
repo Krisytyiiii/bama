@@ -5,7 +5,7 @@ import { PrismaClient } from "../src/generated/prisma/client.js";
 import { createPrismaAdapter } from "../src/lib/prismaAdapter.js";
 
 // Seeds the guidance Session Documents page with completed counseling sessions
-// and filed images. Images are copied into frontend/public/session-docs and
+// and filed images. Images are copied into apps/web/public/session-docs and
 // referenced by their public URL, so no Supabase upload is needed.
 //
 // Run from backend:  npx tsx prisma/seed-guidance-session-docs.ts
@@ -31,10 +31,10 @@ const SESSION_IMAGES = [
   { name: "referral-form-template.png", mimeType: "image/png" },
 ];
 
-const publicDir = path.resolve(process.cwd(), "../frontend/public/session-docs");
+const publicDir = path.resolve(process.cwd(), "../web/public/session-docs");
 if (!fs.existsSync(publicDir)) {
   throw new Error(
-    `Session-doc images not found at ${publicDir}. Copy images into frontend/public/session-docs first.`,
+    `Session-doc images not found at ${publicDir}. Copy images into apps/web/public/session-docs first.`,
   );
 }
 const images = SESSION_IMAGES.map((image) => {
